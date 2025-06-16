@@ -17,12 +17,6 @@
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:report": "playwright show-report",
-		"test:e2e:dev": "./tests/scripts/run-tests.sh -e development",
-		"test:e2e:staging": "./tests/scripts/run-tests.sh -e staging",
-		"test:e2e:prod": "./tests/scripts/run-tests.sh -e production",
-		"test:e2e:remix": "playwright test --project=remix-dev",
-		"test:e2e:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
-		"test:e2e:ci": "playwright test --config=tests/config/ci.config.ts",
 		"test:unit": "vitest run",
 		"test:unit:watch": "vitest",
 		"test:unit:coverage": "vitest run --coverage"
@@ -32,7 +26,6 @@
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"react-router": "^7.5.3",
-		"workers-ses": "^0.0.3",
 		"zod": "3.25.64"
 	},
 	"devDependencies": {

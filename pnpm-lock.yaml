@@ -20,9 +20,6 @@ importers:
       react-router:
         specifier: ^7.5.3
         version: 7.6.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      workers-ses:
-        specifier: ^0.0.3
-        version: 0.0.3
       zod:
         specifier: 3.25.64
         version: 3.25.64
@@ -1224,9 +1221,6 @@ packages:
   ast-v8-to-istanbul@0.3.3:
     resolution: {integrity: sha512-MuXMrSLVVoA6sYN/6Hke18vMzrT4TZNbZIj/hvh0fnYFpO+/kFXcLIaiPwXXWaQUPg4yJD8fj+lfJ7/1EBconw==}
 
-  aws4fetch@1.0.20:
-    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
-
   babel-dead-code-elimination@1.0.10:
     resolution: {integrity: sha512-DV5bdJZTzZ0zn0DC24v3jD7Mnidh6xhKa4GfKCbq3sfW8kaWhDdZjP3i81geA8T33tdYqWKw4D3fVv0CwEgKVA==}
 
@@ -2227,9 +2221,6 @@ packages:
     resolution: {integrity: sha512-sHz9R1sxPpnyq3ptrI/5I96sYTMA2+Ljm75oJDbmEcZQwNyezpu9Emerzt3kzzjCJQqtdscGOidWv4RKGZXzAA==}
     engines: {node: '>=16'}
     hasBin: true
-
-  workers-ses@0.0.3:
-    resolution: {integrity: sha512-GsqtRj/pvAKDR3A7VLdZkC+4XnSp/cX6eBadtzy1RHMaFiPTlyLQ1Vky1iFmoxT7TSniNs4InM6bap9oQwodGw==}
 
   wrangler@4.20.0:
     resolution: {integrity: sha512-gxMLaSnYp3VLdGPZu4fc/9UlB7PnSVwni25v32NM9szG2yTt+gx5RunWzmoLplplIfEMkBuV3wA47vccNu7zcA==}
@@ -3282,8 +3273,6 @@ snapshots:
       estree-walker: 3.0.3
       js-tokens: 9.0.1
 
-  aws4fetch@1.0.20: {}
-
   babel-dead-code-elimination@1.0.10:
     dependencies:
       '@babel/core': 7.27.4
@@ -4269,10 +4258,6 @@ snapshots:
       '@cloudflare/workerd-linux-64': 1.20250604.0
       '@cloudflare/workerd-linux-arm64': 1.20250604.0
       '@cloudflare/workerd-windows-64': 1.20250604.0
-
-  workers-ses@0.0.3:
-    dependencies:
-      aws4fetch: 1.0.20
 
   wrangler@4.20.0:
     dependencies:
