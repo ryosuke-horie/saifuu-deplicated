@@ -1,0 +1,716 @@
+@import "tailwindcss" source(".");
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Dark mode color variables */
+:root {
+  /* Light mode colors */
+  --header-bg: #333333;
+  --header-text: #ffffff;
+  --header-hover: #ff0000;
+  --footer-bg: #333333;
+  --footer-text: #ffffff;
+  --content-bg: #ffffff;
+  --content-text: #333333;
+  --border-color: #ddd;
+  --notice-bg: #f9f9f9;
+  --notice-border: pink;
+  --notice-accent: #ff0000;
+  --popup-bg: white;
+  --popup-text: #333;
+  --popup-label: #444;
+  --popup-button: #42b983;
+  --popup-button-hover: #367b63;
+  --popup-cancel: #f44336;
+  --popup-cancel-hover: #d32f2f;
+  --timeline-bg: #f9f9f9;
+  --event-bg: #fff;
+  --event-past: #f0f0f0;
+  --event-text: #555;
+  --validation-color: #f44336;
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --success-border: #c3e6cb;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --error-border: #f5c6cb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode colors */
+    --header-bg: #1a1a1a;
+    --header-text: #e5e5e5;
+    --header-hover: #cc0000;
+    --footer-bg: #1a1a1a;
+    --footer-text: #e5e5e5;
+    --content-bg: #1f1f1f;
+    --content-text: #e5e5e5;
+    --border-color: #444;
+    --notice-bg: #2a2a2a;
+    --notice-border: #ff69b4;
+    --notice-accent: #ff4444;
+    --popup-bg: #2a2a2a;
+    --popup-text: #e5e5e5;
+    --popup-label: #c5c5c5;
+    --popup-button: #4a9d75;
+    --popup-button-hover: #3a7c5c;
+    --popup-cancel: #d73027;
+    --popup-cancel-hover: #b82820;
+    --timeline-bg: #2a2a2a;
+    --event-bg: #333;
+    --event-past: #2a2a2a;
+    --event-text: #c5c5c5;
+    --validation-color: #ff6b6b;
+    --success-bg: #1b4332;
+    --success-text: #c7f9cc;
+    --success-border: #2d7e3e;
+    --error-bg: #5c1b1b;
+    --error-text: #fec5c5;
+    --error-border: #7e2d2d;
+  }
+}
+
+html,
+body {
+  @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+/* Header styles */
+.header_contents {
+  display: flex;
+  justify-content: space-around;
+  margin: 0 auto;
+  background-color: var(--header-bg);
+}
+
+.header_menu {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 50%;
+}
+
+.header_menu a {
+  color: var(--header-text);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.header_menu a:hover {
+  background-color: var(--header-hover);
+  padding: 4px;
+}
+
+/* モバイルでメニューを非表示 */
+@media screen and (max-width: 730px) {
+  .header_menu {
+    display: none;
+  }
+}
+
+/* モバイル縦画面でもメニュー非表示 */
+@media screen and (max-width: 480px) {
+  .header_menu {
+    display: none;
+  }
+}
+
+/* Footer styles */
+footer {
+  background-color: var(--footer-bg);
+  justify-content: space-between;
+}
+
+.shell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem auto;
+  padding: 0 20px;
+}
+
+/* デスクトップ: 最大幅を設定 */
+@media screen and (min-width: 1200px) {
+  .shell {
+    max-width: 1200px;
+  }
+}
+
+.copy-right {
+  text-align: right;
+  color: var(--footer-text);
+  font-size: 10px;
+}
+
+/* タブレット以下でフッターレイアウト変更 */
+@media screen and (max-width: 768px) {
+  footer {
+    padding-top: 10px;
+  }
+  .shell {
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .shell-images {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .copy-right {
+    text-align: center;
+  }
+}
+
+/* NoticeBox styles */
+/* レスポンシブな通知ボックス */
+.notice-box {
+  background-color: var(--notice-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px auto;
+  border: 1px solid var(--notice-border);
+  width: 95%;
+  max-width: 100%;
+  color: var(--content-text);
+}
+
+/* タブレット以上: より余裕を持たせる */
+@media screen and (min-width: 768px) {
+  .notice-box {
+    width: 90%;
+  }
+}
+
+/* デスクトップ: 最大幅を制限 */
+@media screen and (min-width: 1200px) {
+  .notice-box {
+    max-width: 1200px;
+  }
+}
+
+.notice-box__content {
+  padding: 10px;
+}
+
+.notice-box__phone {
+  margin-top: 10px;
+}
+
+.notice_box__content__strong {
+  text-decoration: underline;
+  text-decoration-color: var(--notice-accent);
+  text-decoration-thickness: 3px;
+}
+
+/* WeekSelector styles */
+.week-selector {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--timeline-bg);
+}
+
+/* タッチフレンドリーな週ボタン */
+.week-button {
+  padding: 12px 24px;
+  cursor: pointer;
+  color: var(--content-text);
+  background: transparent;
+  border: none;
+  /* タッチターゲット最小サイズ */
+  min-height: 44px;
+  min-width: 44px;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+/* モバイルではさらに大きく */
+@media screen and (max-width: 480px) {
+  .week-button {
+    padding: 16px 20px;
+    font-size: 1rem;
+  }
+}
+
+.week-button:hover {
+  background-color: var(--border-color);
+}
+
+.week-display {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  color: var(--content-text);
+}
+
+/* TimetableControls styles */
+.timetable-controls {
+  background-color: var(--timeline-bg);
+}
+
+.selection-mode-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  background-color: var(--notice-bg);
+  border: 1px solid var(--notice-border);
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.selection-mode-text {
+  color: var(--notice-accent);
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+/* PopupReservationForm styles */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  background-color: var(--popup-bg);
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  color: var(--popup-text);
+  font-size: 1.5em;
+}
+
+.popup-content label {
+  display: block;
+  margin-top: 10px;
+  color: var(--popup-label);
+  font-size: 0.9em;
+}
+
+/* タッチフレンドリーな入力フィールド */
+.popup-content input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--content-bg);
+  color: var(--content-text);
+  /* タッチしやすい高さを確保 */
+  min-height: 44px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* フォーカス時のスタイル改善 */
+.popup-content input:focus {
+  outline: none;
+  border-color: var(--popup-button);
+  box-shadow: 0 0 0 2px rgba(66, 185, 131, 0.2);
+}
+
+.popup-content input.error {
+  border-color: var(--validation-color);
+  background-color: var(--error-bg);
+}
+
+/* タッチフレンドリーなポップアップボタン */
+.popup-content form button {
+  width: 100%;
+  padding: 14px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--popup-button);
+  color: white;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  /* タッチターゲット最小サイズ */
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* アクティブエフェクト */
+.popup-content form button:active {
+  transform: scale(0.98);
+}
+
+.popup-content form button:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.popup-content form button:hover:not(:disabled) {
+  background-color: var(--popup-button-hover);
+}
+
+.popup-content button {
+  border: none;
+  background: none;
+  color: var(--popup-label);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.popup-content button:hover {
+  color: var(--popup-text);
+}
+
+.popup-mail-message {
+  font-size: 0.7em;
+  color: var(--popup-label);
+}
+
+/* タッチフレンドリーなキャンセルボタン */
+.popup-content button.cancel-button {
+  width: 100%;
+  padding: 14px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--popup-cancel);
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  /* タッチターゲット最小サイズ */
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* アクティブエフェクト */
+.popup-content button.cancel-button:active {
+  transform: scale(0.98);
+}
+
+.popup-content button.cancel-button:hover {
+  background-color: var(--popup-cancel-hover);
+}
+
+.validation-message {
+  color: var(--validation-color);
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+/* Main timetable styles */
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 30px 0;
+  color: var(--content-text);
+}
+
+/* タイトルのレスポンシブサイズ調整 */
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+    margin: 20px 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 1.8rem;
+    margin: 15px 0;
+  }
+}
+
+/* レスポンシブなタイムラインカレンダー: デバイス別に最適化 */
+.timeline-calendar {
+  width: 100%;
+  max-width: 100%;
+  margin: auto;
+  padding: 0 10px;
+}
+
+/* タブレット以上: 余白を持たせる */
+@media screen and (min-width: 768px) {
+  .timeline-calendar {
+    width: 90%;
+    padding: 0;
+  }
+}
+
+/* デスクトップ: 最大幅を設定 */
+@media screen and (min-width: 1200px) {
+  .timeline-calendar {
+    max-width: 1200px;
+  }
+}
+
+/* レスポンシブな日コンテナ: 画面サイズに応じた表示 */
+.days-container {
+  display: flex;
+  min-height: 900px;
+  background-color: var(--timeline-bg);
+  /* モバイル: 水平スクロール有効 */
+  overflow-x: auto;
+  gap: 2px;
+}
+
+/* タブレット横画面以上: スクロール不要 */
+@media screen and (min-width: 1024px) {
+  .days-container {
+    overflow-x: visible;
+    gap: 1px;
+  }
+}
+
+/* レスポンシブな日列: デバイス別幅調整 */
+.day-column {
+  /* モバイル: タッチしやすい幅に調整 */
+  min-width: 120px;
+  flex: 1;
+  border-right: 1px solid var(--border-color);
+  padding: 8px;
+  position: relative;
+  min-height: 800px;
+}
+
+/* タブレット: より広い幅 */
+@media screen and (min-width: 768px) {
+  .day-column {
+    min-width: 140px;
+    padding: 10px;
+  }
+}
+
+/* デスクトップ: 最も広い幅 */
+@media screen and (min-width: 1200px) {
+  .day-column {
+    min-width: 160px;
+    padding: 12px;
+  }
+}
+
+.date-label {
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  padding-bottom: 10px;
+  color: var(--content-text);
+}
+
+/* タッチフレンドリーなイベント */
+.event {
+  border-left: 5px solid var(--popup-button);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px;
+  background-color: var(--event-bg);
+  position: absolute;
+  left: 0;
+  right: 0;
+  cursor: pointer;
+  /* タッチターゲット最小サイズを保証 */
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* タッチインタラクションの反応性向上 */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* ホバー/タッチエフェクト */
+.event:hover {
+  background-color: rgba(66, 185, 131, 0.1);
+  transform: scale(1.02);
+}
+
+/* アクティブ状態 */
+.event:active {
+  transform: scale(0.98);
+}
+
+/* フォーカス状態（アクセシビリティ） */
+.event:focus {
+  outline: 2px solid var(--popup-button);
+  outline-offset: 2px;
+}
+
+.event.past {
+  opacity: 0.5;
+  background-color: var(--event-past);
+  pointer-events: none;
+}
+
+.event-time {
+  font-size: 0.6rem;
+  color: var(--event-text);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.event-title {
+  font-weight: bold;
+  font-size: 0.7rem;
+  margin-top: 5px;
+  color: var(--content-text);
+}
+
+/* Event class styles */
+.master-class {
+  border-left-color: #9c27b0;
+}
+.family-jiu-jitsu {
+  border-left-color: #2196f3;
+}
+.kick-boxing {
+  border-left-color: #e91e63;
+}
+.kick-mma {
+  border-left-color: #4caf50;
+}
+.girls {
+  border-left-color: #ff9800;
+}
+.kids {
+  border-left-color: #85dfff;
+}
+.nogi {
+  border-left-color: #00bcd4;
+}
+.open-mat {
+  border-left-color: #c6e0b4;
+}
+.jiu-jitsu-nogi {
+  border-left-color: #607d8b;
+}
+.grappling {
+  border-left-color: #795548;
+}
+.wrestling {
+  border-left-color: #ff5722;
+}
+
+/* Status message styles */
+.status-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.status-message.success {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.status-message.error {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+.status-message ul {
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+}
+
+.status-message li {
+  margin: 0.25rem 0;
+}
+
+.action-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+}
+
+.action-message.success {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.action-message.error {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+/* Enhanced message styles for Phase 3 UI improvements */
+.success-message {
+  background-color: var(--success-bg, #d4edda);
+  color: var(--success-text, #155724);
+  border: 2px solid var(--success-border, #28a745);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.success-message h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2em;
+  color: var(--success-text, #155724);
+}
+
+.error-message {
+  background-color: var(--error-bg, #f8d7da);
+  color: var(--error-text, #721c24);
+  border: 2px solid var(--error-border, #dc3545);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.error-message h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2em;
+  color: var(--error-text, #721c24);
+}
+
+.loading-message {
+  background-color: var(--notice-bg, #fff3cd);
+  color: var(--notice-text, #856404);
+  border: 2px solid var(--notice-border, #ffc107);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.loading-message h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2em;
+  color: var(--notice-text, #856404);
+}
+
+.contact-info {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.retry-message {
+  margin-top: 1rem;
+  font-style: italic;
+}

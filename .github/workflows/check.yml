@@ -1,0 +1,107 @@
+name: check
+
+on:
+  pull_request:
+    paths:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '.github/workflows/check.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Run TypeScript check and linting
+        run: pnpm check
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: check
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Run unit tests
+        run: pnpm test:unit
+        env:
+          CI: true
+          NODE_ENV: test
+
+      - name: Generate test coverage report
+        run: pnpm test:unit -- --coverage.enabled=false
+        env:
+          CI: true
+          NODE_ENV: test
+
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [check, unit-tests]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Set up test environment variables
+        run: |
+          echo "CI=true" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
+          echo "PLAYWRIGHT_ENVIRONMENT=ci" >> $GITHUB_ENV
+          echo "PLAYWRIGHT_TEST_BASE_URL=http://localhost:5173" >> $GITHUB_ENV
+
+      - name: Build application for testing
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: pnpm run test:e2e:ci
+        env:
+          CI: true
+          NODE_ENV: test
+          PLAYWRIGHT_ENVIRONMENT: ci
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:5173

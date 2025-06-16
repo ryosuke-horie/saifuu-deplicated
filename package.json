@@ -1,0 +1,56 @@
+{
+	"name": "saifuu",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "react-router build",
+		"cf-typegen": "wrangler types",
+		"deploy": "npm run build && wrangler deploy",
+		"dev": "react-router dev",
+		"postinstall": "npm run cf-typegen",
+		"preview": "npm run build && vite preview",
+		"typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
+		"check": "npm run typecheck && npx @biomejs/biome check",
+		"check:fix": "npm run typecheck && npx @biomejs/biome check --write",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:debug": "playwright test --debug",
+		"test:e2e:headed": "playwright test --headed",
+		"test:e2e:report": "playwright show-report",
+		"test:e2e:ci": "playwright test",
+		"test:unit": "vitest run",
+		"test:unit:watch": "vitest",
+		"test:unit:coverage": "vitest run --coverage"
+	},
+	"dependencies": {
+		"isbot": "^5.1.27",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0",
+		"react-router": "^7.5.3",
+		"zod": "3.25.64"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@cloudflare/vite-plugin": "^1.0.12",
+		"@playwright/test": "^1.53.0",
+		"@react-router/dev": "^7.5.3",
+		"@tailwindcss/vite": "^4.1.4",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
+		"@types/node": "^22.15.31",
+		"@types/react": "^19.1.2",
+		"@types/react-dom": "^19.1.2",
+		"@vitest/coverage-v8": "^3.2.3",
+		"jsdom": "^26.1.0",
+		"tailwindcss": "^4.1.4",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.3",
+		"vite-tsconfig-paths": "^5.1.4",
+		"vitest": "^3.2.3",
+		"wrangler": "^4.19.1"
+	},
+	"engines": {
+		"node": "^22.0.0"
+	}
+}

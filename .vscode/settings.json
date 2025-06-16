@@ -1,0 +1,6 @@
+{
+  "playwright.projectName": "chromium",
+  "playwright.reuseBrowser": true,
+  "playwright.showTrace": true,
+  "testing.automaticallyOpenPeekView": "never"
+}
