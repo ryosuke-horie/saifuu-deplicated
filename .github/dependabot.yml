@@ -1,0 +1,66 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # 新フロントエンド（React Router）
+  - package-ecosystem: "npm"
+    directory: "/new"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
+    # Node.js v22制約に基づく無視ルール
+    ignore:
+      # @types/nodeのv23以降を無視
+      - dependency-name: "@types/node"
+        versions: [">=23.0.0"]
+      # Nodeバージョンに依存するその他のパッケージ
+      - dependency-name: "typescript"
+        versions: [">=5.6.0"]  # Node.js v22以降が必要な版を制限
+      - dependency-name: "@typescript-eslint/*"
+        versions: [">=8.0.0"]  # 新しいESLintパーサーはNode.js要件が厳しい
+      - dependency-name: "eslint"
+        versions: [">=9.0.0"]   # ESLint v9+はNode.js v18.18.0+が必要
+      # ビルドツール関連でNode.js要件が厳しいもの
+      - dependency-name: "vite"
+        versions: [">=7.0.0"]   # 将来のメジャーバージョンでNode.js要件が上がる可能性
+      - dependency-name: "@biomejs/biome"
+        versions: [">=2.0.0"]   # 将来のメジャーバージョンでNode.js要件が上がる可能性
+      - dependency-name: "wrangler"
+        versions: [">=5.0.0"]   # Cloudflare Wrangler v5+でNode.js要件が上がる可能性
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@react-router/*"
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "wrangler"
+      dev-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ryosuke-horie"
+    assignees:
+      - "ryosuke-horie"
