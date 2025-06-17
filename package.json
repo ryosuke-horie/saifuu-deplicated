@@ -14,7 +14,7 @@
 		"check": "pnpm run typecheck && pnpm exec biome check",
 		"check:fix": "pnpm run typecheck && pnpm exec biome check --write",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "drizzle-kit migrate",
+		"db:migrate": "pnpm run db:migrate:local",
 		"db:migrate:local": "wrangler d1 migrations apply --local saifuu-db",
 		"db:migrate:remote": "wrangler d1 migrations apply --remote saifuu-db",
 		"db:push": "drizzle-kit push",
