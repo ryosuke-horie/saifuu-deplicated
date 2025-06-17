@@ -6,6 +6,8 @@
 		"app/**/.server/**/*",
 		"app/**/.client/**/*",
 		"workers/**/*",
+		"db/**/*",
+		"drizzle.config.ts",
 		"worker-configuration.d.ts"
 	],
 	"compilerOptions": {
