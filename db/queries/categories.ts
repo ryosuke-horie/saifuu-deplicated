@@ -37,7 +37,7 @@ export async function getCategoriesByType(
 	return await db
 		.select()
 		.from(categories)
-		.where(sql`${categories.type} = ${type} AND ${categories.isActive} = true`)
+		.where(and(eq(categories.type, type), eq(categories.isActive, true)))
 		.orderBy(asc(categories.displayOrder), asc(categories.id));
 }
 
@@ -55,7 +55,7 @@ export async function createCategory(db: Database, data: InsertCategory) {
 			})
 			.from(categories)
 			.where(
-				sql`${categories.type} = ${data.type} AND ${categories.isActive} = true`,
+				and(eq(categories.type, data.type), eq(categories.isActive, true)),
 			);
 
 		displayOrder = (maxOrder.maxOrder || 0) + 1;
@@ -66,8 +66,6 @@ export async function createCategory(db: Database, data: InsertCategory) {
 		.values({
 			...data,
 			displayOrder,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
 		})
 		.returning();
 
@@ -118,22 +116,33 @@ export async function updateDisplayOrder(
 	db: Database,
 	updates: { id: number; displayOrder: number }[],
 ) {
-	const results: SelectCategory[] = [];
+	if (updates.length === 0) {
+		return [];
+	}
 
-	// トランザクション内で一括更新を実行
-	// SQLiteのBATCH UPSERTは限定的なため、ループで個別更新
-	for (const update of updates) {
+	const results: SelectCategory[] = [];
+	const now = new Date().toISOString();
+
+	// 複数の更新をPromise.allで並列実行し、効率化
+	const updatePromises = updates.map(async (update) => {
 		const [updated] = await db
 			.update(categories)
 			.set({
 				displayOrder: update.displayOrder,
-				updatedAt: new Date().toISOString(),
+				updatedAt: now,
 			})
 			.where(eq(categories.id, update.id))
 			.returning();
 
-		if (updated) {
-			results.push(updated);
+		return updated;
+	});
+
+	const updatedResults = await Promise.all(updatePromises);
+
+	// null/undefinedをフィルタリング
+	for (const result of updatedResults) {
+		if (result) {
+			results.push(result);
 		}
 	}
 

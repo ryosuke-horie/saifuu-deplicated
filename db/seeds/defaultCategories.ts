@@ -164,25 +164,42 @@ async function insertCategoriesIfNotExists(
 	db: Database,
 	categoryList: Omit<InsertCategory, "id" | "createdAt" | "updatedAt">[],
 ): Promise<number> {
-	let insertedCount = 0;
+	// 既存カテゴリを一括取得（N+1問題の解決）
+	const existingCategories = await db
+		.select({ name: categories.name, type: categories.type })
+		.from(categories);
 
-	for (const category of categoryList) {
-		const exists = await categoryExists(db, category.name, category.type);
+	// 既存カテゴリのセットを作成（高速な重複チェック用）
+	const existingSet = new Set(
+		existingCategories.map((cat) => `${cat.name}-${cat.type}`),
+	);
 
-		if (!exists) {
-			await db.insert(categories).values(category);
-			insertedCount++;
+	// 新規カテゴリをフィルタリング
+	const newCategories = categoryList.filter(
+		(category) => !existingSet.has(`${category.name}-${category.type}`),
+	);
+
+	// 新規カテゴリを一括挿入
+	if (newCategories.length > 0) {
+		await db.insert(categories).values(newCategories);
+		for (const category of newCategories) {
 			console.log(
 				`カテゴリを挿入しました: ${category.name} (${category.type})`,
-			);
-		} else {
-			console.log(
-				`カテゴリは既に存在します: ${category.name} (${category.type})`,
 			);
 		}
 	}
 
-	return insertedCount;
+	// 既存カテゴリのログ出力
+	const existingCategoriesToLog = categoryList.filter((category) =>
+		existingSet.has(`${category.name}-${category.type}`),
+	);
+	for (const category of existingCategoriesToLog) {
+		console.log(
+			`カテゴリは既に存在します: ${category.name} (${category.type})`,
+		);
+	}
+
+	return newCategories.length;
 }
 
 /**
