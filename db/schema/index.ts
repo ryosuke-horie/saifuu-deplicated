@@ -21,6 +21,7 @@ export const categories = sqliteTable("categories", {
 	type: text("type").notNull(), // 'income' | 'expense'
 	color: text("color"), // UI表示用の色コード（例: #FF6B6B）
 	icon: text("icon"), // アイコン名（例: food, transport, salary）
+	displayOrder: integer("display_order").notNull().default(0), // 表示順序
 	isActive: integer("is_active", { mode: "boolean" }).notNull().default(true), // 論理削除フラグ
 	createdAt: text("created_at").notNull().default("CURRENT_TIMESTAMP"),
 	updatedAt: text("updated_at").notNull().default("CURRENT_TIMESTAMP"),
@@ -91,6 +92,7 @@ export const insertCategorySchema = createInsertSchema(categories, {
 		.string()
 		.regex(/^#[0-9A-F]{6}$/i)
 		.optional(),
+	displayOrder: z.number().int().min(0).optional(),
 });
 export const selectCategorySchema = createSelectSchema(categories);
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
