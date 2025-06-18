@@ -82,7 +82,7 @@ describe("PUT /api/transactions/:id", () => {
 				...mockTransactionWithCategory,
 				amount: 2000,
 				description: "更新されたランチ代",
-			}); // 更新後の取得用
+			} as any); // 更新後の取得用
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -92,7 +92,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			// レスポンスの検証
 			expect(response.status).toBe(200);
@@ -115,7 +115,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				amount: 1800,
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -125,7 +125,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -162,7 +162,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -189,7 +189,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -206,7 +206,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				type: "income",
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -216,7 +216,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -232,7 +232,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				tags: '["外食", "会社", "昼食"]',
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -242,7 +242,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -263,7 +263,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				...updateData,
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -273,7 +273,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -289,12 +289,12 @@ describe("PUT /api/transactions/:id", () => {
 		it("PUT以外のメソッドで405エラーが返される", async () => {
 			const request = new Request("http://localhost/api/transactions/1", {
 				method: "GET",
-			});
+			} as any);
 			const response = await action({
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(405);
 			const json = await validateApiResponse(response);
@@ -314,7 +314,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "invalid" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -332,7 +332,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "-1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -355,7 +355,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "999" },
-			});
+			} as any);
 
 			expect(response.status).toBe(404);
 			const json = await validateApiResponse(response);
@@ -377,7 +377,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -397,7 +397,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -417,7 +417,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -437,7 +437,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -460,7 +460,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -487,7 +487,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -524,7 +524,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -550,7 +550,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -575,7 +575,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -596,7 +596,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -614,7 +614,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				amount: 1,
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -624,7 +624,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -640,7 +640,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				amount: largeAmount,
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -650,7 +650,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -665,7 +665,7 @@ describe("PUT /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValueOnce({
 				...mockTransactionWithCategory,
 				tags: "[]",
-			});
+			} as any);
 
 			const request = createMockPutRequest(
 				"http://localhost/api/transactions/1",
@@ -675,7 +675,7 @@ describe("PUT /api/transactions/:id", () => {
 				request,
 				context: mockContext,
 				params: { id: "1" },
-			});
+			} as any);
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);

@@ -488,7 +488,7 @@ describe("GET /api/transactions/:id", () => {
 
 		it("非常に長いIDでも処理される", async () => {
 			const veryLargeId = Number.MAX_SAFE_INTEGER;
-			mockGetTransactionById.mockResolvedValue(undefined as any); // 存在しない想定
+			mockGetTransactionById.mockResolvedValue(null as any); // 存在しない想定
 
 			const request = createMockGetRequest(
 				`http://localhost/api/transactions/${veryLargeId}`,

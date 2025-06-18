@@ -1,6 +1,7 @@
 import type { AppLoadContext } from "react-router";
 import { expect, vi } from "vitest";
 import type { Database } from "../../../db/connection";
+import type { CreateTransaction } from "../../../db/schema";
 
 /**
  * テスト用のヘルパー関数とモック設定
@@ -139,7 +140,7 @@ export function createMockContext(
 				AWS_ACCESS_KEY_ID: "test-key",
 				AWS_SECRET_ACCESS_KEY: "test-secret",
 			} as unknown as Env,
-			ctx: {} as any,
+			ctx: {} as ExecutionContext,
 		},
 	} as AppLoadContext;
 }
@@ -226,7 +227,9 @@ export function validatePaginatedResponse(json: any): void {
 /**
  * 取引作成用のテストデータを生成
  */
-export function generateCreateTransactionData(overrides: Partial<any> = {}) {
+export function generateCreateTransactionData(
+	overrides: Partial<CreateTransaction> = {},
+) {
 	return {
 		amount: 1000,
 		type: "expense",
