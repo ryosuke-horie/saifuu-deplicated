@@ -55,4 +55,23 @@ export {
 // 統合ユーティリティフック
 // ========================================
 
-export { useMasterData, useDashboardData } from "./use-utils";
+/**
+ * 全てのマスターデータを一度に取得するフック
+ * 注意: 循環インポートを避けるため、使用時は個別にインポートしてください
+ */
+// export function useMasterData() {
+//   const categories = useCategories();
+//   const subscriptions = useSubscriptions();
+//   return { categories, subscriptions };
+// }
+
+/**
+ * ダッシュボード用のデータを取得するフック
+ * 注意: 循環インポートを避けるため、使用時は個別にインポートしてください
+ */
+// export function useDashboardData() {
+//   const currentMonthTransactions = useCurrentMonthTransactions();
+//   const activeSubscriptions = useActiveSubscriptions();
+//   const categories = useActiveCategories();
+//   return { currentMonthTransactions, activeSubscriptions, categories };
+// }
