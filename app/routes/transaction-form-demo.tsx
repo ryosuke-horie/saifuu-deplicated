@@ -1,4 +1,3 @@
-import type { Route } from "./+types/transaction-form-demo";
 import { TransactionForm } from "../components/forms";
 import type { CreateTransactionRequest } from "../types";
 
@@ -15,7 +14,9 @@ export default function TransactionFormDemo() {
 	// フォーム送信処理のモック
 	const handleSubmit = async (data: CreateTransactionRequest) => {
 		console.log("Form submitted:", data);
-		alert(`${data.type === "expense" ? "支出" : "収入"}を登録しました:\n金額: ¥${data.amount.toLocaleString()}\nカテゴリID: ${data.categoryId}\n取引日: ${data.transactionDate}`);
+		alert(
+			`${data.type === "expense" ? "支出" : "収入"}を登録しました:\n金額: ¥${data.amount.toLocaleString()}\nカテゴリID: ${data.categoryId}\n取引日: ${data.transactionDate}`,
+		);
 	};
 
 	return (
@@ -26,9 +27,7 @@ export default function TransactionFormDemo() {
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
 						Transaction Form Demo
 					</h1>
-					<p className="text-gray-600">
-						支出/収入登録フォームの動作確認
-					</p>
+					<p className="text-gray-600">支出/収入登録フォームの動作確認</p>
 				</div>
 
 				{/* フォーム表示エリア */}
@@ -64,9 +63,7 @@ export default function TransactionFormDemo() {
 
 				{/* 使用方法の説明 */}
 				<div className="mt-8 bg-blue-50 rounded-lg p-6">
-					<h2 className="text-lg font-semibold text-blue-900 mb-3">
-						使用方法
-					</h2>
+					<h2 className="text-lg font-semibold text-blue-900 mb-3">使用方法</h2>
 					<ul className="text-sm text-blue-800 space-y-2">
 						<li>• 左側は支出フォーム、右側は収入フォーム</li>
 						<li>• 金額は3桁カンマで表示されます</li>
