@@ -38,13 +38,17 @@
 				"useSemanticElements": "off"
 			},
 			"style": {
-				"noParameterAssign": "off"
+				"noParameterAssign": "off",
+				"noNonNullAssertion": "off"
 			},
 			"correctness": {
 				"noEmptyPattern": "off"
 			},
 			"complexity": {
 				"noBannedTypes": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "off"
 			}
 		}
 	},
