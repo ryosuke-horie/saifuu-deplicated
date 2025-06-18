@@ -1,5 +1,7 @@
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
+import { QueryProvider } from "./lib/query/provider";
+import { AppProvider } from "./contexts/app-context";
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -19,5 +21,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<QueryProvider>
+			<AppProvider>
+				<Outlet />
+			</AppProvider>
+		</QueryProvider>
+	);
 }
