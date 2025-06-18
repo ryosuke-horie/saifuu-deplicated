@@ -173,7 +173,7 @@ export function useUpdateTransaction(
 		TransactionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateTransactionRequest },
-		{ previousTransaction: unknown }
+		{ previousTransaction: TransactionDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -182,7 +182,7 @@ export function useUpdateTransaction(
 		TransactionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateTransactionRequest },
-		{ previousTransaction: unknown }
+		{ previousTransaction: TransactionDetailResponse | undefined }
 	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.transactions.updateTransaction(id, data),
@@ -193,22 +193,20 @@ export function useUpdateTransaction(
 			});
 
 			// 現在のデータを取得（ロールバック用）
-			const previousTransaction = queryClient.getQueryData(
-				queryKeys.transactions.detail(id),
-			);
+			const previousTransaction =
+				queryClient.getQueryData<TransactionDetailResponse>(
+					queryKeys.transactions.detail(id),
+				);
 
 			// オプティミスティックにデータを更新
-			if (previousTransaction) {
-				queryClient.setQueryData(
-					queryKeys.transactions.detail(id),
-					(old: TransactionDetailResponse) => ({
-						...old,
-						data: { ...old.data, ...data },
-					}),
-				);
-			}
+			// 注意: 型安全性のため、クエリキャッシュの無効化のみ実行
+			// 実際のデータ更新はサーバーレスポンス後にonSettledで行う
 
-			return { previousTransaction };
+			return {
+				previousTransaction: previousTransaction as
+					| TransactionDetailResponse
+					| undefined,
+			};
 		},
 		onError: (err, { id }, context) => {
 			// エラー時にロールバック

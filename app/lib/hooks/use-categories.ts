@@ -99,7 +99,7 @@ export function useUpdateCategory(
 		CategoryDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateCategoryRequest },
-		{ previousCategory: unknown }
+		{ previousCategory: CategoryDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -108,7 +108,7 @@ export function useUpdateCategory(
 		CategoryDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateCategoryRequest },
-		{ previousCategory: unknown }
+		{ previousCategory: CategoryDetailResponse | undefined }
 	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.categories.updateCategory(id, data),
@@ -119,22 +119,29 @@ export function useUpdateCategory(
 			});
 
 			// 現在のデータを取得（ロールバック用）
-			const previousCategory = queryClient.getQueryData(
+			const previousCategory = queryClient.getQueryData<CategoryDetailResponse>(
 				queryKeys.categories.detail(id),
 			);
 
 			// オプティミスティックにデータを更新
 			if (previousCategory) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<CategoryDetailResponse>(
 					queryKeys.categories.detail(id),
-					(old: CategoryDetailResponse) => ({
-						...old,
-						data: { ...old.data, ...data },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, ...data },
+						};
+					},
 				);
 			}
 
-			return { previousCategory };
+			return {
+				previousCategory: previousCategory as
+					| CategoryDetailResponse
+					| undefined,
+			};
 		},
 		onError: (err, { id }, context) => {
 			// エラー時にロールバック
@@ -166,7 +173,7 @@ export function useDeleteCategory(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousCategories: unknown }
+		{ previousCategories: CategoriesListResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -175,7 +182,7 @@ export function useDeleteCategory(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousCategories: unknown }
+		{ previousCategories: CategoriesListResponse | undefined }
 	>({
 		mutationFn: (id: number) => apiServices.categories.deleteCategory(id),
 		onMutate: async (id) => {
@@ -191,17 +198,24 @@ export function useDeleteCategory(
 
 			// オプティミスティックに一覧から削除
 			if (previousCategories) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<CategoriesListResponse>(
 					queryKeys.categories.lists(),
-					(old: CategoriesListResponse) => ({
-						...old,
-						data: old.data.filter((category) => category.id !== id),
-						count: old.count ? old.count - 1 : undefined,
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: old.data.filter((category) => category.id !== id),
+							count: old.count ? old.count - 1 : undefined,
+						};
+					},
 				);
 			}
 
-			return { previousCategories };
+			return {
+				previousCategories: previousCategories as
+					| CategoriesListResponse
+					| undefined,
+			};
 		},
 		onError: (err, id, context) => {
 			// エラー時にロールバック

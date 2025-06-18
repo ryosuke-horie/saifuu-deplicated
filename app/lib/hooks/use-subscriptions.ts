@@ -84,7 +84,7 @@ export function useCreateSubscription(
 			});
 
 			// 新しいサブスクリプションをキャッシュに追加
-			queryClient.setQueryData(
+			queryClient.setQueryData<SubscriptionDetailResponse>(
 				queryKeys.subscriptions.detail(data.data.id),
 				data,
 			);
@@ -106,7 +106,7 @@ export function useUpdateSubscription(
 		SubscriptionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateSubscriptionRequest },
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -115,7 +115,7 @@ export function useUpdateSubscription(
 		SubscriptionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateSubscriptionRequest },
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.subscriptions.updateSubscription(id, data),
@@ -126,18 +126,22 @@ export function useUpdateSubscription(
 			});
 
 			// 現在のデータを取得（ロールバック用）
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			// オプティミスティックにデータを更新
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, ...data },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, ...data },
+						};
+					},
 				);
 			}
 
@@ -146,7 +150,7 @@ export function useUpdateSubscription(
 		onError: (err, { id }, context) => {
 			// エラー時にロールバック
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -176,7 +180,7 @@ export function useDeleteSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscriptions: unknown }
+		{ previousSubscriptions: SubscriptionsListResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -185,7 +189,7 @@ export function useDeleteSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscriptions: unknown }
+		{ previousSubscriptions: SubscriptionsListResponse | undefined }
 	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.deleteSubscription(id),
@@ -196,19 +200,23 @@ export function useDeleteSubscription(
 			});
 
 			// 現在の一覧データを取得（ロールバック用）
-			const previousSubscriptions = queryClient.getQueryData(
-				queryKeys.subscriptions.lists(),
-			);
+			const previousSubscriptions =
+				queryClient.getQueryData<SubscriptionsListResponse>(
+					queryKeys.subscriptions.lists(),
+				);
 
 			// オプティミスティックに一覧から削除
 			if (previousSubscriptions) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionsListResponse>(
 					queryKeys.subscriptions.lists(),
-					(old: SubscriptionsListResponse) => ({
-						...old,
-						data: old.data.filter((subscription) => subscription.id !== id),
-						count: old.count ? old.count - 1 : undefined,
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: old.data.filter((subscription) => subscription.id !== id),
+							count: old.count ? old.count - 1 : undefined,
+						};
+					},
 				);
 			}
 
@@ -217,7 +225,7 @@ export function useDeleteSubscription(
 		onError: (err, id, context) => {
 			// エラー時にロールバック
 			if (context?.previousSubscriptions) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionsListResponse>(
 					queryKeys.subscriptions.lists(),
 					context.previousSubscriptions,
 				);
@@ -250,7 +258,7 @@ export function useDeactivateSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -259,7 +267,7 @@ export function useDeactivateSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.deactivateSubscription(id),
@@ -269,17 +277,21 @@ export function useDeactivateSubscription(
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, isActive: false },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, isActive: false },
+						};
+					},
 				);
 			}
 
@@ -287,7 +299,7 @@ export function useDeactivateSubscription(
 		},
 		onError: (err, id, context) => {
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -313,7 +325,7 @@ export function useActivateSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -322,7 +334,7 @@ export function useActivateSubscription(
 		BaseApiResponse,
 		ApiError,
 		number,
-		{ previousSubscription: unknown }
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.activateSubscription(id),
@@ -332,17 +344,21 @@ export function useActivateSubscription(
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, isActive: true },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, isActive: true },
+						};
+					},
 				);
 			}
 
@@ -350,7 +366,7 @@ export function useActivateSubscription(
 		},
 		onError: (err, id, context) => {
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -486,19 +502,20 @@ export function useSubscriptionsTotalCost() {
 	const totals = subscriptionsResponse.data.reduce(
 		(acc, subscription) => {
 			let monthlyAmount = 0;
+			const amount = Number(subscription.amount);
 
 			switch (subscription.frequency) {
 				case "monthly":
-					monthlyAmount = subscription.amount;
+					monthlyAmount = amount;
 					break;
 				case "yearly":
-					monthlyAmount = subscription.amount / 12;
+					monthlyAmount = amount / 12;
 					break;
 				case "weekly":
-					monthlyAmount = (subscription.amount * 52) / 12;
+					monthlyAmount = (amount * 52) / 12;
 					break;
 				case "daily":
-					monthlyAmount = subscription.amount * 30; // 概算
+					monthlyAmount = amount * 30; // 概算
 					break;
 			}
 
