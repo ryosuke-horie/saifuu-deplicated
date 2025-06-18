@@ -35,14 +35,12 @@ export type {
 	Pagination,
 	ValidationError,
 	DetailedErrorResponse,
-
 	// カテゴリ関連型
 	CreateCategoryRequest,
 	UpdateCategoryRequest,
 	ReorderCategoriesRequest,
 	CategoriesListResponse,
 	CategoryDetailResponse,
-
 	// 取引関連型
 	CreateTransactionRequest,
 	UpdateTransactionRequest,
@@ -50,7 +48,6 @@ export type {
 	TransactionSort,
 	TransactionsListResponse,
 	TransactionDetailResponse,
-
 	// サブスクリプション関連型
 	CreateSubscriptionRequest,
 	UpdateSubscriptionRequest,

@@ -1,8 +1,8 @@
-import { z, type ZodSchema } from "zod";
+import type { ZodSchema, z } from "zod";
 import {
+	type ErrorApiResponse,
 	apiResponseSchema,
 	errorApiResponseSchema,
-	type ErrorApiResponse,
 } from "../schemas/api-responses";
 
 /**
@@ -180,7 +180,12 @@ export class ApiClient {
 			if (error.name === "AbortError") {
 				return new ApiError("リクエストがタイムアウトしました", 408);
 			}
-			return new ApiError("ネットワークエラーが発生しました", 0, undefined, error);
+			return new ApiError(
+				"ネットワークエラーが発生しました",
+				0,
+				undefined,
+				error,
+			);
 		}
 
 		return new ApiError("不明なエラーが発生しました", 500);

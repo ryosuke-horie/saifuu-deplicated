@@ -1,24 +1,24 @@
 import {
-	useQuery,
-	useMutation,
-	useQueryClient,
-	useInfiniteQuery,
+	type UseInfiniteQueryOptions,
 	type UseMutationOptions,
 	type UseQueryOptions,
-	type UseInfiniteQueryOptions,
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
+import type { ApiError } from "../api/client";
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
 import type {
-	TransactionsListResponse,
-	TransactionDetailResponse,
+	BaseApiResponse,
 	CreateTransactionRequest,
-	UpdateTransactionRequest,
+	TransactionDetailResponse,
 	TransactionFilters,
 	TransactionSort,
-	BaseApiResponse,
+	TransactionsListResponse,
+	UpdateTransactionRequest,
 } from "../schemas/api-responses";
-import { ApiError } from "../api/client";
 
 /**
  * 取引関連のカスタムフック
@@ -82,15 +82,11 @@ export function useInfiniteTransactions(
 		initialPageParam: 1,
 		getNextPageParam: (lastPage) => {
 			const { pagination } = lastPage;
-			return pagination.hasNextPage
-				? pagination.currentPage + 1
-				: undefined;
+			return pagination.hasNextPage ? pagination.currentPage + 1 : undefined;
 		},
 		getPreviousPageParam: (firstPage) => {
 			const { pagination } = firstPage;
-			return pagination.hasPrevPage
-				? pagination.currentPage - 1
-				: undefined;
+			return pagination.hasPrevPage ? pagination.currentPage - 1 : undefined;
 		},
 		...options,
 	});
@@ -176,12 +172,18 @@ export function useUpdateTransaction(
 	options?: UseMutationOptions<
 		TransactionDetailResponse,
 		ApiError,
-		{ id: number; data: UpdateTransactionRequest }
+		{ id: number; data: UpdateTransactionRequest },
+		{ previousTransaction: unknown }
 	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		TransactionDetailResponse,
+		ApiError,
+		{ id: number; data: UpdateTransactionRequest },
+		{ previousTransaction: unknown }
+	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.transactions.updateTransaction(id, data),
 		onMutate: async ({ id, data }) => {
@@ -237,11 +239,21 @@ export function useUpdateTransaction(
  * 取引削除のフック
  */
 export function useDeleteTransaction(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousTransactions: unknown }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousTransactions: unknown }
+	>({
 		mutationFn: (id: number) => apiServices.transactions.deleteTransaction(id),
 		onMutate: async (id) => {
 			// オプティミスティックアップデート用のキャンセル
@@ -366,7 +378,7 @@ export function useTransactionsByCategory(
 		{
 			enabled: !!categoryId,
 			...options,
-		},
+		} as UseQueryOptions<TransactionsListResponse, ApiError>,
 	);
 }
 

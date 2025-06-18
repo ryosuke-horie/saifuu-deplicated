@@ -1,20 +1,20 @@
 import {
-	useQuery,
-	useMutation,
-	useQueryClient,
 	type UseMutationOptions,
 	type UseQueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
+import type { ApiError } from "../api/client";
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
 import type {
-	SubscriptionsListResponse,
-	SubscriptionDetailResponse,
-	CreateSubscriptionRequest,
-	UpdateSubscriptionRequest,
 	BaseApiResponse,
+	CreateSubscriptionRequest,
+	SubscriptionDetailResponse,
+	SubscriptionsListResponse,
+	UpdateSubscriptionRequest,
 } from "../schemas/api-responses";
-import { ApiError } from "../api/client";
 
 /**
  * サブスクリプション関連のカスタムフック
@@ -105,12 +105,18 @@ export function useUpdateSubscription(
 	options?: UseMutationOptions<
 		SubscriptionDetailResponse,
 		ApiError,
-		{ id: number; data: UpdateSubscriptionRequest }
+		{ id: number; data: UpdateSubscriptionRequest },
+		{ previousSubscription: unknown }
 	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		SubscriptionDetailResponse,
+		ApiError,
+		{ id: number; data: UpdateSubscriptionRequest },
+		{ previousSubscription: unknown }
+	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.subscriptions.updateSubscription(id, data),
 		onMutate: async ({ id, data }) => {
@@ -166,12 +172,23 @@ export function useUpdateSubscription(
  * サブスクリプション削除のフック
  */
 export function useDeleteSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscriptions: unknown }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationFn: (id: number) => apiServices.subscriptions.deleteSubscription(id),
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscriptions: unknown }
+	>({
+		mutationFn: (id: number) =>
+			apiServices.subscriptions.deleteSubscription(id),
 		onMutate: async (id) => {
 			// オプティミスティックアップデート用のキャンセル
 			await queryClient.cancelQueries({
@@ -229,11 +246,21 @@ export function useDeleteSubscription(
  * サブスクリプション一時停止のフック
  */
 export function useDeactivateSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: unknown }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: unknown }
+	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.deactivateSubscription(id),
 		onMutate: async (id) => {
@@ -282,11 +309,21 @@ export function useDeactivateSubscription(
  * サブスクリプション再開のフック
  */
 export function useActivateSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: unknown }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: unknown }
+	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.activateSubscription(id),
 		onMutate: async (id) => {

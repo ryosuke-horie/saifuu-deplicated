@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { type ReactNode, createContext, useContext, useState } from "react";
 
 /**
  * アプリケーション全体の状態管理コンテキスト
@@ -187,7 +187,9 @@ export function AppProvider({ children }: AppProviderProps) {
 	};
 
 	// ソート操作のアクション
-	const updateTransactionSort = (sort: Partial<AppState["transactionSort"]>) => {
+	const updateTransactionSort = (
+		sort: Partial<AppState["transactionSort"]>,
+	) => {
 		setState((prev) => ({
 			...prev,
 			transactionSort: {
