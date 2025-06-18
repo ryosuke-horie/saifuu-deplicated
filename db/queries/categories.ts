@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, max } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import type { Database } from "../connection";
 import {
 	type InsertCategory,
@@ -7,69 +7,71 @@ import {
 } from "../schema";
 
 /**
- * カテゴリ関連のデータベースクエリ関数
+ * カテゴリマスタ関連のデータベースクエリ関数
  *
  * 設計方針:
- * - 論理削除を考慮し、isActive=trueのみ取得
- * - 表示順序（displayOrder）を基準にソート
- * - type別での絞り込みに対応
- * - 並び順変更機能を提供
+ * - 表示順序（displayOrder）による並び順制御を重視
+ * - 論理削除（isActive）による削除管理
+ * - 収入・支出タイプ別の効率的な取得
+ * - 一括更新機能による表示順序管理の最適化
  */
 
 /**
- * 新しいカテゴリを作成
+ * 全カテゴリを取得（displayOrder順、アクティブのみ）
  */
-export async function createCategory(db: Database, category: InsertCategory) {
-	// 現在の最大表示順序を取得し、新しいカテゴリを末尾に追加
-	const maxOrder = await getMaxDisplayOrder(db, category.type);
-
-	const categoryData: InsertCategory = {
-		...category,
-		displayOrder: category.displayOrder ?? maxOrder + 1,
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
-	};
-
-	const [created] = await db
-		.insert(categories)
-		.values(categoryData)
-		.returning();
-
-	return created;
-}
-
-/**
- * IDでカテゴリを取得
- */
-export async function getCategoryById(db: Database, id: number) {
-	const [category] = await db
-		.select()
-		.from(categories)
-		.where(and(eq(categories.id, id), eq(categories.isActive, true)))
-		.limit(1);
-
-	return category;
-}
-
-/**
- * アクティブなカテゴリ一覧を取得
- * @param type - 'income' | 'expense' でフィルタ（未指定の場合は全て）
- */
-export async function getActiveCategories(
-	db: Database,
-	type?: "income" | "expense",
-) {
-	const whereConditions = [eq(categories.isActive, true)];
-
-	if (type) {
-		whereConditions.push(eq(categories.type, type));
-	}
-
+export async function getAllCategories(db: Database) {
 	return await db
 		.select()
 		.from(categories)
-		.where(and(...whereConditions))
+		.where(eq(categories.isActive, true))
 		.orderBy(asc(categories.displayOrder), asc(categories.id));
+}
+
+/**
+ * タイプ別にカテゴリを取得（displayOrder順、アクティブのみ）
+ */
+export async function getCategoriesByType(
+	db: Database,
+	type: "income" | "expense",
+) {
+	return await db
+		.select()
+		.from(categories)
+		.where(sql`${categories.type} = ${type} AND ${categories.isActive} = true`)
+		.orderBy(asc(categories.displayOrder), asc(categories.id));
+}
+
+/**
+ * 新しいカテゴリを作成
+ * displayOrderが指定されていない場合、同タイプ内での最大値+1を設定
+ */
+export async function createCategory(db: Database, data: InsertCategory) {
+	// displayOrderが指定されていない場合、同タイプ内での最大値+1を設定
+	let displayOrder = data.displayOrder;
+	if (displayOrder === undefined) {
+		const [maxOrder] = await db
+			.select({
+				maxOrder: sql<number>`COALESCE(MAX(${categories.displayOrder}), 0)`,
+			})
+			.from(categories)
+			.where(
+				sql`${categories.type} = ${data.type} AND ${categories.isActive} = true`,
+			);
+
+		displayOrder = (maxOrder.maxOrder || 0) + 1;
+	}
+
+	const [created] = await db
+		.insert(categories)
+		.values({
+			...data,
+			displayOrder,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		})
+		.returning();
+
+	return created;
 }
 
 /**
@@ -78,16 +80,14 @@ export async function getActiveCategories(
 export async function updateCategory(
 	db: Database,
 	id: number,
-	updates: Partial<InsertCategory>,
+	data: Partial<InsertCategory>,
 ) {
-	const updateData = {
-		...updates,
-		updatedAt: new Date().toISOString(),
-	};
-
 	const [updated] = await db
 		.update(categories)
-		.set(updateData)
+		.set({
+			...data,
+			updatedAt: new Date().toISOString(),
+		})
 		.where(eq(categories.id, id))
 		.returning();
 
@@ -95,7 +95,7 @@ export async function updateCategory(
 }
 
 /**
- * カテゴリを論理削除
+ * カテゴリを論理削除（isActiveをfalseに設定）
  */
 export async function deleteCategory(db: Database, id: number) {
 	const [deleted] = await db
@@ -111,24 +111,25 @@ export async function deleteCategory(db: Database, id: number) {
 }
 
 /**
- * カテゴリの表示順序を更新
- * @param reorderData - {id: number, displayOrder: number}[]の配列
+ * 表示順序を一括更新
+ * ドラッグ&ドロップによる並び替え機能で使用
  */
-export async function reorderCategories(
+export async function updateDisplayOrder(
 	db: Database,
-	reorderData: Array<{ id: number; displayOrder: number }>,
+	updates: { id: number; displayOrder: number }[],
 ) {
-	// トランザクション内で一括更新を実行
-	const results = [];
+	const results: SelectCategory[] = [];
 
-	for (const { id, displayOrder } of reorderData) {
+	// トランザクション内で一括更新を実行
+	// SQLiteのBATCH UPSERTは限定的なため、ループで個別更新
+	for (const update of updates) {
 		const [updated] = await db
 			.update(categories)
 			.set({
-				displayOrder,
+				displayOrder: update.displayOrder,
 				updatedAt: new Date().toISOString(),
 			})
-			.where(eq(categories.id, id))
+			.where(eq(categories.id, update.id))
 			.returning();
 
 		if (updated) {
@@ -137,35 +138,4 @@ export async function reorderCategories(
 	}
 
 	return results;
-}
-
-/**
- * 指定されたtypeの最大表示順序を取得
- */
-async function getMaxDisplayOrder(
-	db: Database,
-	type: "income" | "expense",
-): Promise<number> {
-	const [result] = await db
-		.select({
-			maxOrder: max(categories.displayOrder),
-		})
-		.from(categories)
-		.where(and(eq(categories.type, type), eq(categories.isActive, true)));
-
-	return (result?.maxOrder ?? 0) as number;
-}
-
-/**
- * カテゴリが使用中かどうかを確認（削除前のチェック用）
- * トランザクションやサブスクリプションで参照されているかを確認
- */
-export async function isCategoryInUse(
-	db: Database,
-	categoryId: number,
-): Promise<boolean> {
-	// この関数は将来的にtransactionsテーブルとsubscriptionsテーブルをチェックする
-	// 現時点では論理削除のみなので、常にfalseを返す
-	// TODO: transactions、subscriptionsテーブルでの参照をチェック
-	return false;
 }
