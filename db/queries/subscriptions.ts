@@ -68,6 +68,48 @@ export async function getSubscriptionById(db: Database, id: number) {
 }
 
 /**
+ * サブスクリプション一覧を取得（フィルタリング対応）
+ */
+export async function getSubscriptionsList(
+	db: Database,
+	options: {
+		isActive?: boolean;
+	} = {},
+) {
+	const { isActive } = options;
+
+	const query = db
+		.select({
+			id: subscriptions.id,
+			name: subscriptions.name,
+			amount: subscriptions.amount,
+			frequency: subscriptions.frequency,
+			nextPaymentDate: subscriptions.nextPaymentDate,
+			description: subscriptions.description,
+			isActive: subscriptions.isActive,
+			autoGenerate: subscriptions.autoGenerate,
+			createdAt: subscriptions.createdAt,
+			updatedAt: subscriptions.updatedAt,
+			category: {
+				id: categories.id,
+				name: categories.name,
+				type: categories.type,
+				color: categories.color,
+				icon: categories.icon,
+			},
+		})
+		.from(subscriptions)
+		.leftJoin(categories, eq(subscriptions.categoryId, categories.id));
+
+	// アクティブ・非アクティブのフィルタリング
+	if (isActive !== undefined) {
+		query.where(eq(subscriptions.isActive, isActive));
+	}
+
+	return await query.orderBy(desc(subscriptions.createdAt));
+}
+
+/**
  * アクティブなサブスクリプション一覧を取得
  */
 export async function getActiveSubscriptions(db: Database) {
