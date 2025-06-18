@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import type { Database } from "../connection";
 import {
 	type InsertCategory,
@@ -138,4 +138,48 @@ export async function updateDisplayOrder(
 	}
 
 	return results;
+}
+
+/**
+ * IDでカテゴリを取得（アクティブのみ）
+ */
+export async function getCategoryById(db: Database, id: number) {
+	const [category] = await db
+		.select()
+		.from(categories)
+		.where(and(eq(categories.id, id), eq(categories.isActive, true)))
+		.limit(1);
+
+	return category;
+}
+
+/**
+ * アクティブなカテゴリ一覧を取得（type別フィルタ対応）
+ */
+export async function getActiveCategories(
+	db: Database,
+	type?: "income" | "expense",
+) {
+	if (type) {
+		return getCategoriesByType(db, type);
+	}
+	return getAllCategories(db);
+}
+
+/**
+ * カテゴリの表示順序を更新（reorderCategories関数のエイリアス）
+ */
+export const reorderCategories = updateDisplayOrder;
+
+/**
+ * カテゴリが使用中かどうかを確認（削除前のチェック用）
+ */
+export async function isCategoryInUse(
+	db: Database,
+	categoryId: number,
+): Promise<boolean> {
+	// この関数は将来的にtransactionsテーブルとsubscriptionsテーブルをチェックする
+	// 現時点では論理削除のみなので、常にfalseを返す
+	// TODO: transactions、subscriptionsテーブルでの参照をチェック
+	return false;
 }
