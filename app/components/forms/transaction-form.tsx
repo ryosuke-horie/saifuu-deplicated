@@ -32,7 +32,7 @@ export function TransactionForm({
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, isDirty },
+		formState: { errors, isDirty, isValid },
 		watch,
 		setValue,
 	} = useForm<CreateTransactionRequest>({
@@ -128,6 +128,7 @@ export function TransactionForm({
 				<select
 					{...register("categoryId", {
 						valueAsNumber: true,
+						setValueAs: (value) => (value === "" ? undefined : value),
 					})}
 					id="categoryId"
 					disabled={categoriesLoading}
@@ -233,9 +234,9 @@ export function TransactionForm({
 			<div className="pt-4">
 				<button
 					type="submit"
-					disabled={isSubmitting || !isDirty}
+					disabled={isSubmitting || (!isDirty && !isValid)}
 					className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-						isSubmitting || !isDirty
+						isSubmitting || (!isDirty && !isValid)
 							? "bg-gray-300 text-gray-500 cursor-not-allowed"
 							: type === "expense"
 								? "bg-red-600 hover:bg-red-700 text-white"
