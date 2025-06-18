@@ -1,10 +1,10 @@
-import { vi, expect } from "vitest";
-import type { Database } from "../../../db/connection";
 import type { AppLoadContext } from "react-router";
+import { expect, vi } from "vitest";
+import type { Database } from "../../../db/connection";
 
 /**
  * テスト用のヘルパー関数とモック設定
- * 
+ *
  * 設計方針:
  * - 各テストで再利用可能なモックデータとヘルパー関数を提供
  * - 型安全性を保ちながらテストの可読性を向上
@@ -127,7 +127,9 @@ export function createMockDeleteRequest(url: string): Request {
 /**
  * Cloudflare Workers コンテキストのモックを作成
  */
-export function createMockContext(mockDb: Database = {} as Database): AppLoadContext {
+export function createMockContext(
+	mockDb: Database = {} as Database,
+): AppLoadContext {
 	return {
 		cloudflare: {
 			env: {
@@ -161,16 +163,16 @@ export function createMockDatabase() {
 		limit: vi.fn().mockReturnThis(),
 		offset: vi.fn().mockReturnThis(),
 		groupBy: vi.fn().mockReturnThis(),
-		
+
 		// INSERT クエリのモック
 		insert: vi.fn().mockReturnThis(),
 		values: vi.fn().mockReturnThis(),
 		returning: vi.fn(),
-		
+
 		// UPDATE クエリのモック
 		update: vi.fn().mockReturnThis(),
 		set: vi.fn().mockReturnThis(),
-		
+
 		// DELETE クエリのモック
 		delete: vi.fn().mockReturnThis(),
 	} as unknown as Database;
@@ -184,8 +186,8 @@ export function createMockDatabase() {
  * APIレスポンスの基本構造を検証
  */
 export async function validateApiResponse(response: Response): Promise<any> {
-	const json = await response.json() as any;
-	
+	const json = (await response.json()) as any;
+
 	if (response.ok) {
 		// 成功レスポンスの検証
 		expect(json).toHaveProperty("success", true);
@@ -195,7 +197,7 @@ export async function validateApiResponse(response: Response): Promise<any> {
 		expect(json).toHaveProperty("error");
 		expect(typeof json.error).toBe("string");
 	}
-	
+
 	return json;
 }
 
@@ -207,7 +209,7 @@ export function validatePaginatedResponse(json: any): void {
 	expect(json).toHaveProperty("data");
 	expect(json).toHaveProperty("count");
 	expect(json).toHaveProperty("pagination");
-	
+
 	const { pagination } = json;
 	expect(pagination).toHaveProperty("currentPage");
 	expect(pagination).toHaveProperty("totalPages");
@@ -245,14 +247,14 @@ export function generateInvalidTransactionData() {
 		// 金額が不正
 		{ amount: -100, type: "expense", transactionDate: "2024-01-01" },
 		{ amount: "invalid", type: "expense", transactionDate: "2024-01-01" },
-		
+
 		// タイプが不正
 		{ amount: 1000, type: "invalid", transactionDate: "2024-01-01" },
-		
+
 		// 日付が不正
 		{ amount: 1000, type: "expense", transactionDate: "invalid-date" },
 		{ amount: 1000, type: "expense", transactionDate: "2024/01/01" },
-		
+
 		// 必須フィールドが不足
 		{ type: "expense", transactionDate: "2024-01-01" }, // amount が不足
 		{ amount: 1000, transactionDate: "2024-01-01" }, // type が不足

@@ -1,9 +1,9 @@
 import type { AppLoadContext } from "react-router";
 
 export namespace Route {
-  export interface ActionArgs {
-    request: Request;
-    context: AppLoadContext;
-    params: Record<string, string>;
-  }
+	export interface ActionArgs {
+		request: Request;
+		context: AppLoadContext;
+		params: Record<string, string>;
+	}
 }

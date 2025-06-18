@@ -1,12 +1,12 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { loader } from "./$id";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	createMockGetRequest,
 	createMockContext,
 	createMockDatabase,
-	validateApiResponse,
+	createMockGetRequest,
 	mockTransactionWithCategory,
+	validateApiResponse,
 } from "../../../__tests__/utils/test-helpers";
+import { loader } from "./$id";
 
 // データベースクエリ関数をモック
 vi.mock("../../../../db/queries/transactions", () => ({
@@ -17,16 +17,16 @@ vi.mock("../../../../db/connection", () => ({
 	createDb: vi.fn(),
 }));
 
+import { createDb } from "../../../../db/connection";
 // モック関数のインポート
 import { getTransactionById } from "../../../../db/queries/transactions";
-import { createDb } from "../../../../db/connection";
 
 const mockGetTransactionById = vi.mocked(getTransactionById);
 const mockCreateDb = vi.mocked(createDb);
 
 /**
  * GET /api/transactions/:id エンドポイントの単体テスト
- * 
+ *
  * テスト対象:
  * - 指定されたIDの取引詳細取得機能
  * - カテゴリ情報を含む詳細データの返却
@@ -49,17 +49,19 @@ describe("GET /api/transactions/:id", () => {
 			// モックデータの設定
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			// レスポンスの検証
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data).toEqual({
 				...mockTransactionWithCategory,
 				tags: ["外食", "会社"], // JSON解析後の配列
@@ -77,16 +79,18 @@ describe("GET /api/transactions/:id", () => {
 			};
 			mockGetTransactionById.mockResolvedValue(transactionWithoutCategory);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.categoryId).toBe(null);
 			expect(json.data.category).toBe(null);
 		});
@@ -98,16 +102,18 @@ describe("GET /api/transactions/:id", () => {
 			};
 			mockGetTransactionById.mockResolvedValue(transactionWithoutTags);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.tags).toBe(null);
 		});
 
@@ -118,16 +124,18 @@ describe("GET /api/transactions/:id", () => {
 			};
 			mockGetTransactionById.mockResolvedValue(transactionWithEmptyTags);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.tags).toEqual([]);
 		});
 
@@ -138,16 +146,18 @@ describe("GET /api/transactions/:id", () => {
 				id: largeId,
 			});
 
-			const request = createMockGetRequest(`http://localhost/api/transactions/${largeId}`);
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				`http://localhost/api/transactions/${largeId}`,
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: largeId.toString() }
+				params: { id: largeId.toString() },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.id).toBe(largeId);
 			expect(mockGetTransactionById).toHaveBeenCalledWith(mockDb, largeId);
 		});
@@ -155,11 +165,13 @@ describe("GET /api/transactions/:id", () => {
 
 	describe("パラメータバリデーションエラーケース", () => {
 		it("非数値IDで400エラーが返される", async () => {
-			const request = createMockGetRequest("http://localhost/api/transactions/invalid");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/invalid",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "invalid" }
+				params: { id: "invalid" },
 			});
 
 			expect(response.status).toBe(400);
@@ -169,11 +181,13 @@ describe("GET /api/transactions/:id", () => {
 		});
 
 		it("負の数値IDで400エラーが返される", async () => {
-			const request = createMockGetRequest("http://localhost/api/transactions/-1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/-1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "-1" }
+				params: { id: "-1" },
 			});
 
 			expect(response.status).toBe(400);
@@ -182,11 +196,13 @@ describe("GET /api/transactions/:id", () => {
 		});
 
 		it("0のIDで400エラーが返される", async () => {
-			const request = createMockGetRequest("http://localhost/api/transactions/0");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/0",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "0" }
+				params: { id: "0" },
 			});
 
 			expect(response.status).toBe(400);
@@ -195,11 +211,13 @@ describe("GET /api/transactions/:id", () => {
 		});
 
 		it("小数点を含むIDで400エラーが返される", async () => {
-			const request = createMockGetRequest("http://localhost/api/transactions/1.5");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1.5",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1.5" }
+				params: { id: "1.5" },
 			});
 
 			expect(response.status).toBe(400);
@@ -208,11 +226,13 @@ describe("GET /api/transactions/:id", () => {
 		});
 
 		it("空のIDで400エラーが返される", async () => {
-			const request = createMockGetRequest("http://localhost/api/transactions/");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "" }
+				params: { id: "" },
 			});
 
 			expect(response.status).toBe(400);
@@ -226,11 +246,13 @@ describe("GET /api/transactions/:id", () => {
 			// 存在しない取引をシミュレート
 			mockGetTransactionById.mockResolvedValue(null as any);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/999");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/999",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "999" }
+				params: { id: "999" },
 			});
 
 			expect(response.status).toBe(404);
@@ -245,11 +267,13 @@ describe("GET /api/transactions/:id", () => {
 			// 削除済み取引（データベースからnullが返される）をシミュレート
 			mockGetTransactionById.mockResolvedValue(null as any);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(404);
@@ -267,25 +291,29 @@ describe("GET /api/transactions/:id", () => {
 			mockGetTransactionById.mockResolvedValue(transactionWithInvalidTags);
 
 			// console.warn のモック
-			const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+			const consoleWarnSpy = vi
+				.spyOn(console, "warn")
+				.mockImplementation(() => {});
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			// JSON解析に失敗した場合はnullが設定される
 			expect(json.data.tags).toBe(null);
-			
+
 			// 警告がログ出力されることを確認
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
 				"取引ID 1 のタグJSON解析に失敗:",
-				expect.any(Error)
+				expect.any(Error),
 			);
 
 			consoleWarnSpy.mockRestore();
@@ -296,20 +324,26 @@ describe("GET /api/transactions/:id", () => {
 				...mockTransactionWithCategory,
 				tags: '["外食", "会社"', // 閉じ括弧が不足
 			};
-			mockGetTransactionById.mockResolvedValue(transactionWithPartiallyBrokenTags);
+			mockGetTransactionById.mockResolvedValue(
+				transactionWithPartiallyBrokenTags,
+			);
 
-			const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+			const consoleWarnSpy = vi
+				.spyOn(console, "warn")
+				.mockImplementation(() => {});
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.tags).toBe(null);
 			expect(consoleWarnSpy).toHaveBeenCalled();
 
@@ -321,14 +355,16 @@ describe("GET /api/transactions/:id", () => {
 		it("データベースエラー時に500エラーが返される", async () => {
 			// データベースエラーをシミュレート
 			mockGetTransactionById.mockRejectedValue(
-				new Error("データベース接続エラー")
+				new Error("データベース接続エラー"),
 			);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(500);
@@ -341,11 +377,13 @@ describe("GET /api/transactions/:id", () => {
 			// 予期しないエラーをシミュレート
 			mockGetTransactionById.mockRejectedValue("予期しないエラー");
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(500);
@@ -356,15 +394,15 @@ describe("GET /api/transactions/:id", () => {
 
 		it("タイムアウトエラー時に500エラーが返される", async () => {
 			// タイムアウトエラーをシミュレート
-			mockGetTransactionById.mockRejectedValue(
-				new Error("Query timeout")
-			);
+			mockGetTransactionById.mockRejectedValue(new Error("Query timeout"));
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(500);
@@ -378,20 +416,22 @@ describe("GET /api/transactions/:id", () => {
 		it("成功レスポンスが正しい構造を持つ", async () => {
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
-			
+
 			// 必須フィールドの存在確認
 			expect(json).toHaveProperty("success", true);
 			expect(json).toHaveProperty("data");
-			
+
 			// データ構造の確認
 			const { data } = json;
 			expect(data).toHaveProperty("id");
@@ -400,7 +440,7 @@ describe("GET /api/transactions/:id", () => {
 			expect(data).toHaveProperty("transactionDate");
 			expect(data).toHaveProperty("createdAt");
 			expect(data).toHaveProperty("updatedAt");
-			
+
 			// カテゴリ構造の確認
 			if (data.category) {
 				expect(data.category).toHaveProperty("id");
@@ -412,11 +452,13 @@ describe("GET /api/transactions/:id", () => {
 		it("Content-Typeヘッダーが正しく設定される", async () => {
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.headers.get("Content-Type")).toBe("application/json");
@@ -430,11 +472,13 @@ describe("GET /api/transactions/:id", () => {
 				id: 1,
 			});
 
-			const request = createMockGetRequest("http://localhost/api/transactions/1");
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				"http://localhost/api/transactions/1",
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: "1" }
+				params: { id: "1" },
 			});
 
 			expect(response.status).toBe(200);
@@ -444,13 +488,15 @@ describe("GET /api/transactions/:id", () => {
 
 		it("非常に長いIDでも処理される", async () => {
 			const veryLargeId = Number.MAX_SAFE_INTEGER;
-			mockGetTransactionById.mockResolvedValue(null); // 存在しない想定
+			mockGetTransactionById.mockResolvedValue(undefined as any); // 存在しない想定
 
-			const request = createMockGetRequest(`http://localhost/api/transactions/${veryLargeId}`);
-			const response = await loader({ 
-				request, 
+			const request = createMockGetRequest(
+				`http://localhost/api/transactions/${veryLargeId}`,
+			);
+			const response = await loader({
+				request,
 				context: mockContext,
-				params: { id: veryLargeId.toString() }
+				params: { id: veryLargeId.toString() },
 			});
 
 			// 存在しないので404が返される

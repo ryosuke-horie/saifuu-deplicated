@@ -1,14 +1,14 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { loader } from "./index";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	createMockGetRequest,
 	createMockContext,
 	createMockDatabase,
+	createMockGetRequest,
+	generateQueryParamTestCases,
+	mockTransactionsList,
 	validateApiResponse,
 	validatePaginatedResponse,
-	mockTransactionsList,
-	generateQueryParamTestCases,
 } from "../../../__tests__/utils/test-helpers";
+import { loader } from "./index";
 
 // データベースクエリ関数をモック
 vi.mock("../../../../db/queries/transactions", () => ({
@@ -50,16 +50,16 @@ vi.mock("zod", () => ({
 	},
 }));
 
+import { createDb } from "../../../../db/connection";
 // モック関数のインポート
 import { getTransactionsList } from "../../../../db/queries/transactions";
-import { createDb } from "../../../../db/connection";
 
 const mockGetTransactionsList = vi.mocked(getTransactionsList);
 const mockCreateDb = vi.mocked(createDb);
 
 /**
  * GET /api/transactions エンドポイントの単体テスト
- * 
+ *
  * テスト対象:
  * - 基本的な取引一覧取得機能
  * - フィルタリング機能（日付範囲、タイプ、カテゴリ、検索）
@@ -92,7 +92,11 @@ describe("GET /api/transactions", () => {
 
 			// テスト対象の実行
 			const request = createMockGetRequest("http://localhost/api/transactions");
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			// レスポンスの検証
 			expect(response.status).toBe(200);
@@ -129,9 +133,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?from=2024-01-01&to=2024-01-31"
+				"http://localhost/api/transactions?from=2024-01-01&to=2024-01-31",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -141,7 +149,7 @@ describe("GET /api/transactions", () => {
 				expect.objectContaining({
 					startDate: "2024-01-01",
 					endDate: "2024-01-31",
-				})
+				}),
 			);
 
 			expect(json.filters.from).toBe("2024-01-01");
@@ -150,7 +158,7 @@ describe("GET /api/transactions", () => {
 
 		it("取引タイプフィルタが正しく動作する", async () => {
 			const mockResult = {
-				transactions: mockTransactionsList.filter(t => t.type === "expense"),
+				transactions: mockTransactionsList.filter((t) => t.type === "expense"),
 				totalCount: 2,
 				currentPage: 1,
 				totalPages: 1,
@@ -160,9 +168,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?type=expense"
+				"http://localhost/api/transactions?type=expense",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -171,7 +183,7 @@ describe("GET /api/transactions", () => {
 				mockDb,
 				expect.objectContaining({
 					type: "expense",
-				})
+				}),
 			);
 
 			expect(json.filters.type).toBe("expense");
@@ -179,7 +191,7 @@ describe("GET /api/transactions", () => {
 
 		it("カテゴリIDフィルタが正しく動作する", async () => {
 			const mockResult = {
-				transactions: mockTransactionsList.filter(t => t.category?.id === 1),
+				transactions: mockTransactionsList.filter((t) => t.category?.id === 1),
 				totalCount: 1,
 				currentPage: 1,
 				totalPages: 1,
@@ -189,9 +201,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?category_id=1"
+				"http://localhost/api/transactions?category_id=1",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -200,7 +216,7 @@ describe("GET /api/transactions", () => {
 				mockDb,
 				expect.objectContaining({
 					categoryId: 1,
-				})
+				}),
 			);
 
 			expect(json.filters.category_id).toBe(1);
@@ -208,8 +224,8 @@ describe("GET /api/transactions", () => {
 
 		it("検索フィルタが正しく動作する", async () => {
 			const mockResult = {
-				transactions: mockTransactionsList.filter(t => 
-					t.description?.includes("ランチ")
+				transactions: mockTransactionsList.filter((t) =>
+					t.description?.includes("ランチ"),
 				),
 				totalCount: 1,
 				currentPage: 1,
@@ -220,9 +236,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?search=ランチ"
+				"http://localhost/api/transactions?search=ランチ",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -231,7 +251,7 @@ describe("GET /api/transactions", () => {
 				mockDb,
 				expect.objectContaining({
 					search: "ランチ",
-				})
+				}),
 			);
 
 			expect(json.filters.search).toBe("ランチ");
@@ -249,9 +269,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?page=1&limit=1"
+				"http://localhost/api/transactions?page=1&limit=1",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -262,7 +286,7 @@ describe("GET /api/transactions", () => {
 				expect.objectContaining({
 					page: 1,
 					limit: 1,
-				})
+				}),
 			);
 
 			expect(json.pagination.currentPage).toBe(1);
@@ -273,7 +297,9 @@ describe("GET /api/transactions", () => {
 
 		it("ソート機能が正しく動作する", async () => {
 			const mockResult = {
-				transactions: [...mockTransactionsList].sort((a, b) => a.amount - b.amount),
+				transactions: [...mockTransactionsList].sort(
+					(a, b) => a.amount - b.amount,
+				),
 				totalCount: 2,
 				currentPage: 1,
 				totalPages: 1,
@@ -283,9 +309,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?sort_by=amount&sort_order=asc"
+				"http://localhost/api/transactions?sort_by=amount&sort_order=asc",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -295,7 +325,7 @@ describe("GET /api/transactions", () => {
 				expect.objectContaining({
 					sortBy: "amount",
 					sortOrder: "asc",
-				})
+				}),
 			);
 
 			expect(json.sort.sort_by).toBe("amount");
@@ -314,9 +344,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?from=2024-01-01&to=2024-01-31&type=expense&category_id=1&search=ランチ&page=1&limit=10&sort_by=amount&sort_order=desc"
+				"http://localhost/api/transactions?from=2024-01-01&to=2024-01-31&type=expense&category_id=1&search=ランチ&page=1&limit=10&sort_by=amount&sort_order=desc",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -333,7 +367,7 @@ describe("GET /api/transactions", () => {
 					limit: 10,
 					sortBy: "amount",
 					sortOrder: "desc",
-				})
+				}),
 			);
 		});
 	});
@@ -343,9 +377,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正な日付形式でエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?from=invalid-date"
+				"http://localhost/api/transactions?from=invalid-date",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -355,9 +393,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正な取引タイプでエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?type=invalid-type"
+				"http://localhost/api/transactions?type=invalid-type",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -366,9 +408,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正なカテゴリIDでエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?category_id=invalid-id"
+				"http://localhost/api/transactions?category_id=invalid-id",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -377,9 +423,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正なページ番号でエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?page=0"
+				"http://localhost/api/transactions?page=0",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -388,9 +438,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正な件数制限でエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?limit=101"
+				"http://localhost/api/transactions?limit=101",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -399,9 +453,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正なソート項目でエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?sort_by=invalid-field"
+				"http://localhost/api/transactions?sort_by=invalid-field",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -410,9 +468,13 @@ describe("GET /api/transactions", () => {
 
 		it("不正なソート順序でエラーが返される", async () => {
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?sort_order=invalid-order"
+				"http://localhost/api/transactions?sort_order=invalid-order",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -424,11 +486,15 @@ describe("GET /api/transactions", () => {
 		it("データベースエラー時に500エラーが返される", async () => {
 			// データベースエラーをシミュレート
 			mockGetTransactionsList.mockRejectedValue(
-				new Error("データベース接続エラー")
+				new Error("データベース接続エラー"),
 			);
 
 			const request = createMockGetRequest("http://localhost/api/transactions");
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -441,7 +507,11 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockRejectedValue("予期しないエラー");
 
 			const request = createMockGetRequest("http://localhost/api/transactions");
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -463,9 +533,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?search="
+				"http://localhost/api/transactions?search=",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -484,9 +558,13 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest(
-				"http://localhost/api/transactions?limit=100"
+				"http://localhost/api/transactions?limit=100",
 			);
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);
@@ -495,7 +573,7 @@ describe("GET /api/transactions", () => {
 				mockDb,
 				expect.objectContaining({
 					limit: 100,
-				})
+				}),
 			);
 		});
 
@@ -511,7 +589,11 @@ describe("GET /api/transactions", () => {
 			mockGetTransactionsList.mockResolvedValue(mockResult);
 
 			const request = createMockGetRequest("http://localhost/api/transactions");
-			const response = await loader({ request, context: mockContext, params: {} });
+			const response = await loader({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(200);
 			const json = await validateApiResponse(response);

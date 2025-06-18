@@ -1,16 +1,16 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { action } from "./create";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	createMockPostRequest,
 	createMockContext,
 	createMockDatabase,
-	validateApiResponse,
-	mockTransaction,
-	mockTransactionWithCategory,
-	mockCategory,
+	createMockPostRequest,
 	generateCreateTransactionData,
 	generateInvalidTransactionData,
+	mockCategory,
+	mockTransaction,
+	mockTransactionWithCategory,
+	validateApiResponse,
 } from "../../../__tests__/utils/test-helpers";
+import { action } from "./create";
 
 // データベースクエリ関数をモック
 vi.mock("../../../../db/queries/transactions", () => ({
@@ -32,10 +32,13 @@ vi.mock("../../../../db/schema", () => ({
 	},
 }));
 
-// モック関数のインポート
-import { createTransaction, getTransactionById } from "../../../../db/queries/transactions";
-import { getCategoryById } from "../../../../db/queries/categories";
 import { createDb } from "../../../../db/connection";
+import { getCategoryById } from "../../../../db/queries/categories";
+// モック関数のインポート
+import {
+	createTransaction,
+	getTransactionById,
+} from "../../../../db/queries/transactions";
 
 const mockCreateTransaction = vi.mocked(createTransaction);
 const mockGetTransactionById = vi.mocked(getTransactionById);
@@ -44,7 +47,7 @@ const mockCreateDb = vi.mocked(createDb);
 
 /**
  * POST /api/transactions エンドポイントの単体テスト
- * 
+ *
  * テスト対象:
  * - 取引作成機能
  * - リクエストボディのバリデーション
@@ -65,27 +68,34 @@ describe("POST /api/transactions", () => {
 	describe("成功ケース", () => {
 		it("有効なデータで取引を作成できる", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// モックの設定
 			mockCreateTransaction.mockResolvedValue(mockTransaction);
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			// レスポンスの検証
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data).toEqual(mockTransactionWithCategory);
 			expect(json.message).toBe("取引が正常に作成されました");
 
 			// データベース関数の呼び出し検証
 			expect(mockCreateTransaction).toHaveBeenCalledWith(mockDb, requestData);
-			expect(mockGetTransactionById).toHaveBeenCalledWith(mockDb, mockTransaction.id);
+			expect(mockGetTransactionById).toHaveBeenCalledWith(
+				mockDb,
+				mockTransaction.id,
+			);
 		});
 
 		it("カテゴリIDを指定して取引を作成できる", async () => {
@@ -93,7 +103,7 @@ describe("POST /api/transactions", () => {
 				categoryId: 1,
 				type: "expense",
 			});
-			
+
 			// モックの設定
 			mockGetCategoryById.mockResolvedValue(mockCategory);
 			mockCreateTransaction.mockResolvedValue(mockTransaction);
@@ -101,13 +111,17 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data).toEqual(mockTransactionWithCategory);
 
 			// カテゴリ存在チェックが実行されることを確認
@@ -118,24 +132,25 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				tags: ["外食", "会社", "ランチ"],
 			});
-			
+
 			mockCreateTransaction.mockResolvedValue(mockTransaction);
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			// タグが正しく処理されることを確認
-			expect(mockCreateTransaction).toHaveBeenCalledWith(
-				mockDb,
-				requestData
-			);
+			expect(mockCreateTransaction).toHaveBeenCalledWith(mockDb, requestData);
 		});
 
 		it("オプションフィールドなしで取引を作成できる", async () => {
@@ -144,11 +159,10 @@ describe("POST /api/transactions", () => {
 				type: "expense",
 				transactionDate: "2024-01-01",
 			};
-			
+
 			mockCreateTransaction.mockResolvedValue(mockTransaction);
 			mockGetTransactionById.mockResolvedValue({
 				...mockTransactionWithCategory,
-				categoryId: null,
 				category: null,
 				description: null,
 				paymentMethod: null,
@@ -157,13 +171,17 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.categoryId).toBe(null);
 			expect(json.data.description).toBe(null);
 		});
@@ -173,14 +191,14 @@ describe("POST /api/transactions", () => {
 				type: "income",
 				categoryId: 2,
 			});
-			
+
 			const incomeCategory = {
 				...mockCategory,
 				id: 2,
 				name: "給与",
 				type: "income" as const,
 			};
-			
+
 			mockGetCategoryById.mockResolvedValue(incomeCategory);
 			mockCreateTransaction.mockResolvedValue({
 				...mockTransaction,
@@ -199,13 +217,17 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			expect(json.data.type).toBe("income");
 		});
 	});
@@ -215,7 +237,11 @@ describe("POST /api/transactions", () => {
 			const request = new Request("http://localhost/api/transactions", {
 				method: "GET",
 			});
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(405);
 			const json = await validateApiResponse(response);
@@ -231,23 +257,31 @@ describe("POST /api/transactions", () => {
 			async (invalidData) => {
 				const request = createMockPostRequest(
 					"http://localhost/api/transactions",
-					invalidData
+					invalidData,
 				);
-				const response = await action({ request, context: mockContext, params: {} });
+				const response = await action({
+					request,
+					context: mockContext,
+					params: {},
+				});
 
 				expect(response.status).toBe(400);
 				const json = await validateApiResponse(response);
 				expect(json.error).toBe("無効なリクエストボディです");
 				expect(json.details).toBeDefined();
-			}
+			},
 		);
 
 		it("空のリクエストボディでバリデーションエラーが返される", async () => {
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				{}
+				{},
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -260,8 +294,12 @@ describe("POST /api/transactions", () => {
 				headers: { "Content-Type": "application/json" },
 				body: "invalid-json",
 			});
-			
-			const response = await action({ request, context: mockContext, params: {} });
+
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 			expect(response.status).toBe(500);
 		});
 	});
@@ -271,15 +309,19 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				categoryId: 999,
 			});
-			
+
 			// 存在しないカテゴリをシミュレート
 			mockGetCategoryById.mockResolvedValue(null as any);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -292,15 +334,19 @@ describe("POST /api/transactions", () => {
 				categoryId: 1,
 				type: "income", // カテゴリは expense タイプ
 			});
-			
+
 			// expense タイプのカテゴリを返す
 			mockGetCategoryById.mockResolvedValue(mockCategory);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -312,17 +358,21 @@ describe("POST /api/transactions", () => {
 	describe("データベースエラーハンドリング", () => {
 		it("外部キー制約エラー時に400エラーが返される", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// 外部キー制約エラーをシミュレート
 			mockCreateTransaction.mockRejectedValue(
-				new Error("FOREIGN KEY constraint failed")
+				new Error("FOREIGN KEY constraint failed"),
 			);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -332,17 +382,21 @@ describe("POST /api/transactions", () => {
 
 		it("NOT NULL制約エラー時に400エラーが返される", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// NOT NULL制約エラーをシミュレート
 			mockCreateTransaction.mockRejectedValue(
-				new Error("NOT NULL constraint failed")
+				new Error("NOT NULL constraint failed"),
 			);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -352,17 +406,21 @@ describe("POST /api/transactions", () => {
 
 		it("CHECK制約エラー時に400エラーが返される", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// CHECK制約エラーをシミュレート
 			mockCreateTransaction.mockRejectedValue(
-				new Error("CHECK constraint failed")
+				new Error("CHECK constraint failed"),
 			);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(400);
 			const json = await validateApiResponse(response);
@@ -372,17 +430,21 @@ describe("POST /api/transactions", () => {
 
 		it("その他のデータベースエラー時に500エラーが返される", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// 一般的なデータベースエラーをシミュレート
 			mockCreateTransaction.mockRejectedValue(
-				new Error("データベース接続エラー")
+				new Error("データベース接続エラー"),
 			);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -392,15 +454,19 @@ describe("POST /api/transactions", () => {
 
 		it("予期しないエラー時に500エラーが返される", async () => {
 			const requestData = generateCreateTransactionData();
-			
+
 			// 予期しないエラーをシミュレート
 			mockCreateTransaction.mockRejectedValue("予期しないエラー");
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(500);
 			const json = await validateApiResponse(response);
@@ -414,7 +480,7 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				amount: 1,
 			});
-			
+
 			mockCreateTransaction.mockResolvedValue({
 				...mockTransaction,
 				amount: 1,
@@ -426,9 +492,13 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
@@ -440,7 +510,7 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				amount: largeAmount,
 			});
-			
+
 			mockCreateTransaction.mockResolvedValue({
 				...mockTransaction,
 				amount: largeAmount,
@@ -452,9 +522,13 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
@@ -466,7 +540,7 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				description: longDescription,
 			});
-			
+
 			mockCreateTransaction.mockResolvedValue({
 				...mockTransaction,
 				description: longDescription,
@@ -478,9 +552,13 @@ describe("POST /api/transactions", () => {
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
@@ -492,24 +570,28 @@ describe("POST /api/transactions", () => {
 			const requestData = generateCreateTransactionData({
 				tags: manyTags,
 			});
-			
+
 			mockCreateTransaction.mockResolvedValue(mockTransaction);
 			mockGetTransactionById.mockResolvedValue(mockTransactionWithCategory);
 
 			const request = createMockPostRequest(
 				"http://localhost/api/transactions",
-				requestData
+				requestData,
 			);
-			const response = await action({ request, context: mockContext, params: {} });
+			const response = await action({
+				request,
+				context: mockContext,
+				params: {},
+			});
 
 			expect(response.status).toBe(201);
 			const json = await validateApiResponse(response);
-			
+
 			expect(mockCreateTransaction).toHaveBeenCalledWith(
 				mockDb,
 				expect.objectContaining({
 					tags: manyTags,
-				})
+				}),
 			);
 		});
 	});
