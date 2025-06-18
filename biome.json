@@ -17,6 +17,8 @@
 			"**/.react-router/**",
 			"**/.vscode/**",
 			"**/worker-configuration.d.ts",
+			"**/db/migrations/**/*.sql",
+			"**/db/migrations/meta/**/*.json",
 			"**/*.css"
 		]
 	},
