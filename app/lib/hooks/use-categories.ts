@@ -1,21 +1,21 @@
 import {
-	useQuery,
-	useMutation,
-	useQueryClient,
 	type UseMutationOptions,
 	type UseQueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
+import type { ApiError } from "../api/client";
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
 import type {
+	BaseApiResponse,
 	CategoriesListResponse,
 	CategoryDetailResponse,
 	CreateCategoryRequest,
-	UpdateCategoryRequest,
 	ReorderCategoriesRequest,
-	BaseApiResponse,
+	UpdateCategoryRequest,
 } from "../schemas/api-responses";
-import { ApiError } from "../api/client";
 
 /**
  * カテゴリ関連のカスタムフック
@@ -85,10 +85,7 @@ export function useCreateCategory(
 			});
 
 			// 新しいカテゴリをキャッシュに追加
-			queryClient.setQueryData(
-				queryKeys.categories.detail(data.data.id),
-				data,
-			);
+			queryClient.setQueryData(queryKeys.categories.detail(data.data.id), data);
 		},
 		...options,
 	});
@@ -101,12 +98,18 @@ export function useUpdateCategory(
 	options?: UseMutationOptions<
 		CategoryDetailResponse,
 		ApiError,
-		{ id: number; data: UpdateCategoryRequest }
+		{ id: number; data: UpdateCategoryRequest },
+		{ previousCategory: CategoryDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		CategoryDetailResponse,
+		ApiError,
+		{ id: number; data: UpdateCategoryRequest },
+		{ previousCategory: CategoryDetailResponse | undefined }
+	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.categories.updateCategory(id, data),
 		onMutate: async ({ id, data }) => {
@@ -116,22 +119,29 @@ export function useUpdateCategory(
 			});
 
 			// 現在のデータを取得（ロールバック用）
-			const previousCategory = queryClient.getQueryData(
+			const previousCategory = queryClient.getQueryData<CategoryDetailResponse>(
 				queryKeys.categories.detail(id),
 			);
 
 			// オプティミスティックにデータを更新
 			if (previousCategory) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<CategoryDetailResponse>(
 					queryKeys.categories.detail(id),
-					(old: CategoryDetailResponse) => ({
-						...old,
-						data: { ...old.data, ...data },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, ...data },
+						};
+					},
 				);
 			}
 
-			return { previousCategory };
+			return {
+				previousCategory: previousCategory as
+					| CategoryDetailResponse
+					| undefined,
+			};
 		},
 		onError: (err, { id }, context) => {
 			// エラー時にロールバック
@@ -159,11 +169,21 @@ export function useUpdateCategory(
  * カテゴリ削除のフック
  */
 export function useDeleteCategory(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousCategories: CategoriesListResponse | undefined }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousCategories: CategoriesListResponse | undefined }
+	>({
 		mutationFn: (id: number) => apiServices.categories.deleteCategory(id),
 		onMutate: async (id) => {
 			// オプティミスティックアップデート用のキャンセル
@@ -178,17 +198,24 @@ export function useDeleteCategory(
 
 			// オプティミスティックに一覧から削除
 			if (previousCategories) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<CategoriesListResponse>(
 					queryKeys.categories.lists(),
-					(old: CategoriesListResponse) => ({
-						...old,
-						data: old.data.filter((category) => category.id !== id),
-						count: old.count ? old.count - 1 : undefined,
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: old.data.filter((category) => category.id !== id),
+							count: old.count ? old.count - 1 : undefined,
+						};
+					},
 				);
 			}
 
-			return { previousCategories };
+			return {
+				previousCategories: previousCategories as
+					| CategoriesListResponse
+					| undefined,
+			};
 		},
 		onError: (err, id, context) => {
 			// エラー時にロールバック

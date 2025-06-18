@@ -1,36 +1,36 @@
-import { apiClient, buildQueryParams } from "./client";
 import {
-	categoriesListResponseSchema,
-	categoryDetailResponseSchema,
-	createCategoryRequestSchema,
-	updateCategoryRequestSchema,
-	reorderCategoriesRequestSchema,
-	transactionsListResponseSchema,
-	transactionDetailResponseSchema,
-	createTransactionRequestSchema,
-	updateTransactionRequestSchema,
-	subscriptionsListResponseSchema,
-	subscriptionDetailResponseSchema,
-	createSubscriptionRequestSchema,
-	updateSubscriptionRequestSchema,
-	baseApiResponseSchema,
-	type CreateCategoryRequest,
-	type UpdateCategoryRequest,
-	type ReorderCategoriesRequest,
+	type BaseApiResponse,
 	type CategoriesListResponse,
 	type CategoryDetailResponse,
+	type CreateCategoryRequest,
+	type CreateSubscriptionRequest,
 	type CreateTransactionRequest,
-	type UpdateTransactionRequest,
+	type ReorderCategoriesRequest,
+	type SubscriptionDetailResponse,
+	type SubscriptionsListResponse,
+	type TransactionDetailResponse,
 	type TransactionFilters,
 	type TransactionSort,
 	type TransactionsListResponse,
-	type TransactionDetailResponse,
-	type CreateSubscriptionRequest,
+	type UpdateCategoryRequest,
 	type UpdateSubscriptionRequest,
-	type SubscriptionsListResponse,
-	type SubscriptionDetailResponse,
-	type BaseApiResponse,
+	type UpdateTransactionRequest,
+	baseApiResponseSchema,
+	categoriesListResponseSchema,
+	categoryDetailResponseSchema,
+	createCategoryRequestSchema,
+	createSubscriptionRequestSchema,
+	createTransactionRequestSchema,
+	reorderCategoriesRequestSchema,
+	subscriptionDetailResponseSchema,
+	subscriptionsListResponseSchema,
+	transactionDetailResponseSchema,
+	transactionsListResponseSchema,
+	updateCategoryRequestSchema,
+	updateSubscriptionRequestSchema,
+	updateTransactionRequestSchema,
 } from "../schemas/api-responses";
+import { apiClient, buildQueryParams } from "./client";
 
 /**
  * APIサービス層の実装
@@ -123,12 +123,14 @@ export const transactionService = {
 	/**
 	 * 取引一覧を取得（フィルタリング・ページネーション対応）
 	 */
-	async getTransactions(params: {
-		filters?: Partial<TransactionFilters>;
-		sort?: Partial<TransactionSort>;
-		page?: number;
-		limit?: number;
-	} = {}): Promise<TransactionsListResponse> {
+	async getTransactions(
+		params: {
+			filters?: Partial<TransactionFilters>;
+			sort?: Partial<TransactionSort>;
+			page?: number;
+			limit?: number;
+		} = {},
+	): Promise<TransactionsListResponse> {
 		const queryParams = buildQueryParams({
 			...params.filters,
 			...params.sort,
@@ -146,7 +148,10 @@ export const transactionService = {
 	 * 取引詳細を取得
 	 */
 	async getTransaction(id: number): Promise<TransactionDetailResponse> {
-		return apiClient.get(`/transactions/${id}`, transactionDetailResponseSchema);
+		return apiClient.get(
+			`/transactions/${id}`,
+			transactionDetailResponseSchema,
+		);
 	},
 
 	/**
@@ -194,13 +199,18 @@ export const transactionService = {
 	 * 取引の統計情報を取得（月次サマリーなど）
 	 * 注：この機能はバックエンドAPIの実装が必要
 	 */
-	async getTransactionStats(params: {
-		startDate?: string;
-		endDate?: string;
-		groupBy?: "month" | "category" | "type";
-	} = {}): Promise<BaseApiResponse> {
+	async getTransactionStats(
+		params: {
+			startDate?: string;
+			endDate?: string;
+			groupBy?: "month" | "category" | "type";
+		} = {},
+	): Promise<BaseApiResponse> {
 		const queryParams = buildQueryParams(params);
-		return apiClient.get(`/transactions/stats${queryParams}`, baseApiResponseSchema);
+		return apiClient.get(
+			`/transactions/stats${queryParams}`,
+			baseApiResponseSchema,
+		);
 	},
 };
 

@@ -1,7 +1,7 @@
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
-import { QueryProvider } from "./lib/query/provider";
 import { AppProvider } from "./contexts/app-context";
+import { QueryProvider } from "./lib/query/provider";
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (

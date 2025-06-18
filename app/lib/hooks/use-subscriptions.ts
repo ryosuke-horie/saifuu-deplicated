@@ -1,20 +1,20 @@
 import {
-	useQuery,
-	useMutation,
-	useQueryClient,
 	type UseMutationOptions,
 	type UseQueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
 } from "@tanstack/react-query";
+import type { ApiError } from "../api/client";
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
 import type {
-	SubscriptionsListResponse,
-	SubscriptionDetailResponse,
-	CreateSubscriptionRequest,
-	UpdateSubscriptionRequest,
 	BaseApiResponse,
+	CreateSubscriptionRequest,
+	SubscriptionDetailResponse,
+	SubscriptionsListResponse,
+	UpdateSubscriptionRequest,
 } from "../schemas/api-responses";
-import { ApiError } from "../api/client";
 
 /**
  * サブスクリプション関連のカスタムフック
@@ -84,7 +84,7 @@ export function useCreateSubscription(
 			});
 
 			// 新しいサブスクリプションをキャッシュに追加
-			queryClient.setQueryData(
+			queryClient.setQueryData<SubscriptionDetailResponse>(
 				queryKeys.subscriptions.detail(data.data.id),
 				data,
 			);
@@ -105,12 +105,18 @@ export function useUpdateSubscription(
 	options?: UseMutationOptions<
 		SubscriptionDetailResponse,
 		ApiError,
-		{ id: number; data: UpdateSubscriptionRequest }
+		{ id: number; data: UpdateSubscriptionRequest },
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
 	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		SubscriptionDetailResponse,
+		ApiError,
+		{ id: number; data: UpdateSubscriptionRequest },
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
+	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.subscriptions.updateSubscription(id, data),
 		onMutate: async ({ id, data }) => {
@@ -120,18 +126,22 @@ export function useUpdateSubscription(
 			});
 
 			// 現在のデータを取得（ロールバック用）
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			// オプティミスティックにデータを更新
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, ...data },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, ...data },
+						};
+					},
 				);
 			}
 
@@ -140,7 +150,7 @@ export function useUpdateSubscription(
 		onError: (err, { id }, context) => {
 			// エラー時にロールバック
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -166,12 +176,23 @@ export function useUpdateSubscription(
  * サブスクリプション削除のフック
  */
 export function useDeleteSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscriptions: SubscriptionsListResponse | undefined }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationFn: (id: number) => apiServices.subscriptions.deleteSubscription(id),
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscriptions: SubscriptionsListResponse | undefined }
+	>({
+		mutationFn: (id: number) =>
+			apiServices.subscriptions.deleteSubscription(id),
 		onMutate: async (id) => {
 			// オプティミスティックアップデート用のキャンセル
 			await queryClient.cancelQueries({
@@ -179,19 +200,23 @@ export function useDeleteSubscription(
 			});
 
 			// 現在の一覧データを取得（ロールバック用）
-			const previousSubscriptions = queryClient.getQueryData(
-				queryKeys.subscriptions.lists(),
-			);
+			const previousSubscriptions =
+				queryClient.getQueryData<SubscriptionsListResponse>(
+					queryKeys.subscriptions.lists(),
+				);
 
 			// オプティミスティックに一覧から削除
 			if (previousSubscriptions) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionsListResponse>(
 					queryKeys.subscriptions.lists(),
-					(old: SubscriptionsListResponse) => ({
-						...old,
-						data: old.data.filter((subscription) => subscription.id !== id),
-						count: old.count ? old.count - 1 : undefined,
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: old.data.filter((subscription) => subscription.id !== id),
+							count: old.count ? old.count - 1 : undefined,
+						};
+					},
 				);
 			}
 
@@ -200,7 +225,7 @@ export function useDeleteSubscription(
 		onError: (err, id, context) => {
 			// エラー時にロールバック
 			if (context?.previousSubscriptions) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionsListResponse>(
 					queryKeys.subscriptions.lists(),
 					context.previousSubscriptions,
 				);
@@ -229,11 +254,21 @@ export function useDeleteSubscription(
  * サブスクリプション一時停止のフック
  */
 export function useDeactivateSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
+	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.deactivateSubscription(id),
 		onMutate: async (id) => {
@@ -242,17 +277,21 @@ export function useDeactivateSubscription(
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, isActive: false },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, isActive: false },
+						};
+					},
 				);
 			}
 
@@ -260,7 +299,7 @@ export function useDeactivateSubscription(
 		},
 		onError: (err, id, context) => {
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -282,11 +321,21 @@ export function useDeactivateSubscription(
  * サブスクリプション再開のフック
  */
 export function useActivateSubscription(
-	options?: UseMutationOptions<BaseApiResponse, ApiError, number>,
+	options?: UseMutationOptions<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
+	>,
 ) {
 	const queryClient = useQueryClient();
 
-	return useMutation({
+	return useMutation<
+		BaseApiResponse,
+		ApiError,
+		number,
+		{ previousSubscription: SubscriptionDetailResponse | undefined }
+	>({
 		mutationFn: (id: number) =>
 			apiServices.subscriptions.activateSubscription(id),
 		onMutate: async (id) => {
@@ -295,17 +344,21 @@ export function useActivateSubscription(
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 
-			const previousSubscription = queryClient.getQueryData(
-				queryKeys.subscriptions.detail(id),
-			);
+			const previousSubscription =
+				queryClient.getQueryData<SubscriptionDetailResponse>(
+					queryKeys.subscriptions.detail(id),
+				);
 
 			if (previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
-					(old: SubscriptionDetailResponse) => ({
-						...old,
-						data: { ...old.data, isActive: true },
-					}),
+					(old) => {
+						if (!old) return old;
+						return {
+							...old,
+							data: { ...old.data, isActive: true },
+						};
+					},
 				);
 			}
 
@@ -313,7 +366,7 @@ export function useActivateSubscription(
 		},
 		onError: (err, id, context) => {
 			if (context?.previousSubscription) {
-				queryClient.setQueryData(
+				queryClient.setQueryData<SubscriptionDetailResponse>(
 					queryKeys.subscriptions.detail(id),
 					context.previousSubscription,
 				);
@@ -449,19 +502,20 @@ export function useSubscriptionsTotalCost() {
 	const totals = subscriptionsResponse.data.reduce(
 		(acc, subscription) => {
 			let monthlyAmount = 0;
+			const amount = Number(subscription.amount);
 
 			switch (subscription.frequency) {
 				case "monthly":
-					monthlyAmount = subscription.amount;
+					monthlyAmount = amount;
 					break;
 				case "yearly":
-					monthlyAmount = subscription.amount / 12;
+					monthlyAmount = amount / 12;
 					break;
 				case "weekly":
-					monthlyAmount = (subscription.amount * 52) / 12;
+					monthlyAmount = (amount * 52) / 12;
 					break;
 				case "daily":
-					monthlyAmount = subscription.amount * 30; // 概算
+					monthlyAmount = amount * 30; // 概算
 					break;
 			}
 

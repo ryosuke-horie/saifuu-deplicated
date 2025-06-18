@@ -92,10 +92,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 			{children}
 			{/* 開発環境でのみReact Query Devtoolsを表示 */}
 			{process.env.NODE_ENV === "development" && (
-				<ReactQueryDevtools
-					initialIsOpen={false}
-					position="bottom"
-				/>
+				<ReactQueryDevtools initialIsOpen={false} position="bottom" />
 			)}
 		</QueryClientProvider>
 	);
