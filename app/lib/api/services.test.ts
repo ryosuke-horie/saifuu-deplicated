@@ -105,7 +105,7 @@ const mockTransaction = {
 	description: "テスト支出",
 	transactionDate: "2024-01-01",
 	paymentMethod: "現金",
-	tags: ["テスト"],
+	tags: "テスト",
 	receiptUrl: null,
 	isRecurring: false,
 	recurringId: null,

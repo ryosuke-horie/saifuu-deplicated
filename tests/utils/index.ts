@@ -233,9 +233,9 @@ export function expectArrayToBeSortedBy<T>(
 		const current = keyExtractor(array[i]);
 
 		if (order === "asc") {
-			expect(prev).toBeLessThanOrEqual(current);
+			expect(Number(prev)).toBeLessThanOrEqual(Number(current));
 		} else {
-			expect(prev).toBeGreaterThanOrEqual(current);
+			expect(Number(prev)).toBeGreaterThanOrEqual(Number(current));
 		}
 	}
 }
@@ -261,3 +261,9 @@ export function expectValidAmount(amount: number) {
 // ========================================
 
 export type { MockLoaderArgs, MockActionArgs };
+
+// Cloudflare特有のモック型をエクスポート
+export type {
+	CloudflareMockLoaderArgs,
+	CloudflareMockActionArgs,
+} from "../mocks/cloudflare";

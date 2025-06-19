@@ -296,27 +296,83 @@ export const setupMockCloudflareEnvironment = () => {
 };
 
 // React Router用のLoaderArgs/ActionArgsモック
-export interface MockLoaderArgs {
+export interface CloudflareMockLoaderArgs {
 	request: Request;
 	params: Record<string, string>;
-	context: MockCloudflareContext;
+	context: {
+		env: {
+			DB: MockD1Database;
+			[key: string]: unknown;
+		};
+		cloudflare: {
+			cf: {
+				colo: string;
+				country?: string;
+				city?: string;
+				continent?: string;
+				timezone?: string;
+				region?: string;
+				regionCode?: string;
+				metroCode?: string;
+				postalCode?: string;
+				latitude?: string;
+				longitude?: string;
+				asn?: number;
+				asOrganization?: string;
+			};
+			ctx: {
+				waitUntil(promise: Promise<unknown>): void;
+				passThroughOnException(): void;
+			};
+		};
+	};
 }
 
-export interface MockActionArgs {
+export interface CloudflareMockActionArgs {
 	request: Request;
 	params: Record<string, string>;
-	context: MockCloudflareContext;
+	context: {
+		env: {
+			DB: MockD1Database;
+			[key: string]: unknown;
+		};
+		cloudflare: {
+			cf: {
+				colo: string;
+				country?: string;
+				city?: string;
+				continent?: string;
+				timezone?: string;
+				region?: string;
+				regionCode?: string;
+				metroCode?: string;
+				postalCode?: string;
+				latitude?: string;
+				longitude?: string;
+				asn?: number;
+				asOrganization?: string;
+			};
+			ctx: {
+				waitUntil(promise: Promise<unknown>): void;
+				passThroughOnException(): void;
+			};
+		};
+	};
 }
 
 export const createMockLoaderArgs = (
 	url = "http://localhost:3000/",
 	params: Record<string, string> = {},
 	method = "GET",
-): MockLoaderArgs => {
+): CloudflareMockLoaderArgs => {
+	const mockContext = createMockCloudflareContext();
 	return {
 		request: new Request(url, { method }),
 		params,
-		context: createMockCloudflareContext(),
+		context: {
+			env: mockContext.env,
+			cloudflare: mockContext.cloudflare,
+		},
 	};
 };
 
@@ -325,11 +381,15 @@ export const createMockActionArgs = (
 	params: Record<string, string> = {},
 	method = "POST",
 	body?: BodyInit,
-): MockActionArgs => {
+): CloudflareMockActionArgs => {
+	const mockContext = createMockCloudflareContext();
 	return {
 		request: new Request(url, { method, body }),
 		params,
-		context: createMockCloudflareContext(),
+		context: {
+			env: mockContext.env,
+			cloudflare: mockContext.cloudflare,
+		},
 	};
 };
 

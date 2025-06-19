@@ -35,11 +35,6 @@ function createTestQueryClient(): QueryClient {
 				onError: () => {},
 			},
 		},
-		logger: {
-			log: () => {},
-			warn: () => {},
-			error: () => {},
-		},
 	});
 }
 

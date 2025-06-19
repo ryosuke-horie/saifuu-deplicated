@@ -88,16 +88,16 @@ class MockQueryBuilder {
 	}
 
 	async execute(): Promise<any[]> {
-		let data = mockDataStore[this.tableName as keyof MockDataStore] || [];
+		let data: any[] = [...(mockDataStore[this.tableName as keyof MockDataStore] || [])];
 
 		// WHERE条件を適用
 		for (const condition of this.whereConditions) {
-			data = (data as any[]).filter(condition);
+			data = data.filter(condition);
 		}
 
 		// JOIN処理（簡略化）
 		for (const join of this.joinConditions) {
-			const joinTable = mockDataStore[join.table as keyof MockDataStore] || [];
+			const joinTable: any[] = [...(mockDataStore[join.table as keyof MockDataStore] || [])];
 			data = data.map((item) => {
 				const joinedItem = joinTable.find((joinItem) =>
 					join.condition(item, joinItem),

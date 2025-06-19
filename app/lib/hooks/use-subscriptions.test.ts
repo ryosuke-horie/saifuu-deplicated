@@ -52,24 +52,21 @@ import {
 // ========================================
 
 // apiServicesをモック
-vi.mock("../api/services", () => ({
-	apiServices: {
-		subscriptions: {
-			getSubscriptions: vi.fn(),
-			getSubscription: vi.fn(),
-			createSubscription: vi.fn(),
-			updateSubscription: vi.fn(),
-			deleteSubscription: vi.fn(),
-			deactivateSubscription: vi.fn(),
-			activateSubscription: vi.fn(),
-		},
+const mockApiServices = {
+	subscriptions: {
+		getSubscriptions: vi.fn(),
+		getSubscription: vi.fn(),
+		createSubscription: vi.fn(),
+		updateSubscription: vi.fn(),
+		deleteSubscription: vi.fn(),
+		deactivateSubscription: vi.fn(),
+		activateSubscription: vi.fn(),
 	},
-}));
+};
 
-// モックしたapiServicesを取得
-const mockApiServices = vi.mocked(
-	await import("../api/services").then((m) => m.apiServices),
-);
+vi.mock("../api/services", () => ({
+	apiServices: mockApiServices,
+}));
 
 // ========================================
 // テストデータ
@@ -84,12 +81,10 @@ const mockSubscriptionsListResponse: SubscriptionsListResponse = {
 			amount: 1980,
 			frequency: "monthly",
 			categoryId: 1,
-			startDate: "2024-01-01",
+			autoGenerate: true,
 			nextPaymentDate: "2024-02-01",
 			description: "動画配信サービス",
 			isActive: true,
-			paymentMethod: "クレジットカード",
-			url: "https://netflix.com",
 			createdAt: "2024-01-01T00:00:00.000Z",
 			updatedAt: "2024-01-01T00:00:00.000Z",
 		},
@@ -99,12 +94,10 @@ const mockSubscriptionsListResponse: SubscriptionsListResponse = {
 			amount: 980,
 			frequency: "monthly",
 			categoryId: 1,
-			startDate: "2024-01-15",
+			autoGenerate: true,
 			nextPaymentDate: "2024-02-15",
 			description: "音楽配信サービス",
 			isActive: true,
-			paymentMethod: "クレジットカード",
-			url: "https://spotify.com",
 			createdAt: "2024-01-15T00:00:00.000Z",
 			updatedAt: "2024-01-15T00:00:00.000Z",
 		},
@@ -114,12 +107,10 @@ const mockSubscriptionsListResponse: SubscriptionsListResponse = {
 			amount: 5680,
 			frequency: "monthly",
 			categoryId: 2,
-			startDate: "2023-12-01",
+			autoGenerate: false,
 			nextPaymentDate: "2024-01-01",
 			description: "デザインソフトウェア（停止中）",
 			isActive: false,
-			paymentMethod: "クレジットカード",
-			url: "https://adobe.com",
 			createdAt: "2023-12-01T00:00:00.000Z",
 			updatedAt: "2024-01-01T00:00:00.000Z",
 		},
@@ -135,7 +126,7 @@ const mockSubscriptionDetailResponse: SubscriptionDetailResponse = {
 		amount: 1980,
 		frequency: "monthly",
 		categoryId: 1,
-		startDate: "2024-01-01",
+		autoGenerate: true,
 		nextPaymentDate: "2024-02-01",
 		description: "動画配信サービス",
 		isActive: true,
@@ -147,9 +138,9 @@ const mockSubscriptionDetailResponse: SubscriptionDetailResponse = {
 };
 
 const mockApiError: ApiError = {
+	name: "API Error",
 	message: "API Error",
 	status: 400,
-	statusText: "Bad Request",
 };
 
 // ========================================
@@ -300,8 +291,9 @@ describe("use-subscriptions hooks", () => {
 				name: "Netflix",
 				amount: 1980,
 				frequency: "monthly",
+				nextPaymentDate: "2024-02-01",
 				categoryId: 1,
-				startDate: "2024-01-01",
+				autoGenerate: true,
 				description: "動画配信サービス",
 			};
 
@@ -336,8 +328,9 @@ describe("use-subscriptions hooks", () => {
 				name: "Netflix",
 				amount: 1980,
 				frequency: "monthly",
+				nextPaymentDate: "2024-02-01",
 				categoryId: 1,
-				startDate: "2024-01-01",
+				autoGenerate: true,
 				description: "動画配信サービス",
 			};
 
@@ -368,8 +361,9 @@ describe("use-subscriptions hooks", () => {
 				name: "Netflix",
 				amount: 1980,
 				frequency: "monthly",
+				nextPaymentDate: "2024-02-01",
 				categoryId: 1,
-				startDate: "2024-01-01",
+				autoGenerate: true,
 				description: "動画配信サービス",
 			};
 
@@ -925,7 +919,7 @@ describe("use-subscriptions hooks", () => {
 						amount: 12000, // 年次
 						frequency: "yearly" as const,
 						categoryId: 1,
-						startDate: "2024-01-01",
+						autoGenerate: true,
 						nextPaymentDate: "2025-01-01",
 						description: "年次サービス",
 						isActive: true,
@@ -1004,8 +998,9 @@ describe("use-subscriptions hooks", () => {
 				name: "Netflix",
 				amount: 1980,
 				frequency: "monthly",
+				nextPaymentDate: "2024-02-01",
 				categoryId: 1,
-				startDate: "2024-01-01",
+				autoGenerate: true,
 				description: "動画配信サービス",
 			};
 
@@ -1258,7 +1253,7 @@ describe("use-subscriptions hooks", () => {
 					amount: 1000,
 					frequency: "monthly",
 					categoryId: 1,
-					startDate: "2024-01-01",
+					autoGenerate: true,
 				});
 			});
 

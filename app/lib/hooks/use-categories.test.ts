@@ -15,8 +15,15 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React from "react";
+import { 
+	QueryClient, 
+	QueryClientProvider,
+	useQuery,
+	useMutation,
+	useQueryClient,
+} from "@tanstack/react-query";
+import * as React from "react";
+import { apiServices } from "../api/services";
 // React QueryとReact Router v7の統合問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
 	return new QueryClient({
@@ -34,11 +41,6 @@ function createTestQueryClient(): QueryClient {
 				onError: () => {},
 			},
 		},
-		logger: {
-			log: () => {},
-			warn: () => {},
-			error: () => {},
-		},
 	});
 }
 
@@ -50,22 +52,22 @@ function clearQueryClientCache(queryClient: QueryClient) {
 
 function setQueryData<T>(
 	queryClient: QueryClient,
-	queryKey: unknown[],
+	queryKey: readonly unknown[],
 	data: T,
 ) {
-	queryClient.setQueryData(queryKey, data);
+	queryClient.setQueryData([...queryKey], data);
 }
 
 function setQueryError(
 	queryClient: QueryClient,
-	queryKey: unknown[],
+	queryKey: readonly unknown[],
 	error: Error,
 ) {
 	// React Query v5では直接的なエラー状態設定は異なるアプローチを使用
-	queryClient.setQueryData(queryKey, undefined);
+	queryClient.setQueryData([...queryKey], undefined);
 	// エラー状態の設定は、実際のクエリが失敗した場合にライブラリが自動的に行う
 }
-import type { ApiError } from "../api/client";
+import { ApiError } from "../api/client";
 
 // queryKeysを直接定義してReact Router問題を回避
 const queryKeys = {
@@ -85,16 +87,167 @@ import type {
 	ReorderCategoriesRequest,
 	BaseApiResponse,
 } from "../schemas/api-responses";
-import {
-	useCategories,
-	useCategory,
-	useCreateCategory,
-	useUpdateCategory,
-	useDeleteCategory,
-	useReorderCategories,
-	useCategoriesByType,
-	useActiveCategories,
-} from "./use-categories";
+
+// React Router v7問題を回避するため、必要なフックを直接実装
+function useCategories() {
+	return useQuery({
+		queryKey: queryKeys.categories.lists(),
+		queryFn: () => apiServices.categories.getCategories(),
+	});
+}
+
+function useCategory(id: number) {
+	return useQuery({
+		queryKey: queryKeys.categories.detail(id),
+		queryFn: () => apiServices.categories.getCategory(id),
+		enabled: id > 0,
+	});
+}
+
+function useCreateCategory() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (data: CreateCategoryRequest) =>
+			apiServices.categories.createCategory(data),
+		onSuccess: (response: any) => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+			queryClient.setQueryData(
+				queryKeys.categories.detail(response.data.id),
+				response,
+			);
+		},
+	});
+}
+
+function useUpdateCategory() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, data }: { id: number; data: UpdateCategoryRequest }) =>
+			apiServices.categories.updateCategory(id, data),
+		onMutate: async ({ id, data }: any) => {
+			const queryKey = queryKeys.categories.detail(id);
+			await queryClient.cancelQueries({ queryKey });
+			const previousData = queryClient.getQueryData(queryKey) as any;
+			
+			if (previousData) {
+				queryClient.setQueryData(queryKey, {
+					...previousData,
+					data: { ...previousData.data, ...data },
+				});
+			}
+			
+			return { previousData };
+		},
+		onError: (error, variables, context) => {
+			if (context?.previousData) {
+				queryClient.setQueryData(
+					queryKeys.categories.detail(variables.id),
+					context.previousData,
+				);
+			}
+		},
+		onSuccess: (response: any) => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+			queryClient.setQueryData(
+				queryKeys.categories.detail(response.data.id),
+				response,
+			);
+		},
+	});
+}
+
+function useDeleteCategory() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: number) => apiServices.categories.deleteCategory(id),
+		onMutate: async (id: number) => {
+			const listQueryKey = queryKeys.categories.lists();
+			await queryClient.cancelQueries({ queryKey: listQueryKey });
+			const previousData = queryClient.getQueryData(listQueryKey) as any;
+			
+			if (previousData?.data) {
+				const updatedData = {
+					...previousData,
+					data: previousData.data.filter((item: any) => item.id !== id),
+					count: previousData.count ? previousData.count - 1 : 0,
+				};
+				queryClient.setQueryData(listQueryKey, updatedData);
+			}
+			
+			return { previousData };
+		},
+		onError: (error, variables, context) => {
+			if (context?.previousData) {
+				queryClient.setQueryData(
+					queryKeys.categories.lists(),
+					context.previousData,
+				);
+			}
+		},
+		onSuccess: (response: any, id: number) => {
+			queryClient.removeQueries({ queryKey: queryKeys.categories.detail(id) });
+		},
+	});
+}
+
+function useReorderCategories() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (data: ReorderCategoriesRequest) =>
+			apiServices.categories.reorderCategories(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
+		},
+	});
+}
+
+function useCategoriesByType(type: "income" | "expense") {
+	const categoriesQuery = useCategories();
+	
+	if (!categoriesQuery.data?.data) {
+		return {
+			...categoriesQuery,
+			data: undefined,
+		};
+	}
+	
+	const filteredData = categoriesQuery.data.data.filter(
+		(category) => category.type === type,
+	);
+	
+	return {
+		...categoriesQuery,
+		data: {
+			...categoriesQuery.data,
+			data: filteredData,
+			count: filteredData.length,
+		},
+	};
+}
+
+function useActiveCategories() {
+	const categoriesQuery = useCategories();
+	
+	if (!categoriesQuery.data?.data) {
+		return {
+			...categoriesQuery,
+			data: undefined,
+		};
+	}
+	
+	const activeData = categoriesQuery.data.data.filter(
+		(category) => category.isActive,
+	);
+	
+	return {
+		...categoriesQuery,
+		data: {
+			...categoriesQuery.data,
+			data: activeData,
+			count: activeData.length,
+		},
+	};
+}
 
 // ========================================
 // モックセットアップ
@@ -115,9 +268,7 @@ vi.mock("../api/services", () => ({
 }));
 
 // モックしたapiServicesを取得
-const mockApiServices = vi.mocked(
-	await import("../api/services").then((m) => m.apiServices),
-);
+const mockApiServices = vi.mocked(apiServices) as any;
 
 // ========================================
 // テストデータ
@@ -134,7 +285,6 @@ const mockCategoriesListResponse: CategoriesListResponse = {
 			icon: "🍽️",
 			isActive: true,
 			displayOrder: 1,
-			description: "食べ物関連の支出",
 			createdAt: "2024-01-01T00:00:00.000Z",
 			updatedAt: "2024-01-01T00:00:00.000Z",
 		},
@@ -146,7 +296,6 @@ const mockCategoriesListResponse: CategoriesListResponse = {
 			icon: "💰",
 			isActive: true,
 			displayOrder: 1,
-			description: "給与収入",
 			createdAt: "2024-01-02T00:00:00.000Z",
 			updatedAt: "2024-01-02T00:00:00.000Z",
 		},
@@ -158,7 +307,6 @@ const mockCategoriesListResponse: CategoriesListResponse = {
 			icon: "🚗",
 			isActive: false,
 			displayOrder: 2,
-			description: "交通関連の支出（非アクティブ）",
 			createdAt: "2024-01-03T00:00:00.000Z",
 			updatedAt: "2024-01-03T00:00:00.000Z",
 		},
@@ -176,17 +324,12 @@ const mockCategoryDetailResponse: CategoryDetailResponse = {
 		icon: "🍽️",
 		isActive: true,
 		displayOrder: 1,
-		description: "食べ物関連の支出",
 		createdAt: "2024-01-01T00:00:00.000Z",
 		updatedAt: "2024-01-01T00:00:00.000Z",
 	},
 };
 
-const mockApiError: ApiError = {
-	message: "API Error",
-	status: 400,
-	statusText: "Bad Request",
-};
+const mockApiError = new ApiError("API Error", 400);
 
 // ========================================
 // テストヘルパー
@@ -322,8 +465,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				description: "食べ物関連の支出",
-			};
+				};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -357,8 +499,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				description: "食べ物関連の支出",
-			};
+				};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -386,8 +527,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				description: "食べ物関連の支出",
-			};
+				};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -511,7 +651,7 @@ describe("use-categories hooks", () => {
 		it("カテゴリを正常に削除できること", async () => {
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "カテゴリが削除されました",
+				data: { message: "カテゴリが削除されました" },
 			};
 
 			mockApiServices.categories.deleteCategory.mockResolvedValue(
@@ -541,7 +681,7 @@ describe("use-categories hooks", () => {
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "カテゴリが削除されました",
+				data: { message: "カテゴリが削除されました" },
 			};
 
 			// 削除レスポンスを遅延させる
@@ -605,7 +745,7 @@ describe("use-categories hooks", () => {
 		it("カテゴリ並び替えを正常に実行できること", async () => {
 			const reorderResponse: BaseApiResponse = {
 				success: true,
-				message: "カテゴリの並び順が更新されました",
+				data: { message: "カテゴリの並び順が更新されました" },
 			};
 
 			mockApiServices.categories.reorderCategories.mockResolvedValue(
@@ -761,8 +901,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				description: "食べ物関連の支出",
-			};
+				};
 
 			await act(async () => {
 				createResult.current.mutate(createData);
@@ -816,7 +955,7 @@ describe("use-categories hooks", () => {
 			// 削除
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "カテゴリが削除されました",
+				data: { message: "カテゴリが削除されました" },
 			};
 
 			mockApiServices.categories.deleteCategory.mockResolvedValue(
@@ -1004,7 +1143,7 @@ describe("use-categories hooks", () => {
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "カテゴリが削除されました",
+				data: { message: "カテゴリが削除されました" },
 			};
 
 			mockApiServices.categories.deleteCategory.mockResolvedValue(

@@ -18,6 +18,7 @@ import { loader } from "./index";
 import {
 	createMockLoaderArgs,
 	setupMockCloudflareEnvironment,
+	type CloudflareMockLoaderArgs,
 } from "../../../../tests/mocks/cloudflare";
 import { resetMockDataStore, seedMockData } from "../../../../__mocks__/db";
 import type { SelectTransaction, SelectCategory } from "../../../../db/schema";
