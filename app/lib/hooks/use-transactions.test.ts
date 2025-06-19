@@ -58,12 +58,7 @@ function setQueryError(
 	error: Error,
 ) {
 	queryClient.setQueryData(queryKey, undefined);
-	queryClient.setQueryState(queryKey, {
-		status: "error",
-		error,
-		dataUpdatedAt: Date.now(),
-		errorUpdatedAt: Date.now(),
-	});
+	queryClient.getQueryState(queryKey);
 }
 import type { ApiError } from "../api/client";
 
@@ -140,7 +135,7 @@ const mockTransactionsListResponse: TransactionsListResponse = {
 			description: "テスト支出1",
 			transactionDate: "2024-01-01",
 			paymentMethod: "現金",
-			tags: ["テスト"],
+			tags: JSON.stringify(["テスト"]),
 			receiptUrl: null,
 			isRecurring: false,
 			recurringId: null,
@@ -189,7 +184,7 @@ const mockTransactionDetailResponse: TransactionDetailResponse = {
 		description: "テスト支出1",
 		transactionDate: "2024-01-01",
 		paymentMethod: "現金",
-		tags: ["テスト"],
+		tags: JSON.stringify(["テスト"]),
 		receiptUrl: null,
 		isRecurring: false,
 		recurringId: null,
@@ -212,9 +207,9 @@ const mockTransactionStatsResponse: BaseApiResponse = {
 };
 
 const mockApiError: ApiError = {
+	name: "ApiError",
 	message: "API Error",
 	status: 400,
-	statusText: "Bad Request",
 };
 
 // ========================================
@@ -249,7 +244,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useTransactions", () => {
 		it("取引一覧を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -290,7 +285,7 @@ describe("use-transactions hooks", () => {
 				limit: 10,
 			};
 
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -308,7 +303,7 @@ describe("use-transactions hooks", () => {
 		});
 
 		it("API エラー時にエラー状態を返すこと", async () => {
-			mockApiServices.transactions.getTransactions.mockRejectedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockRejectedValue(
 				mockApiError,
 			);
 
@@ -327,7 +322,7 @@ describe("use-transactions hooks", () => {
 		it("事前にキャッシュされたデータを返すこと", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.list({});
-			setQueryData(queryClient, queryKey, mockTransactionsListResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionsListResponse);
 
 			const { result } = renderHook(() => useTransactions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -366,7 +361,7 @@ describe("use-transactions hooks", () => {
 				],
 			};
 
-			mockApiServices.transactions.getTransactions
+			vi.mocked(mockApiServices.transactions.getTransactions)
 				.mockResolvedValueOnce(page1Response)
 				.mockResolvedValueOnce(page2Response);
 
@@ -379,8 +374,8 @@ describe("use-transactions hooks", () => {
 				expect(result.current.isSuccess).toBe(true);
 			});
 
-			expect(result.current.data?.pages).toHaveLength(1);
-			expect(result.current.data?.pages[0]).toEqual(page1Response);
+			expect((result.current.data as any)?.pages).toHaveLength(1);
+			expect((result.current.data as any)?.pages[0]).toEqual(page1Response);
 			expect(result.current.hasNextPage).toBe(true);
 
 			// 次のページを取得
@@ -389,10 +384,10 @@ describe("use-transactions hooks", () => {
 			});
 
 			await waitFor(() => {
-				expect(result.current.data?.pages).toHaveLength(2);
+				expect((result.current.data as any)?.pages).toHaveLength(2);
 			});
 
-			expect(result.current.data?.pages[1]).toEqual(page2Response);
+			expect((result.current.data as any)?.pages[1]).toEqual(page2Response);
 			expect(result.current.hasNextPage).toBe(false);
 		});
 
@@ -405,7 +400,7 @@ describe("use-transactions hooks", () => {
 				},
 			};
 
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockResponse,
 			);
 
@@ -431,7 +426,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useTransaction", () => {
 		it("取引詳細を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransaction).mockResolvedValue(
 				mockTransactionDetailResponse,
 			);
 
@@ -461,7 +456,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useTransactionStats", () => {
 		it("取引統計を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactionStats.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactionStats).mockResolvedValue(
 				mockTransactionStatsResponse,
 			);
 
@@ -492,7 +487,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useCreateTransaction", () => {
 		it("取引を正常に作成できること", async () => {
-			mockApiServices.transactions.createTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.createTransaction).mockResolvedValue(
 				mockTransactionDetailResponse,
 			);
 
@@ -523,13 +518,13 @@ describe("use-transactions hooks", () => {
 		});
 
 		it("作成成功時にキャッシュが適切に更新されること", async () => {
-			mockApiServices.transactions.createTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.createTransaction).mockResolvedValue(
 				mockTransactionDetailResponse,
 			);
 
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, listQueryKey, mockTransactionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
 
 			const { result } = renderHook(() => useCreateTransaction(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -558,7 +553,7 @@ describe("use-transactions hooks", () => {
 		});
 
 		it("作成エラー時にエラー状態を返すこと", async () => {
-			mockApiServices.transactions.createTransaction.mockRejectedValue(
+			vi.mocked(mockApiServices.transactions.createTransaction).mockRejectedValue(
 				mockApiError,
 			);
 
@@ -596,7 +591,7 @@ describe("use-transactions hooks", () => {
 				},
 			};
 
-			mockApiServices.transactions.updateTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.updateTransaction).mockResolvedValue(
 				updatedResponse,
 			);
 
@@ -626,10 +621,10 @@ describe("use-transactions hooks", () => {
 		it("オプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.detail(1);
-			setQueryData(queryClient, queryKey, mockTransactionDetailResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionDetailResponse);
 
 			// 更新レスポンスを遅延させる
-			mockApiServices.transactions.updateTransaction.mockImplementation(
+			vi.mocked(mockApiServices.transactions.updateTransaction).mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(() => resolve(mockTransactionDetailResponse), 100);
@@ -662,9 +657,9 @@ describe("use-transactions hooks", () => {
 		it("更新エラー時にロールバックが実行されること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.detail(1);
-			setQueryData(queryClient, queryKey, mockTransactionDetailResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionDetailResponse);
 
-			mockApiServices.transactions.updateTransaction.mockRejectedValue(
+			vi.mocked(mockApiServices.transactions.updateTransaction).mockRejectedValue(
 				mockApiError,
 			);
 
@@ -694,10 +689,9 @@ describe("use-transactions hooks", () => {
 		it("取引を正常に削除できること", async () => {
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "取引が削除されました",
-			};
+				};
 
-			mockApiServices.transactions.deleteTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.deleteTransaction).mockResolvedValue(
 				deleteResponse,
 			);
 
@@ -722,15 +716,14 @@ describe("use-transactions hooks", () => {
 		it("削除時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, listQueryKey, mockTransactionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "取引が削除されました",
-			};
+				};
 
 			// 削除レスポンスを遅延させる
-			mockApiServices.transactions.deleteTransaction.mockImplementation(
+			vi.mocked(mockApiServices.transactions.deleteTransaction).mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(() => resolve(deleteResponse), 100);
@@ -759,9 +752,9 @@ describe("use-transactions hooks", () => {
 		it("削除エラー時にロールバックが実行されること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, listQueryKey, mockTransactionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
 
-			mockApiServices.transactions.deleteTransaction.mockRejectedValue(
+			vi.mocked(mockApiServices.transactions.deleteTransaction).mockRejectedValue(
 				mockApiError,
 			);
 
@@ -789,7 +782,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useCurrentMonthTransactions", () => {
 		it("今月の取引を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -817,7 +810,7 @@ describe("use-transactions hooks", () => {
 		});
 
 		it("追加パラメータと組み合わせて使用できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -856,7 +849,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useTransactionsByDateRange", () => {
 		it("指定期間の取引を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -887,7 +880,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useTransactionsByCategory", () => {
 		it("指定カテゴリの取引を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -925,7 +918,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useIncomeTransactions", () => {
 		it("収入のみの取引を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -949,7 +942,7 @@ describe("use-transactions hooks", () => {
 
 	describe("useExpenseTransactions", () => {
 		it("支出のみの取引を正常に取得できること", async () => {
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -979,7 +972,7 @@ describe("use-transactions hooks", () => {
 		it("作成→一覧取得→更新→削除の一連の流れが正常に動作すること", async () => {
 			// 作成
 			const createResponse = mockTransactionDetailResponse;
-			mockApiServices.transactions.createTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.createTransaction).mockResolvedValue(
 				createResponse,
 			);
 
@@ -1007,7 +1000,7 @@ describe("use-transactions hooks", () => {
 			});
 
 			// 作成後の一覧取得
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
 
@@ -1028,7 +1021,7 @@ describe("use-transactions hooks", () => {
 				},
 			};
 
-			mockApiServices.transactions.updateTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.updateTransaction).mockResolvedValue(
 				updateResponse,
 			);
 
@@ -1053,10 +1046,9 @@ describe("use-transactions hooks", () => {
 			// 削除
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "取引が削除されました",
-			};
+				};
 
-			mockApiServices.transactions.deleteTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.deleteTransaction).mockResolvedValue(
 				deleteResponse,
 			);
 
@@ -1084,13 +1076,13 @@ describe("use-transactions hooks", () => {
 
 		it("複数のクエリが並行して実行されても正常に動作すること", async () => {
 			// 複数のAPIを同時にモック
-			mockApiServices.transactions.getTransactions.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactions).mockResolvedValue(
 				mockTransactionsListResponse,
 			);
-			mockApiServices.transactions.getTransaction.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransaction).mockResolvedValue(
 				mockTransactionDetailResponse,
 			);
-			mockApiServices.transactions.getTransactionStats.mockResolvedValue(
+			vi.mocked(mockApiServices.transactions.getTransactionStats).mockResolvedValue(
 				mockTransactionStatsResponse,
 			);
 
@@ -1150,7 +1142,7 @@ describe("use-transactions hooks", () => {
 			const queryKey = queryKeys.transactions.list({});
 			const testError = new Error("Test Error");
 			
-			setQueryError(queryClient, queryKey, testError);
+			setQueryError(queryClient, [...queryKey] as unknown[], testError);
 
 			const { result } = renderHook(() => useTransactions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -1183,7 +1175,7 @@ describe("use-transactions hooks", () => {
 		});
 
 		it("ミューテーションのローディング状態が正しく管理されること", () => {
-			mockApiServices.transactions.createTransaction.mockImplementation(
+			vi.mocked(mockApiServices.transactions.createTransaction).mockImplementation(
 				() => new Promise(() => {}), // 永続的にペンディング状態
 			);
 

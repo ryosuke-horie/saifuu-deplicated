@@ -130,8 +130,6 @@ const mockSubscriptionDetailResponse: SubscriptionDetailResponse = {
 		nextPaymentDate: "2024-02-01",
 		description: "動画配信サービス",
 		isActive: true,
-		paymentMethod: "クレジットカード",
-		url: "https://netflix.com",
 		createdAt: "2024-01-01T00:00:00.000Z",
 		updatedAt: "2024-01-01T00:00:00.000Z",
 	},
@@ -229,7 +227,7 @@ describe("use-subscriptions hooks", () => {
 		it("事前にキャッシュされたデータを返すこと", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, queryKey, mockSubscriptionsListResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionsListResponse);
 
 			const { result } = renderHook(() => useSubscriptions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -318,7 +316,7 @@ describe("use-subscriptions hooks", () => {
 
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, mockSubscriptionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
 
 			const { result } = renderHook(() => useCreateSubscription(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -420,7 +418,7 @@ describe("use-subscriptions hooks", () => {
 		it("オプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, queryKey, mockSubscriptionDetailResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
 
 			// 更新レスポンスを遅延させる
 			mockApiServices.subscriptions.updateSubscription.mockImplementation(
@@ -462,7 +460,7 @@ describe("use-subscriptions hooks", () => {
 		it("更新エラー時にロールバックが実行されること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, queryKey, mockSubscriptionDetailResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
 
 			mockApiServices.subscriptions.updateSubscription.mockRejectedValue(
 				mockApiError,
@@ -495,8 +493,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に削除できること", async () => {
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが削除されました",
-			};
+				};
 
 			mockApiServices.subscriptions.deleteSubscription.mockResolvedValue(
 				deleteResponse,
@@ -523,12 +520,11 @@ describe("use-subscriptions hooks", () => {
 		it("削除時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, mockSubscriptionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが削除されました",
-			};
+				};
 
 			// 削除レスポンスを遅延させる
 			mockApiServices.subscriptions.deleteSubscription.mockImplementation(
@@ -565,7 +561,7 @@ describe("use-subscriptions hooks", () => {
 		it("削除エラー時にロールバックが実行されること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, mockSubscriptionsListResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
 
 			mockApiServices.subscriptions.deleteSubscription.mockRejectedValue(
 				mockApiError,
@@ -597,8 +593,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に一時停止できること", async () => {
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが一時停止されました",
-			};
+				};
 
 			mockApiServices.subscriptions.deactivateSubscription.mockResolvedValue(
 				deactivateResponse,
@@ -625,12 +620,11 @@ describe("use-subscriptions hooks", () => {
 		it("一時停止時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, queryKey, mockSubscriptionDetailResponse);
+			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
 
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが一時停止されました",
-			};
+				};
 
 			// レスポンスを遅延させる
 			mockApiServices.subscriptions.deactivateSubscription.mockImplementation(
@@ -668,8 +662,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に再開できること", async () => {
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが再開されました",
-			};
+				};
 
 			mockApiServices.subscriptions.activateSubscription.mockResolvedValue(
 				activateResponse,
@@ -704,12 +697,11 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, queryKey, inactiveSubscription);
+			setQueryData(queryClient, [...queryKey] as unknown[], inactiveSubscription);
 
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが再開されました",
-			};
+				};
 
 			// レスポンスを遅延させる
 			mockApiServices.subscriptions.activateSubscription.mockImplementation(
@@ -886,7 +878,7 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, activeSubscriptionsResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], activeSubscriptionsResponse);
 
 			const { result } = renderHook(() => useSubscriptionsTotalCost(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -923,8 +915,6 @@ describe("use-subscriptions hooks", () => {
 						nextPaymentDate: "2025-01-01",
 						description: "年次サービス",
 						isActive: true,
-						paymentMethod: "クレジットカード",
-						url: "https://example.com",
 						createdAt: "2024-01-01T00:00:00.000Z",
 						updatedAt: "2024-01-01T00:00:00.000Z",
 					},
@@ -932,7 +922,7 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, mixedFrequencyResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], mixedFrequencyResponse);
 
 			const { result } = renderHook(() => useSubscriptionsTotalCost(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -955,7 +945,7 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, listQueryKey, emptyResponse);
+			setQueryData(queryClient, [...listQueryKey] as unknown[], emptyResponse);
 
 			const { result } = renderHook(() => useSubscriptionsTotalCost(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -1059,8 +1049,7 @@ describe("use-subscriptions hooks", () => {
 			// 一時停止
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが一時停止されました",
-			};
+				};
 
 			mockApiServices.subscriptions.deactivateSubscription.mockResolvedValue(
 				deactivateResponse,
@@ -1084,8 +1073,7 @@ describe("use-subscriptions hooks", () => {
 			// 再開
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが再開されました",
-			};
+				};
 
 			mockApiServices.subscriptions.activateSubscription.mockResolvedValue(
 				activateResponse,
@@ -1109,8 +1097,7 @@ describe("use-subscriptions hooks", () => {
 			// 削除
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				message: "サブスクリプションが削除されました",
-			};
+				};
 
 			mockApiServices.subscriptions.deleteSubscription.mockResolvedValue(
 				deleteResponse,
@@ -1206,7 +1193,7 @@ describe("use-subscriptions hooks", () => {
 			const queryKey = queryKeys.subscriptions.lists();
 			const testError = new Error("Test Error");
 			
-			setQueryError(queryClient, queryKey, testError);
+			setQueryError(queryClient, [...queryKey] as unknown[], testError);
 
 			const { result } = renderHook(() => useSubscriptions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -1254,6 +1241,7 @@ describe("use-subscriptions hooks", () => {
 					frequency: "monthly",
 					categoryId: 1,
 					autoGenerate: true,
+					nextPaymentDate: "2024-02-01",
 				});
 			});
 
