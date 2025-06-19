@@ -42,6 +42,7 @@ export default function TransactionListDemo() {
 						{/* クイックアクション */}
 						<div className="mt-4 lg:mt-0 flex space-x-3">
 							<button
+								type="button"
 								className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 								onClick={() => {
 									// TODO: 新規登録ページへのナビゲーション
@@ -51,6 +52,7 @@ export default function TransactionListDemo() {
 								新規登録
 							</button>
 							<button
+								type="button"
 								className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
 								onClick={() => {
 									// TODO: CSVエクスポート機能

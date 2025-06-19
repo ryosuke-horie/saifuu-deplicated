@@ -127,6 +127,13 @@ export function TransactionTable({
 							<th
 								className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
 								onClick={() => handleSort("transactionDate")}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										handleSort("transactionDate");
+									}
+								}}
+								aria-label="取引日でソート"
 							>
 								<div className="flex items-center space-x-1">
 									<span>取引日</span>
@@ -143,6 +150,13 @@ export function TransactionTable({
 							<th
 								className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
 								onClick={() => handleSort("amount")}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										handleSort("amount");
+									}
+								}}
+								aria-label="金額でソート"
 							>
 								<div className="flex items-center justify-end space-x-1">
 									<span>金額</span>
@@ -174,6 +188,13 @@ export function TransactionTable({
 								<th
 									className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
 									onClick={() => handleSort("createdAt")}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											e.preventDefault();
+											handleSort("createdAt");
+										}
+									}}
+									aria-label="登録日でソート"
 								>
 									<div className="flex items-center space-x-1">
 										<span>登録日</span>
@@ -261,6 +282,7 @@ export function TransactionTable({
 								<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
 									<div className="flex items-center justify-end space-x-2">
 										<button
+											type="button"
 											className="text-blue-600 hover:text-blue-900 text-sm"
 											onClick={() => {
 												// TODO: 編集機能の実装
@@ -270,6 +292,7 @@ export function TransactionTable({
 											編集
 										</button>
 										<button
+											type="button"
 											className="text-red-600 hover:text-red-900 text-sm"
 											onClick={() => {
 												// TODO: 削除機能の実装

@@ -77,6 +77,15 @@ export function FilterPanel({
 			<div
 				className="px-6 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
 				onClick={() => setIsExpanded(!isExpanded)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						setIsExpanded(!isExpanded);
+					}
+				}}
+				tabIndex={0}
+				role="button"
+				aria-expanded={isExpanded}
 			>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center space-x-3">
@@ -99,6 +108,7 @@ export function FilterPanel({
 					<div className="flex items-center space-x-2">
 						{activeFiltersCount > 0 && (
 							<button
+								type="button"
 								onClick={(e) => {
 									e.stopPropagation();
 									clearFilters();
@@ -134,10 +144,14 @@ export function FilterPanel({
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 						{/* 開始日 */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="filter-from"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								開始日
 							</label>
 							<input
+								id="filter-from"
 								type="date"
 								value={filters.from || ""}
 								onChange={(e) => updateFilter("from", e.target.value)}
@@ -147,10 +161,14 @@ export function FilterPanel({
 
 						{/* 終了日 */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="filter-to"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								終了日
 							</label>
 							<input
+								id="filter-to"
 								type="date"
 								value={filters.to || ""}
 								onChange={(e) => updateFilter("to", e.target.value)}
@@ -160,10 +178,14 @@ export function FilterPanel({
 
 						{/* タイプ */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="filter-type"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								種別
 							</label>
 							<select
+								id="filter-type"
 								value={filters.type || ""}
 								onChange={(e) =>
 									updateFilter("type", e.target.value as "income" | "expense")
@@ -178,10 +200,14 @@ export function FilterPanel({
 
 						{/* カテゴリ */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="filter-category"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								カテゴリ
 							</label>
 							<select
+								id="filter-category"
 								value={filters.category_id || ""}
 								onChange={(e) =>
 									updateFilter(
@@ -206,10 +232,14 @@ export function FilterPanel({
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 						{/* 検索 */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="filter-search"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								説明文検索
 							</label>
 							<input
+								id="filter-search"
 								type="text"
 								placeholder="取引の説明を検索..."
 								value={filters.search || ""}
@@ -220,10 +250,14 @@ export function FilterPanel({
 
 						{/* ソート対象 */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="sort-by"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								並び順
 							</label>
 							<select
+								id="sort-by"
 								value={sort.sort_by || "transactionDate"}
 								onChange={(e) => updateSort("sort_by", e.target.value)}
 								className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -236,10 +270,14 @@ export function FilterPanel({
 
 						{/* ソート順序 */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">
+							<label
+								htmlFor="sort-order"
+								className="block text-sm font-medium text-gray-700 mb-1"
+							>
 								順序
 							</label>
 							<select
+								id="sort-order"
 								value={sort.sort_order || "desc"}
 								onChange={(e) => updateSort("sort_order", e.target.value)}
 								className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

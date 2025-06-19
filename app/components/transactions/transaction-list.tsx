@@ -100,6 +100,7 @@ export function TransactionList({
 				</div>
 				<div className="mt-3">
 					<button
+						type="button"
 						onClick={() => refetch()}
 						className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-md hover:bg-red-200 transition-colors"
 					>
@@ -138,6 +139,7 @@ export function TransactionList({
 					<span className="text-sm text-gray-700">表示:</span>
 					<div className="flex border border-gray-300 rounded-md overflow-hidden">
 						<button
+							type="button"
 							onClick={() => setViewMode("table")}
 							className={`px-3 py-1 text-sm font-medium transition-colors ${
 								viewMode === "table"
@@ -148,6 +150,7 @@ export function TransactionList({
 							テーブル
 						</button>
 						<button
+							type="button"
 							onClick={() => setViewMode("cards")}
 							className={`px-3 py-1 text-sm font-medium transition-colors ${
 								viewMode === "cards"
@@ -177,7 +180,7 @@ export function TransactionList({
 			{isLoading && (
 				<div className="flex items-center justify-center py-12">
 					<div className="flex items-center space-x-2">
-						<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+						<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
 						<span className="text-gray-600">読み込み中...</span>
 					</div>
 				</div>
@@ -205,6 +208,7 @@ export function TransactionList({
 						transactionsResponse.pagination.totalPages > 1 && (
 							<div className="flex items-center justify-between border-t border-gray-200 pt-6">
 								<button
+									type="button"
 									onClick={() => handlePageChange(page - 1)}
 									disabled={!transactionsResponse.pagination.hasPrevPage}
 									className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -218,6 +222,7 @@ export function TransactionList({
 								</span>
 
 								<button
+									type="button"
 									onClick={() => handlePageChange(page + 1)}
 									disabled={!transactionsResponse.pagination.hasNextPage}
 									className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"

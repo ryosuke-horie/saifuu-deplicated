@@ -185,6 +185,7 @@ export function TransactionCards({
 					<div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
 						<div className="flex items-center justify-end space-x-3">
 							<button
+								type="button"
 								className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
 								onClick={() => {
 									// TODO: 編集機能の実装
@@ -194,6 +195,7 @@ export function TransactionCards({
 								編集
 							</button>
 							<button
+								type="button"
 								className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
 								onClick={() => {
 									// TODO: 削除機能の実装
