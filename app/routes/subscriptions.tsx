@@ -1,0 +1,160 @@
+import type { MetaFunction } from "react-router";
+import {
+	SubscriptionCards,
+	SubscriptionForm,
+} from "../components/subscriptions";
+import { useAppContext } from "../contexts/app-context";
+import type { SelectSubscription } from "../types";
+
+/**
+ * サブスクリプション管理ページ
+ *
+ * 設計方針:
+ * - サブスクリプションの包括的な管理インターフェースを提供
+ * - カード形式での一覧表示とCRUD操作
+ * - 月額/年額の表示切り替え機能
+ * - アクティブ/非アクティブ状態の管理
+ * - 次回請求日とコスト計算の可視化
+ * - 既存のSubscriptionWidgetを拡張した専用管理画面
+ */
+
+export const meta: MetaFunction = () => {
+	return [
+		{ title: "サブスクリプション管理 | Saifuu - 家計管理アプリ" },
+		{
+			name: "description",
+			content:
+				"サブスクリプション（定期支払い）の管理画面。登録・編集・一時停止・解約予定の設定が可能です。月額・年額の切り替え表示で総コストを把握できます。",
+		},
+		{ name: "robots", content: "noindex, nofollow" },
+	];
+};
+
+export default function SubscriptionsPage() {
+	const { openModal, closeModal } = useAppContext();
+
+	// 新規サブスクリプション登録モーダルを開く
+	const handleCreateNew = () => {
+		openModal(
+			<SubscriptionForm
+				onSuccess={() => {
+					closeModal();
+				}}
+				onCancel={closeModal}
+			/>,
+		);
+	};
+
+	// サブスクリプション編集モーダルを開く
+	const handleEdit = (subscription?: SelectSubscription) => {
+		openModal(
+			<SubscriptionForm
+				subscription={subscription}
+				onSuccess={() => {
+					closeModal();
+				}}
+				onCancel={closeModal}
+			/>,
+		);
+	};
+
+	return (
+		<div className="min-h-screen bg-gray-50">
+			{/* ヘッダー */}
+			<div className="bg-white border-b border-gray-200">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+						<div>
+							<h1 className="text-3xl font-bold text-gray-900">
+								サブスクリプション管理
+							</h1>
+							<p className="text-gray-600 mt-2">
+								定期支払いサービスを一元管理し、支出を最適化しましょう
+							</p>
+						</div>
+						<div className="mt-4 lg:mt-0 flex flex-wrap gap-3">
+							<button
+								type="button"
+								onClick={handleCreateNew}
+								className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center"
+							>
+								<svg
+									className="w-4 h-4 mr-2"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 4v16m8-8H4"
+									/>
+								</svg>
+								新規サブスクリプション
+							</button>
+							<button
+								type="button"
+								className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium flex items-center"
+							>
+								<svg
+									className="w-4 h-4 mr-2"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"
+									/>
+								</svg>
+								年間コスト分析
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* メインコンテンツ */}
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+				{/* サブスクリプション一覧 */}
+				<div className="space-y-6">
+					<SubscriptionCards onEdit={handleEdit} />
+				</div>
+
+				{/* 年間コスト予測とアドバイス（将来実装予定） */}
+				<div className="mt-12 bg-gray-800 text-gray-100 rounded-lg p-6">
+					<h2 className="text-lg font-semibold mb-3">
+						🚧 追加機能（開発予定）
+					</h2>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+						<div>
+							<h3 className="font-medium text-gray-300 mb-2">実装予定機能</h3>
+							<ul className="space-y-1 text-gray-400">
+								<li>🔄 次回請求日カレンダー表示</li>
+								<li>🔄 年間コスト計算とトレンド分析</li>
+								<li>🔄 カテゴリ別グルーピング表示</li>
+								<li>🔄 解約予定の設定とリマインダー</li>
+								<li>🔄 請求サイクル変更履歴</li>
+								<li>🔄 支出最適化のアドバイス機能</li>
+							</ul>
+						</div>
+						<div>
+							<h3 className="font-medium text-gray-300 mb-2">現在の対応状況</h3>
+							<ul className="space-y-1 text-gray-400">
+								<li>✅ サブスクリプション基本CRUD操作</li>
+								<li>✅ アクティブ/非アクティブ切り替え</li>
+								<li>✅ 月間・年間コスト計算</li>
+								<li>✅ 請求頻度（日次・週次・月次・年次）対応</li>
+								<li>✅ ダッシュボード統合</li>
+								<li>✅ レスポンシブデザイン</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
