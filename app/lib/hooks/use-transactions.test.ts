@@ -13,10 +13,10 @@
  * Issue #37の例に基づいたテスト実装
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // query-wrapperを使わずに直接テスト用のQueryClientを作成
 function createTestQueryClient(): QueryClient {
@@ -67,7 +67,8 @@ const queryKeys = {
 	transactions: {
 		all: ["transactions"] as const,
 		lists: () => [...queryKeys.transactions.all, "list"] as const,
-		list: (params?: any) => [...queryKeys.transactions.lists(), { params }] as const,
+		list: (params?: any) =>
+			[...queryKeys.transactions.lists(), { params }] as const,
 		details: () => [...queryKeys.transactions.all, "detail"] as const,
 		detail: (id: number) => [...queryKeys.transactions.details(), id] as const,
 		stats: (params?: Record<string, unknown>) =>
@@ -75,26 +76,26 @@ const queryKeys = {
 	},
 } as const;
 import type {
-	TransactionsListResponse,
-	TransactionDetailResponse,
-	CreateTransactionRequest,
-	UpdateTransactionRequest,
 	BaseApiResponse,
+	CreateTransactionRequest,
+	TransactionDetailResponse,
+	TransactionsListResponse,
+	UpdateTransactionRequest,
 } from "../schemas/api-responses";
 import {
-	useTransactions,
+	type UseTransactionsParams,
+	useCreateTransaction,
+	useCurrentMonthTransactions,
+	useDeleteTransaction,
+	useExpenseTransactions,
+	useIncomeTransactions,
 	useInfiniteTransactions,
 	useTransaction,
 	useTransactionStats,
-	useCreateTransaction,
-	useUpdateTransaction,
-	useDeleteTransaction,
-	useCurrentMonthTransactions,
-	useTransactionsByDateRange,
+	useTransactions,
 	useTransactionsByCategory,
-	useIncomeTransactions,
-	useExpenseTransactions,
-	type UseTransactionsParams,
+	useTransactionsByDateRange,
+	useUpdateTransaction,
 } from "./use-transactions";
 
 // ========================================
@@ -215,7 +216,11 @@ const mockApiError: ApiError = {
 
 function createWrapperWithQueryClient(queryClient: QueryClient) {
 	return function Wrapper({ children }: { children: React.ReactNode }) {
-		return React.createElement(QueryClientProvider, { client: queryClient }, children);
+		return React.createElement(
+			QueryClientProvider,
+			{ client: queryClient },
+			children,
+		);
 	};
 }
 
@@ -319,7 +324,11 @@ describe("use-transactions hooks", () => {
 		it("事前にキャッシュされたデータを返すこと", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.list({});
-			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionsListResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockTransactionsListResponse,
+			);
 
 			const { result } = renderHook(() => useTransactions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -447,7 +456,9 @@ describe("use-transactions hooks", () => {
 			});
 
 			expect(result.current.fetchStatus).toBe("idle");
-			expect(mockApiServices.transactions.getTransaction).not.toHaveBeenCalled();
+			expect(
+				mockApiServices.transactions.getTransaction,
+			).not.toHaveBeenCalled();
 		});
 	});
 
@@ -509,9 +520,9 @@ describe("use-transactions hooks", () => {
 			});
 
 			expect(result.current.data).toEqual(mockTransactionDetailResponse);
-			expect(mockApiServices.transactions.createTransaction).toHaveBeenCalledWith(
-				createData,
-			);
+			expect(
+				mockApiServices.transactions.createTransaction,
+			).toHaveBeenCalledWith(createData);
 		});
 
 		it("作成成功時にキャッシュが適切に更新されること", async () => {
@@ -521,7 +532,11 @@ describe("use-transactions hooks", () => {
 
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockTransactionsListResponse,
+			);
 
 			const { result } = renderHook(() => useCreateTransaction(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -609,16 +624,19 @@ describe("use-transactions hooks", () => {
 			});
 
 			expect(result.current.data).toEqual(updatedResponse);
-			expect(mockApiServices.transactions.updateTransaction).toHaveBeenCalledWith(
-				1,
-				updateData,
-			);
+			expect(
+				mockApiServices.transactions.updateTransaction,
+			).toHaveBeenCalledWith(1, updateData);
 		});
 
 		it("オプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionDetailResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockTransactionDetailResponse,
+			);
 
 			// 更新レスポンスを遅延させる
 			mockApiServices.transactions.updateTransaction.mockImplementation(
@@ -654,7 +672,11 @@ describe("use-transactions hooks", () => {
 		it("更新エラー時にロールバックが実行されること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.transactions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], mockTransactionDetailResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockTransactionDetailResponse,
+			);
 
 			mockApiServices.transactions.updateTransaction.mockRejectedValue(
 				mockApiError,
@@ -686,7 +708,7 @@ describe("use-transactions hooks", () => {
 		it("取引を正常に削除できること", async () => {
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.transactions.deleteTransaction.mockResolvedValue(
 				deleteResponse,
@@ -705,19 +727,23 @@ describe("use-transactions hooks", () => {
 			});
 
 			expect(result.current.data).toEqual(deleteResponse);
-			expect(mockApiServices.transactions.deleteTransaction).toHaveBeenCalledWith(
-				1,
-			);
+			expect(
+				mockApiServices.transactions.deleteTransaction,
+			).toHaveBeenCalledWith(1);
 		});
 
 		it("削除時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockTransactionsListResponse,
+			);
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			// 削除レスポンスを遅延させる
 			mockApiServices.transactions.deleteTransaction.mockImplementation(
@@ -749,7 +775,11 @@ describe("use-transactions hooks", () => {
 		it("削除エラー時にロールバックが実行されること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.transactions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockTransactionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockTransactionsListResponse,
+			);
 
 			mockApiServices.transactions.deleteTransaction.mockRejectedValue(
 				mockApiError,
@@ -909,7 +939,9 @@ describe("use-transactions hooks", () => {
 			});
 
 			expect(result.current.fetchStatus).toBe("idle");
-			expect(mockApiServices.transactions.getTransactions).not.toHaveBeenCalled();
+			expect(
+				mockApiServices.transactions.getTransactions,
+			).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1043,7 +1075,7 @@ describe("use-transactions hooks", () => {
 			// 削除
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.transactions.deleteTransaction.mockResolvedValue(
 				deleteResponse,
@@ -1092,12 +1124,9 @@ describe("use-transactions hooks", () => {
 				wrapper: createWrapperWithQueryClient(queryClient),
 			});
 
-			const { result: statsResult } = renderHook(
-				() => useTransactionStats(),
-				{
-					wrapper: createWrapperWithQueryClient(queryClient),
-				},
-			);
+			const { result: statsResult } = renderHook(() => useTransactionStats(), {
+				wrapper: createWrapperWithQueryClient(queryClient),
+			});
 
 			// すべてのクエリが完了まで待機
 			await waitFor(() => {
@@ -1138,7 +1167,7 @@ describe("use-transactions hooks", () => {
 		it("事前設定されたエラーキャッシュが正しく動作すること", async () => {
 			const queryKey = queryKeys.transactions.list({});
 			const testError = new Error("Test Error");
-			
+
 			setQueryError(queryClient, [...queryKey] as unknown[], testError);
 
 			const { result } = renderHook(() => useTransactions(), {
