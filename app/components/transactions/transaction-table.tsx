@@ -1,4 +1,11 @@
 import type { SelectTransaction, TransactionSort } from "../../types";
+import {
+	formatAmount,
+	formatDate,
+	getAmountColorClass,
+	getTypeColorClass,
+	getTypeLabel,
+} from "../../utils/transaction-formatters";
 
 /**
  * 取引テーブル表示コンポーネント
@@ -81,32 +88,10 @@ export function TransactionTable({
 		);
 	};
 
-	// 金額のフォーマット
-	const formatAmount = (amount: number, type: "income" | "expense") => {
-		const formattedAmount = amount.toLocaleString();
-		return type === "income" ? `+¥${formattedAmount}` : `-¥${formattedAmount}`;
-	};
-
-	// 日付のフォーマット
-	const formatDate = (dateString: string) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString("ja-JP", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-		});
-	};
-
-	// タイプの表示名
-	const getTypeLabel = (type: "income" | "expense") => {
-		return type === "income" ? "収入" : "支出";
-	};
-
-	// タイプの色クラス
-	const getTypeColorClass = (type: "income" | "expense") => {
-		return type === "income"
-			? "text-green-600 bg-green-50"
-			: "text-red-600 bg-red-50";
+	// ソート状態の取得
+	const getSortState = (column: TransactionSort["sort_by"]) => {
+		if (sort.sort_by !== column) return "none";
+		return sort.sort_order === "asc" ? "ascending" : "descending";
 	};
 
 	if (transactions.length === 0) {
@@ -125,20 +110,18 @@ export function TransactionTable({
 						<tr>
 							{/* 取引日 */}
 							<th
-								className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-								onClick={() => handleSort("transactionDate")}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										handleSort("transactionDate");
-									}
-								}}
-								aria-label="取引日でソート"
+								className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+								aria-sort={getSortState("transactionDate")}
 							>
-								<div className="flex items-center space-x-1">
+								<button
+									type="button"
+									className="w-full text-left cursor-pointer hover:bg-gray-100 flex items-center space-x-1 p-1 rounded"
+									onClick={() => handleSort("transactionDate")}
+									aria-label="取引日でソート"
+								>
 									<span>取引日</span>
 									{getSortIcon("transactionDate")}
-								</div>
+								</button>
 							</th>
 
 							{/* タイプ */}
@@ -148,20 +131,18 @@ export function TransactionTable({
 
 							{/* 金額 */}
 							<th
-								className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-								onClick={() => handleSort("amount")}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										handleSort("amount");
-									}
-								}}
-								aria-label="金額でソート"
+								className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+								aria-sort={getSortState("amount")}
 							>
-								<div className="flex items-center justify-end space-x-1">
+								<button
+									type="button"
+									className="w-full text-right cursor-pointer hover:bg-gray-100 flex items-center justify-end space-x-1 p-1 rounded"
+									onClick={() => handleSort("amount")}
+									aria-label="金額でソート"
+								>
 									<span>金額</span>
 									{getSortIcon("amount")}
-								</div>
+								</button>
 							</th>
 
 							{/* カテゴリ */}
@@ -186,20 +167,18 @@ export function TransactionTable({
 							{/* 登録日 */}
 							{!compact && (
 								<th
-									className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-									onClick={() => handleSort("createdAt")}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault();
-											handleSort("createdAt");
-										}
-									}}
-									aria-label="登録日でソート"
+									className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+									aria-sort={getSortState("createdAt")}
 								>
-									<div className="flex items-center space-x-1">
+									<button
+										type="button"
+										className="w-full text-left cursor-pointer hover:bg-gray-100 flex items-center space-x-1 p-1 rounded"
+										onClick={() => handleSort("createdAt")}
+										aria-label="登録日でソート"
+									>
 										<span>登録日</span>
 										{getSortIcon("createdAt")}
-									</div>
+									</button>
 								</th>
 							)}
 
@@ -228,11 +207,7 @@ export function TransactionTable({
 
 								{/* 金額 */}
 								<td
-									className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-right ${
-										transaction.type === "income"
-											? "text-green-600"
-											: "text-red-600"
-									}`}
+									className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-right ${getAmountColorClass(transaction.type as "income" | "expense")}`}
 								>
 									{formatAmount(
 										transaction.amount,

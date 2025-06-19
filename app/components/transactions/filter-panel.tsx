@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCategories } from "../../lib/hooks/use-categories";
 import type { TransactionFilters, TransactionSort } from "../../types";
+import { formatTotalAmount } from "../../utils/transaction-formatters";
 
 /**
  * フィルターパネルコンポーネント
@@ -52,7 +53,10 @@ export function FilterPanel({
 	};
 
 	// ソート値の更新
-	const updateSort = (key: keyof TransactionSort, value: string) => {
+	const updateSort = <K extends keyof TransactionSort>(
+		key: K,
+		value: TransactionSort[K],
+	) => {
 		onSortChange({ ...sort, [key]: value });
 	};
 
@@ -65,27 +69,15 @@ export function FilterPanel({
 	// アクティブなフィルター数を計算
 	const activeFiltersCount = Object.keys(filters).length;
 
-	// 金額のフォーマット
-	const formatAmount = (amount: number) => {
-		const sign = amount >= 0 ? "+" : "";
-		return `${sign}¥${Math.abs(amount).toLocaleString()}`;
-	};
-
 	return (
 		<div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
 			{/* ヘッダー */}
-			<div
-				className="px-6 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+			<button
+				type="button"
+				className="w-full px-6 py-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-left"
 				onClick={() => setIsExpanded(!isExpanded)}
-				onKeyDown={(e) => {
-					if (e.key === "Enter" || e.key === " ") {
-						e.preventDefault();
-						setIsExpanded(!isExpanded);
-					}
-				}}
-				tabIndex={0}
-				role="button"
 				aria-expanded={isExpanded}
+				aria-label="フィルターパネルの展開・折りたたみ"
 			>
 				<div className="flex items-center justify-between">
 					<div className="flex items-center space-x-3">
@@ -101,7 +93,7 @@ export function FilterPanel({
 									totalAmount >= 0 ? "text-green-600" : "text-red-600"
 								}`}
 							>
-								合計: {formatAmount(totalAmount)}
+								合計: {formatTotalAmount(totalAmount)}
 							</div>
 						)}
 					</div>
@@ -135,7 +127,7 @@ export function FilterPanel({
 						</svg>
 					</div>
 				</div>
-			</div>
+			</button>
 
 			{/* フィルターコンテンツ */}
 			{isExpanded && (
@@ -259,7 +251,12 @@ export function FilterPanel({
 							<select
 								id="sort-by"
 								value={sort.sort_by || "transactionDate"}
-								onChange={(e) => updateSort("sort_by", e.target.value)}
+								onChange={(e) =>
+									updateSort(
+										"sort_by",
+										e.target.value as TransactionSort["sort_by"],
+									)
+								}
 								className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							>
 								<option value="transactionDate">取引日</option>
@@ -279,7 +276,12 @@ export function FilterPanel({
 							<select
 								id="sort-order"
 								value={sort.sort_order || "desc"}
-								onChange={(e) => updateSort("sort_order", e.target.value)}
+								onChange={(e) =>
+									updateSort(
+										"sort_order",
+										e.target.value as TransactionSort["sort_order"],
+									)
+								}
 								className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 							>
 								<option value="desc">新しい順</option>

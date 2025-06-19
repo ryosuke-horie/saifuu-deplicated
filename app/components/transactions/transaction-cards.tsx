@@ -1,4 +1,11 @@
 import type { SelectTransaction } from "../../types";
+import {
+	formatAmount,
+	formatDate,
+	getAmountColorClass,
+	getCardBorderClass,
+	getTypeLabel,
+} from "../../utils/transaction-formatters";
 
 /**
  * 取引カード表示コンポーネント
@@ -19,39 +26,6 @@ export function TransactionCards({
 	transactions,
 	compact = false,
 }: TransactionCardsProps) {
-	// 金額のフォーマット
-	const formatAmount = (amount: number, type: "income" | "expense") => {
-		const formattedAmount = amount.toLocaleString();
-		return type === "income" ? `+¥${formattedAmount}` : `-¥${formattedAmount}`;
-	};
-
-	// 日付のフォーマット
-	const formatDate = (dateString: string) => {
-		const date = new Date(dateString);
-		return date.toLocaleDateString("ja-JP", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-		});
-	};
-
-	// タイプの表示名
-	const getTypeLabel = (type: "income" | "expense") => {
-		return type === "income" ? "収入" : "支出";
-	};
-
-	// カードの境界線色クラス
-	const getCardBorderClass = (type: "income" | "expense") => {
-		return type === "income"
-			? "border-l-4 border-l-green-400"
-			: "border-l-4 border-l-red-400";
-	};
-
-	// 金額の色クラス
-	const getAmountColorClass = (type: "income" | "expense") => {
-		return type === "income" ? "text-green-600" : "text-red-600";
-	};
-
 	if (transactions.length === 0) {
 		return (
 			<div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
