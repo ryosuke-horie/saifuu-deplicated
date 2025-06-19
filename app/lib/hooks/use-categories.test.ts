@@ -13,16 +13,16 @@
  * Issue #37の例に基づいたテスト実装
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { 
-	QueryClient, 
+import {
+	QueryClient,
 	QueryClientProvider,
-	useQuery,
 	useMutation,
+	useQuery,
 	useQueryClient,
 } from "@tanstack/react-query";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import * as React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { apiServices } from "../api/services";
 // React QueryとReact Router v7の統合問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
@@ -74,18 +74,19 @@ const queryKeys = {
 	categories: {
 		all: ["categories"] as const,
 		lists: () => [...queryKeys.categories.all, "list"] as const,
-		list: (params?: any) => [...queryKeys.categories.lists(), { params }] as const,
+		list: (params?: any) =>
+			[...queryKeys.categories.lists(), { params }] as const,
 		details: () => [...queryKeys.categories.all, "detail"] as const,
 		detail: (id: number) => [...queryKeys.categories.details(), id] as const,
 	},
 };
 import type {
+	BaseApiResponse,
 	CategoriesListResponse,
 	CategoryDetailResponse,
 	CreateCategoryRequest,
-	UpdateCategoryRequest,
 	ReorderCategoriesRequest,
-	BaseApiResponse,
+	UpdateCategoryRequest,
 } from "../schemas/api-responses";
 
 // React Router v7問題を回避するため、必要なフックを直接実装
@@ -128,14 +129,14 @@ function useUpdateCategory() {
 			const queryKey = queryKeys.categories.detail(id);
 			await queryClient.cancelQueries({ queryKey });
 			const previousData = queryClient.getQueryData(queryKey) as any;
-			
+
 			if (previousData) {
 				queryClient.setQueryData(queryKey, {
 					...previousData,
 					data: { ...previousData.data, ...data },
 				});
 			}
-			
+
 			return { previousData };
 		},
 		onError: (error, variables, context) => {
@@ -164,7 +165,7 @@ function useDeleteCategory() {
 			const listQueryKey = queryKeys.categories.lists();
 			await queryClient.cancelQueries({ queryKey: listQueryKey });
 			const previousData = queryClient.getQueryData(listQueryKey) as any;
-			
+
 			if (previousData?.data) {
 				const updatedData = {
 					...previousData,
@@ -173,7 +174,7 @@ function useDeleteCategory() {
 				};
 				queryClient.setQueryData(listQueryKey, updatedData);
 			}
-			
+
 			return { previousData };
 		},
 		onError: (error, variables, context) => {
@@ -203,18 +204,18 @@ function useReorderCategories() {
 
 function useCategoriesByType(type: "income" | "expense") {
 	const categoriesQuery = useCategories();
-	
+
 	if (!categoriesQuery.data?.data) {
 		return {
 			...categoriesQuery,
 			data: undefined,
 		};
 	}
-	
+
 	const filteredData = categoriesQuery.data.data.filter(
 		(category) => category.type === type,
 	);
-	
+
 	return {
 		...categoriesQuery,
 		data: {
@@ -227,18 +228,18 @@ function useCategoriesByType(type: "income" | "expense") {
 
 function useActiveCategories() {
 	const categoriesQuery = useCategories();
-	
+
 	if (!categoriesQuery.data?.data) {
 		return {
 			...categoriesQuery,
 			data: undefined,
 		};
 	}
-	
+
 	const activeData = categoriesQuery.data.data.filter(
 		(category) => category.isActive,
 	);
-	
+
 	return {
 		...categoriesQuery,
 		data: {
@@ -337,7 +338,11 @@ const mockApiError = new ApiError("API Error", 400);
 
 function createWrapperWithQueryClient(queryClient: QueryClient) {
 	return function Wrapper({ children }: { children: React.ReactNode }) {
-		return React.createElement(QueryClientProvider, { client: queryClient }, children);
+		return React.createElement(
+			QueryClientProvider,
+			{ client: queryClient },
+			children,
+		);
 	};
 }
 
@@ -465,7 +470,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				};
+			};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -499,7 +504,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				};
+			};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -527,7 +532,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				};
+			};
 
 			await act(async () => {
 				result.current.mutate(createData);
@@ -609,7 +614,9 @@ describe("use-categories hooks", () => {
 			});
 
 			// キャッシュが一時的に更新されることを確認
-			const cachedData = queryClient.getQueryData(queryKey) as CategoryDetailResponse;
+			const cachedData = queryClient.getQueryData(
+				queryKey,
+			) as CategoryDetailResponse;
 			expect(cachedData?.data.name).toBe("更新された食費");
 
 			// 更新完了まで待機
@@ -706,8 +713,10 @@ describe("use-categories hooks", () => {
 			});
 
 			// 一覧からアイテムが削除されることを確認
-			const cachedData = queryClient.getQueryData(listQueryKey) as CategoriesListResponse;
-			expect(cachedData?.data.find(cat => cat.id === 1)).toBeUndefined();
+			const cachedData = queryClient.getQueryData(
+				listQueryKey,
+			) as CategoriesListResponse;
+			expect(cachedData?.data.find((cat) => cat.id === 1)).toBeUndefined();
 			expect(cachedData?.count).toBe(2);
 
 			// 削除完了まで待機
@@ -901,7 +910,7 @@ describe("use-categories hooks", () => {
 				type: "expense",
 				color: "#FF6B6B",
 				icon: "🍽️",
-				};
+			};
 
 			await act(async () => {
 				createResult.current.mutate(createData);
@@ -1042,7 +1051,7 @@ describe("use-categories hooks", () => {
 		it("事前設定されたエラーキャッシュが正しく動作すること", async () => {
 			const queryKey = queryKeys.categories.lists();
 			const testError = new Error("Test Error");
-			
+
 			setQueryError(queryClient, queryKey, testError);
 
 			const { result } = renderHook(() => useCategories(), {

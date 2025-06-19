@@ -14,37 +14,37 @@
  * Issue #37の例に基づいたテスト実装
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	createTestQueryClient,
 	clearQueryClientCache,
+	createTestQueryClient,
 	setQueryData,
 	setQueryError,
 } from "../../../tests/utils/query-wrapper";
 import type { ApiError } from "../api/client";
 import { queryKeys } from "../query/provider";
 import type {
-	SubscriptionsListResponse,
-	SubscriptionDetailResponse,
-	CreateSubscriptionRequest,
-	UpdateSubscriptionRequest,
 	BaseApiResponse,
+	CreateSubscriptionRequest,
+	SubscriptionDetailResponse,
+	SubscriptionsListResponse,
+	UpdateSubscriptionRequest,
 } from "../schemas/api-responses";
 import {
-	useSubscriptions,
-	useSubscription,
-	useCreateSubscription,
-	useUpdateSubscription,
-	useDeleteSubscription,
-	useDeactivateSubscription,
 	useActivateSubscription,
 	useActiveSubscriptions,
-	useInactiveSubscriptions,
+	useCreateSubscription,
 	useCurrentMonthSubscriptions,
+	useDeactivateSubscription,
+	useDeleteSubscription,
+	useInactiveSubscriptions,
+	useSubscription,
+	useSubscriptions,
 	useSubscriptionsTotalCost,
+	useUpdateSubscription,
 } from "./use-subscriptions";
 
 // ========================================
@@ -147,7 +147,11 @@ const mockApiError: ApiError = {
 
 function createWrapperWithQueryClient(queryClient: QueryClient) {
 	return function Wrapper({ children }: { children: React.ReactNode }) {
-		return React.createElement(QueryClientProvider, { client: queryClient }, children);
+		return React.createElement(
+			QueryClientProvider,
+			{ client: queryClient },
+			children,
+		);
 	};
 }
 
@@ -204,7 +208,9 @@ describe("use-subscriptions hooks", () => {
 			expect(result.current.error).toBeNull();
 
 			// APIが正しく呼ばれること
-			expect(mockApiServices.subscriptions.getSubscriptions).toHaveBeenCalledWith();
+			expect(
+				mockApiServices.subscriptions.getSubscriptions,
+			).toHaveBeenCalledWith();
 		});
 
 		it("API エラー時にエラー状態を返すこと", async () => {
@@ -227,7 +233,11 @@ describe("use-subscriptions hooks", () => {
 		it("事前にキャッシュされたデータを返すこと", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionsListResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockSubscriptionsListResponse,
+			);
 
 			const { result } = renderHook(() => useSubscriptions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -254,9 +264,9 @@ describe("use-subscriptions hooks", () => {
 			});
 
 			expect(result.current.data).toEqual(mockSubscriptionDetailResponse);
-			expect(mockApiServices.subscriptions.getSubscription).toHaveBeenCalledWith(
-				1,
-			);
+			expect(
+				mockApiServices.subscriptions.getSubscription,
+			).toHaveBeenCalledWith(1);
 		});
 
 		it("IDが無効な場合はクエリを実行しないこと", () => {
@@ -316,7 +326,11 @@ describe("use-subscriptions hooks", () => {
 
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockSubscriptionsListResponse,
+			);
 
 			const { result } = renderHook(() => useCreateSubscription(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -418,7 +432,11 @@ describe("use-subscriptions hooks", () => {
 		it("オプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockSubscriptionDetailResponse,
+			);
 
 			// 更新レスポンスを遅延させる
 			mockApiServices.subscriptions.updateSubscription.mockImplementation(
@@ -447,7 +465,9 @@ describe("use-subscriptions hooks", () => {
 			});
 
 			// キャッシュが一時的に更新されることを確認
-			const cachedData = queryClient.getQueryData(queryKey) as SubscriptionDetailResponse;
+			const cachedData = queryClient.getQueryData(
+				queryKey,
+			) as SubscriptionDetailResponse;
 			expect(cachedData?.data.name).toBe("Netflix Premium");
 			expect(cachedData?.data.amount).toBe(2190);
 
@@ -460,7 +480,11 @@ describe("use-subscriptions hooks", () => {
 		it("更新エラー時にロールバックが実行されること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockSubscriptionDetailResponse,
+			);
 
 			mockApiServices.subscriptions.updateSubscription.mockRejectedValue(
 				mockApiError,
@@ -493,7 +517,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に削除できること", async () => {
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.deleteSubscription.mockResolvedValue(
 				deleteResponse,
@@ -520,11 +544,15 @@ describe("use-subscriptions hooks", () => {
 		it("削除時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockSubscriptionsListResponse,
+			);
 
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			// 削除レスポンスを遅延させる
 			mockApiServices.subscriptions.deleteSubscription.mockImplementation(
@@ -548,8 +576,10 @@ describe("use-subscriptions hooks", () => {
 			});
 
 			// 一覧からアイテムが削除されることを確認
-			const cachedData = queryClient.getQueryData(listQueryKey) as SubscriptionsListResponse;
-			expect(cachedData?.data.find(sub => sub.id === 1)).toBeUndefined();
+			const cachedData = queryClient.getQueryData(
+				listQueryKey,
+			) as SubscriptionsListResponse;
+			expect(cachedData?.data.find((sub) => sub.id === 1)).toBeUndefined();
 			expect(cachedData?.count).toBe(2);
 
 			// 削除完了まで待機
@@ -561,7 +591,11 @@ describe("use-subscriptions hooks", () => {
 		it("削除エラー時にロールバックが実行されること", async () => {
 			// 事前に一覧データをキャッシュに設定
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mockSubscriptionsListResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mockSubscriptionsListResponse,
+			);
 
 			mockApiServices.subscriptions.deleteSubscription.mockRejectedValue(
 				mockApiError,
@@ -593,7 +627,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に一時停止できること", async () => {
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.deactivateSubscription.mockResolvedValue(
 				deactivateResponse,
@@ -620,11 +654,15 @@ describe("use-subscriptions hooks", () => {
 		it("一時停止時にオプティミスティックアップデートが動作すること", async () => {
 			// 事前にキャッシュを設定
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], mockSubscriptionDetailResponse);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				mockSubscriptionDetailResponse,
+			);
 
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			// レスポンスを遅延させる
 			mockApiServices.subscriptions.deactivateSubscription.mockImplementation(
@@ -648,7 +686,9 @@ describe("use-subscriptions hooks", () => {
 			});
 
 			// isActiveがfalseに更新されることを確認
-			const cachedData = queryClient.getQueryData(queryKey) as SubscriptionDetailResponse;
+			const cachedData = queryClient.getQueryData(
+				queryKey,
+			) as SubscriptionDetailResponse;
 			expect(cachedData?.data.isActive).toBe(false);
 
 			// 完了まで待機
@@ -662,7 +702,7 @@ describe("use-subscriptions hooks", () => {
 		it("サブスクリプションを正常に再開できること", async () => {
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.activateSubscription.mockResolvedValue(
 				activateResponse,
@@ -697,11 +737,15 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const queryKey = queryKeys.subscriptions.detail(1);
-			setQueryData(queryClient, [...queryKey] as unknown[], inactiveSubscription);
+			setQueryData(
+				queryClient,
+				[...queryKey] as unknown[],
+				inactiveSubscription,
+			);
 
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			// レスポンスを遅延させる
 			mockApiServices.subscriptions.activateSubscription.mockImplementation(
@@ -725,7 +769,9 @@ describe("use-subscriptions hooks", () => {
 			});
 
 			// isActiveがtrueに更新されることを確認
-			const cachedData = queryClient.getQueryData(queryKey) as SubscriptionDetailResponse;
+			const cachedData = queryClient.getQueryData(
+				queryKey,
+			) as SubscriptionDetailResponse;
 			expect(cachedData?.data.isActive).toBe(true);
 
 			// 完了まで待機
@@ -811,13 +857,13 @@ describe("use-subscriptions hooks", () => {
 	describe("useCurrentMonthSubscriptions", () => {
 		it("今月支払予定のサブスクリプションを正常にフィルタリングできること", async () => {
 			const currentMonth = getCurrentMonth();
-			
+
 			// 今月の支払予定にする
 			const thisMonthResponse = {
 				...mockSubscriptionsListResponse,
 				data: mockSubscriptionsListResponse.data.map((sub) => ({
 					...sub,
-					nextPaymentDate: `${currentMonth.year}-${String(currentMonth.month + 1).padStart(2, '0')}-15`,
+					nextPaymentDate: `${currentMonth.year}-${String(currentMonth.month + 1).padStart(2, "0")}-15`,
 					isActive: true,
 				})),
 			};
@@ -842,12 +888,12 @@ describe("use-subscriptions hooks", () => {
 			// 来月の支払予定にする
 			const nextMonth = new Date();
 			nextMonth.setMonth(nextMonth.getMonth() + 1);
-			
+
 			const nextMonthResponse = {
 				...mockSubscriptionsListResponse,
 				data: mockSubscriptionsListResponse.data.map((sub) => ({
 					...sub,
-					nextPaymentDate: `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-15`,
+					nextPaymentDate: `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, "0")}-15`,
 					isActive: true,
 				})),
 			};
@@ -874,11 +920,15 @@ describe("use-subscriptions hooks", () => {
 			// 事前にアクティブなサブスクリプションをキャッシュに設定
 			const activeSubscriptionsResponse = {
 				...mockSubscriptionsListResponse,
-				data: mockSubscriptionsListResponse.data.filter(sub => sub.isActive),
+				data: mockSubscriptionsListResponse.data.filter((sub) => sub.isActive),
 			};
 
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], activeSubscriptionsResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				activeSubscriptionsResponse,
+			);
 
 			const { result } = renderHook(() => useSubscriptionsTotalCost(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -922,7 +972,11 @@ describe("use-subscriptions hooks", () => {
 			};
 
 			const listQueryKey = queryKeys.subscriptions.lists();
-			setQueryData(queryClient, [...listQueryKey] as unknown[], mixedFrequencyResponse);
+			setQueryData(
+				queryClient,
+				[...listQueryKey] as unknown[],
+				mixedFrequencyResponse,
+			);
 
 			const { result } = renderHook(() => useSubscriptionsTotalCost(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
@@ -1049,7 +1103,7 @@ describe("use-subscriptions hooks", () => {
 			// 一時停止
 			const deactivateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.deactivateSubscription.mockResolvedValue(
 				deactivateResponse,
@@ -1073,7 +1127,7 @@ describe("use-subscriptions hooks", () => {
 			// 再開
 			const activateResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.activateSubscription.mockResolvedValue(
 				activateResponse,
@@ -1097,7 +1151,7 @@ describe("use-subscriptions hooks", () => {
 			// 削除
 			const deleteResponse: BaseApiResponse = {
 				success: true,
-				};
+			};
 
 			mockApiServices.subscriptions.deleteSubscription.mockResolvedValue(
 				deleteResponse,
@@ -1192,7 +1246,7 @@ describe("use-subscriptions hooks", () => {
 		it("事前設定されたエラーキャッシュが正しく動作すること", async () => {
 			const queryKey = queryKeys.subscriptions.lists();
 			const testError = new Error("Test Error");
-			
+
 			setQueryError(queryClient, [...queryKey] as unknown[], testError);
 
 			const { result } = renderHook(() => useSubscriptions(), {

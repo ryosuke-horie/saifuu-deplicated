@@ -7,7 +7,7 @@
  * - QueryClientのみを提供してテストを簡素化
  */
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { createTestQueryClient } from "./query-wrapper";
 

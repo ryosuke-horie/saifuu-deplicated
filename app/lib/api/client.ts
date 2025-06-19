@@ -254,8 +254,8 @@ export class ApiClient {
 	 * クライアント設定を更新
 	 */
 	updateConfig(config: Partial<ApiClientConfig>): void {
-		this.config = { 
-			...this.config, 
+		this.config = {
+			...this.config,
 			...config,
 			headers: {
 				...this.config.headers,

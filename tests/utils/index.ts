@@ -260,9 +260,10 @@ export function expectValidAmount(amount: number) {
 // 型エクスポート
 // ========================================
 
-export type { MockLoaderArgs, MockActionArgs };
+// ベースモック型（interfaceは定義として既に宣言済み）
+// export type { MockLoaderArgs, MockActionArgs };
 
-// Cloudflare特有のモック型をエクスポート
+// Cloudflare特有のモック型
 export type {
 	CloudflareMockLoaderArgs,
 	CloudflareMockActionArgs,

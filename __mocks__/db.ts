@@ -88,7 +88,9 @@ class MockQueryBuilder {
 	}
 
 	async execute(): Promise<any[]> {
-		let data: any[] = [...(mockDataStore[this.tableName as keyof MockDataStore] || [])];
+		let data: any[] = [
+			...(mockDataStore[this.tableName as keyof MockDataStore] || []),
+		];
 
 		// WHERE条件を適用
 		for (const condition of this.whereConditions) {
@@ -97,7 +99,9 @@ class MockQueryBuilder {
 
 		// JOIN処理（簡略化）
 		for (const join of this.joinConditions) {
-			const joinTable: any[] = [...(mockDataStore[join.table as keyof MockDataStore] || [])];
+			const joinTable: any[] = [
+				...(mockDataStore[join.table as keyof MockDataStore] || []),
+			];
 			data = data.map((item) => {
 				const joinedItem = joinTable.find((joinItem) =>
 					join.condition(item, joinItem),
@@ -143,9 +147,9 @@ class MockQueryBuilder {
 // モックデータベースクラス
 class MockDatabase {
 	// テーブル参照オブジェクト（Drizzleスキーマと互換性を保つため）
-	categories = Symbol('categories');
-	transactions = Symbol('transactions'); 
-	subscriptions = Symbol('subscriptions');
+	categories = Symbol("categories");
+	transactions = Symbol("transactions");
+	subscriptions = Symbol("subscriptions");
 
 	select(fields?: any) {
 		return {

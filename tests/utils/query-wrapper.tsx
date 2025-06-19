@@ -99,16 +99,19 @@ interface CustomRenderOptions extends Omit<RenderOptions, "wrapper"> {
 export function renderWithQuery(
 	ui: ReactElement,
 	options: CustomRenderOptions = {},
-) {
+): any {
 	const { queryClient, wrapper: Wrapper, ...renderOptions } = options;
 
 	const testQueryClient = queryClient ?? createTestQueryClient();
 
 	// 既存のwrapperがある場合は合成
 	function AllTheProviders({ children }: { children: ReactNode }) {
-		const providers = React.createElement(QueryWrapper, { queryClient: testQueryClient, children });
+		const providers = React.createElement(QueryWrapper, {
+			queryClient: testQueryClient,
+			children,
+		});
 
-		return Wrapper ? React.createElement(Wrapper, { children: providers }) : providers;
+		return Wrapper ? React.createElement(Wrapper, null, providers) : providers;
 	}
 
 	return {

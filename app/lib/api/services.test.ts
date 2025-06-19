@@ -1,6 +1,6 @@
 /**
  * APIサービス層のユニットテスト
- * 
+ *
  * テスト対象:
  * - categoryService（カテゴリAPI操作）
  * - transactionService（取引API操作）
@@ -9,7 +9,7 @@
  * - Zodスキーマバリデーション
  * - エラーハンドリング
  * - パラメータ構築とクエリ処理
- * 
+ *
  * 設計方針:
  * - APIクライアントをモック化してサービス層のロジックを独立してテスト
  * - 各サービスの全メソッドを網羅的にテスト
@@ -17,36 +17,36 @@
  * - エラーケースを含む包括的なテストカバレッジ
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ZodError } from "zod";
-import {
-	categoryService,
-	transactionService,
-	subscriptionService,
-	apiServices,
-	type CategoryService,
-	type TransactionService,
-	type SubscriptionService,
-} from "./services";
 import type {
+	BaseApiResponse,
 	CategoriesListResponse,
 	CategoryDetailResponse,
 	CreateCategoryRequest,
-	UpdateCategoryRequest,
-	ReorderCategoriesRequest,
-	TransactionsListResponse,
-	TransactionDetailResponse,
+	CreateSubscriptionRequest,
 	CreateTransactionRequest,
-	UpdateTransactionRequest,
+	ReorderCategoriesRequest,
+	SubscriptionDetailResponse,
+	SubscriptionsListResponse,
+	TransactionDetailResponse,
 	TransactionFilters,
 	TransactionSort,
-	SubscriptionsListResponse,
-	SubscriptionDetailResponse,
-	CreateSubscriptionRequest,
+	TransactionsListResponse,
+	UpdateCategoryRequest,
 	UpdateSubscriptionRequest,
-	BaseApiResponse,
+	UpdateTransactionRequest,
 } from "../schemas/api-responses";
 import { ApiError } from "./client";
+import {
+	type CategoryService,
+	type SubscriptionService,
+	type TransactionService,
+	apiServices,
+	categoryService,
+	subscriptionService,
+	transactionService,
+} from "./services";
 
 // ========================================
 // APIクライアントのモック化
@@ -67,7 +67,7 @@ vi.mock("./client", async () => {
 
 // モックしたapiClientを取得
 const mockApiClient = vi.mocked(
-	await import("./client").then((m) => m.apiClient)
+	await import("./client").then((m) => m.apiClient),
 );
 
 // ========================================
@@ -190,7 +190,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockCategoriesListResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/categories",
-					expect.any(Object) // categoriesListResponseSchema
+					expect.any(Object), // categoriesListResponseSchema
 				);
 			});
 
@@ -211,7 +211,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockCategoryDetailResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/categories/1",
-					expect.any(Object) // categoryDetailResponseSchema
+					expect.any(Object), // categoryDetailResponseSchema
 				);
 			});
 		});
@@ -234,7 +234,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/categories/create",
 					createData,
-					expect.any(Object) // categoryDetailResponseSchema
+					expect.any(Object), // categoryDetailResponseSchema
 				);
 			});
 
@@ -245,7 +245,7 @@ describe("API Services", () => {
 				} as any;
 
 				await expect(
-					categoryService.createCategory(invalidData)
+					categoryService.createCategory(invalidData),
 				).rejects.toThrow(ZodError);
 			});
 		});
@@ -265,7 +265,7 @@ describe("API Services", () => {
 				expect(mockApiClient.put).toHaveBeenCalledWith(
 					"/categories/1/update",
 					updateData,
-					expect.any(Object) // categoryDetailResponseSchema
+					expect.any(Object), // categoryDetailResponseSchema
 				);
 			});
 		});
@@ -279,7 +279,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockBaseApiResponse);
 				expect(mockApiClient.delete).toHaveBeenCalledWith(
 					"/categories/1/delete",
-					expect.any(Object) // baseApiResponseSchema
+					expect.any(Object), // baseApiResponseSchema
 				);
 			});
 		});
@@ -298,7 +298,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/categories/reorder",
 					reorderData,
-					expect.any(Object) // baseApiResponseSchema
+					expect.any(Object), // baseApiResponseSchema
 				);
 			});
 		});
@@ -318,7 +318,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockTransactionsListResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions",
-					expect.any(Object) // transactionsListResponseSchema
+					expect.any(Object), // transactionsListResponseSchema
 				);
 			});
 
@@ -346,7 +346,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockTransactionsListResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions?type=expense&category_id=1&from=2024-01-01&to=2024-01-31&search=%E3%83%86%E3%82%B9%E3%83%88&sort_by=amount&sort_order=asc&page=2&limit=10",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 
@@ -365,7 +365,7 @@ describe("API Services", () => {
 
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions?type=expense&page=1",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -379,7 +379,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockTransactionDetailResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions/1",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -404,7 +404,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/transactions/create",
 					createData,
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 
@@ -415,7 +415,7 @@ describe("API Services", () => {
 				} as any;
 
 				await expect(
-					transactionService.createTransaction(invalidData)
+					transactionService.createTransaction(invalidData),
 				).rejects.toThrow(ZodError);
 			});
 		});
@@ -429,13 +429,16 @@ describe("API Services", () => {
 
 				mockApiClient.put.mockResolvedValue(mockTransactionDetailResponse);
 
-				const result = await transactionService.updateTransaction(1, updateData);
+				const result = await transactionService.updateTransaction(
+					1,
+					updateData,
+				);
 
 				expect(result).toEqual(mockTransactionDetailResponse);
 				expect(mockApiClient.put).toHaveBeenCalledWith(
 					"/transactions/1/update",
 					updateData,
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -449,7 +452,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockBaseApiResponse);
 				expect(mockApiClient.delete).toHaveBeenCalledWith(
 					"/transactions/1/delete",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -469,7 +472,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockBaseApiResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions/stats?startDate=2024-01-01&endDate=2024-01-31&groupBy=category",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 
@@ -481,7 +484,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockBaseApiResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/transactions/stats",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -501,7 +504,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockSubscriptionsListResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/subscriptions",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -515,7 +518,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockSubscriptionDetailResponse);
 				expect(mockApiClient.get).toHaveBeenCalledWith(
 					"/subscriptions/1",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -540,7 +543,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/subscriptions/create",
 					createData,
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 
@@ -552,7 +555,7 @@ describe("API Services", () => {
 				} as any;
 
 				await expect(
-					subscriptionService.createSubscription(invalidData)
+					subscriptionService.createSubscription(invalidData),
 				).rejects.toThrow(ZodError);
 			});
 		});
@@ -566,13 +569,16 @@ describe("API Services", () => {
 
 				mockApiClient.put.mockResolvedValue(mockSubscriptionDetailResponse);
 
-				const result = await subscriptionService.updateSubscription(1, updateData);
+				const result = await subscriptionService.updateSubscription(
+					1,
+					updateData,
+				);
 
 				expect(result).toEqual(mockSubscriptionDetailResponse);
 				expect(mockApiClient.put).toHaveBeenCalledWith(
 					"/subscriptions/1/update",
 					updateData,
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -586,7 +592,7 @@ describe("API Services", () => {
 				expect(result).toEqual(mockBaseApiResponse);
 				expect(mockApiClient.delete).toHaveBeenCalledWith(
 					"/subscriptions/1/delete",
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -601,7 +607,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/subscriptions/1/deactivate",
 					{},
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -616,7 +622,7 @@ describe("API Services", () => {
 				expect(mockApiClient.post).toHaveBeenCalledWith(
 					"/subscriptions/1/activate",
 					{},
-					expect.any(Object)
+					expect.any(Object),
 				);
 			});
 		});
@@ -645,19 +651,39 @@ describe("API Services", () => {
 			// 取引サービス
 			expect(typeof apiServices.transactions.getTransactions).toBe("function");
 			expect(typeof apiServices.transactions.getTransaction).toBe("function");
-			expect(typeof apiServices.transactions.createTransaction).toBe("function");
-			expect(typeof apiServices.transactions.updateTransaction).toBe("function");
-			expect(typeof apiServices.transactions.deleteTransaction).toBe("function");
-			expect(typeof apiServices.transactions.getTransactionStats).toBe("function");
+			expect(typeof apiServices.transactions.createTransaction).toBe(
+				"function",
+			);
+			expect(typeof apiServices.transactions.updateTransaction).toBe(
+				"function",
+			);
+			expect(typeof apiServices.transactions.deleteTransaction).toBe(
+				"function",
+			);
+			expect(typeof apiServices.transactions.getTransactionStats).toBe(
+				"function",
+			);
 
 			// サブスクリプションサービス
-			expect(typeof apiServices.subscriptions.getSubscriptions).toBe("function");
+			expect(typeof apiServices.subscriptions.getSubscriptions).toBe(
+				"function",
+			);
 			expect(typeof apiServices.subscriptions.getSubscription).toBe("function");
-			expect(typeof apiServices.subscriptions.createSubscription).toBe("function");
-			expect(typeof apiServices.subscriptions.updateSubscription).toBe("function");
-			expect(typeof apiServices.subscriptions.deleteSubscription).toBe("function");
-			expect(typeof apiServices.subscriptions.deactivateSubscription).toBe("function");
-			expect(typeof apiServices.subscriptions.activateSubscription).toBe("function");
+			expect(typeof apiServices.subscriptions.createSubscription).toBe(
+				"function",
+			);
+			expect(typeof apiServices.subscriptions.updateSubscription).toBe(
+				"function",
+			);
+			expect(typeof apiServices.subscriptions.deleteSubscription).toBe(
+				"function",
+			);
+			expect(typeof apiServices.subscriptions.deactivateSubscription).toBe(
+				"function",
+			);
+			expect(typeof apiServices.subscriptions.activateSubscription).toBe(
+				"function",
+			);
 		});
 	});
 
@@ -671,8 +697,12 @@ describe("API Services", () => {
 			mockApiClient.get.mockRejectedValue(networkError);
 
 			await expect(categoryService.getCategories()).rejects.toThrow(ApiError);
-			await expect(transactionService.getTransactions()).rejects.toThrow(ApiError);
-			await expect(subscriptionService.getSubscriptions()).rejects.toThrow(ApiError);
+			await expect(transactionService.getTransactions()).rejects.toThrow(
+				ApiError,
+			);
+			await expect(subscriptionService.getSubscriptions()).rejects.toThrow(
+				ApiError,
+			);
 		});
 
 		it("HTTPエラーが全てのサービスで適切に処理されること", async () => {
@@ -704,13 +734,13 @@ describe("API Services", () => {
 			};
 
 			await expect(
-				categoryService.createCategory(createCategoryData)
+				categoryService.createCategory(createCategoryData),
 			).rejects.toThrow(ApiError);
 			await expect(
-				transactionService.createTransaction(createTransactionData)
+				transactionService.createTransaction(createTransactionData),
 			).rejects.toThrow(ApiError);
 			await expect(
-				subscriptionService.createSubscription(createSubscriptionData)
+				subscriptionService.createSubscription(createSubscriptionData),
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -724,13 +754,15 @@ describe("API Services", () => {
 			mockApiClient.get.mockResolvedValue(mockCategoriesListResponse);
 
 			const promises = Array.from({ length: 10 }, () =>
-				categoryService.getCategories()
+				categoryService.getCategories(),
 			);
 
 			const results = await Promise.all(promises);
 
 			expect(results).toHaveLength(10);
-			expect(results.every(result => result === mockCategoriesListResponse)).toBe(true);
+			expect(
+				results.every((result) => result === mockCategoriesListResponse),
+			).toBe(true);
 			expect(mockApiClient.get).toHaveBeenCalledTimes(10);
 		});
 

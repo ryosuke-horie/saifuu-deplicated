@@ -10,8 +10,8 @@
  */
 
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
 import React from "react";
+import { vi } from "vitest";
 
 // ========================================
 // Fetch APIモック設定
@@ -173,7 +173,12 @@ vi.mock("@react-router/dev/vite", () => ({
 // React Routerフックのモック
 vi.mock("react-router", () => ({
 	useNavigate: vi.fn(() => vi.fn()),
-	useLocation: vi.fn(() => ({ pathname: "/", search: "", hash: "", state: null })),
+	useLocation: vi.fn(() => ({
+		pathname: "/",
+		search: "",
+		hash: "",
+		state: null,
+	})),
 	useParams: vi.fn(() => ({})),
 	useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
 	Link: vi.fn(),

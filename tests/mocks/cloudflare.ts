@@ -300,11 +300,11 @@ export interface CloudflareMockLoaderArgs {
 	request: Request;
 	params: Record<string, string>;
 	context: {
-		env: {
-			DB: MockD1Database;
-			[key: string]: unknown;
-		};
 		cloudflare: {
+			env: {
+				DB: MockD1Database;
+				[key: string]: unknown;
+			};
 			cf: {
 				colo: string;
 				country?: string;
@@ -332,11 +332,11 @@ export interface CloudflareMockActionArgs {
 	request: Request;
 	params: Record<string, string>;
 	context: {
-		env: {
-			DB: MockD1Database;
-			[key: string]: unknown;
-		};
 		cloudflare: {
+			env: {
+				DB: MockD1Database;
+				[key: string]: unknown;
+			};
 			cf: {
 				colo: string;
 				country?: string;
@@ -370,8 +370,11 @@ export const createMockLoaderArgs = (
 		request: new Request(url, { method }),
 		params,
 		context: {
-			env: mockContext.env,
-			cloudflare: mockContext.cloudflare,
+			cloudflare: {
+				env: mockContext.env,
+				cf: mockContext.cloudflare.cf,
+				ctx: mockContext.cloudflare.ctx,
+			},
 		},
 	};
 };
@@ -387,8 +390,11 @@ export const createMockActionArgs = (
 		request: new Request(url, { method, body }),
 		params,
 		context: {
-			env: mockContext.env,
-			cloudflare: mockContext.cloudflare,
+			cloudflare: {
+				env: mockContext.env,
+				cf: mockContext.cloudflare.cf,
+				ctx: mockContext.cloudflare.ctx,
+			},
 		},
 	};
 };

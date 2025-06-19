@@ -1,6 +1,6 @@
 /**
  * ApiClientクラスのユニットテスト
- * 
+ *
  * テスト対象:
  * - ApiClientクラスの基本的なHTTPメソッド（GET、POST、PUT、DELETE）
  * - タイムアウト処理とAbortController機能
@@ -8,7 +8,7 @@
  * - Zodスキーマによるレスポンスバリデーション
  * - リクエスト/レスポンスインターセプター機能
  * - クライアント設定の更新とカスタマイズ
- * 
+ *
  * 設計方針:
  * - fetchAPIモックを使用してHTTPリクエストを制御
  * - 実際のネットワークを使わずに完全にユニットテスト化
@@ -16,18 +16,18 @@
  * - タイムアウトとAbortControllerの動作確認
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { 
-	ApiClient, 
-	ApiError, 
-	ValidationError, 
-	buildQueryParams, 
-	isApiError, 
-	isValidationError,
-	type ApiClientConfig 
-} from "./client";
 import { mockFetch } from "../../../tests/setup";
+import {
+	ApiClient,
+	type ApiClientConfig,
+	ApiError,
+	ValidationError,
+	buildQueryParams,
+	isApiError,
+	isValidationError,
+} from "./client";
 
 // ========================================
 // テスト用のスキーマ定義
@@ -112,7 +112,7 @@ describe("ApiClient", () => {
 						"Content-Type": "application/json",
 					}),
 					signal: expect.any(AbortSignal),
-				})
+				}),
 			);
 		});
 
@@ -134,7 +134,7 @@ describe("ApiClient", () => {
 			mockFetch(invalidResponse);
 
 			await expect(
-				apiClient.get("/users/1", testResponseSchema)
+				apiClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -142,8 +142,12 @@ describe("ApiClient", () => {
 			} catch (error) {
 				expect(error).toBeInstanceOf(ApiError);
 				expect((error as ApiError).status).toBe(500);
-				expect((error as ApiError).message).toBe("レスポンスの検証に失敗しました");
-				expect((error as ApiError).originalError).toBeInstanceOf(ValidationError);
+				expect((error as ApiError).message).toBe(
+					"レスポンスの検証に失敗しました",
+				);
+				expect((error as ApiError).originalError).toBeInstanceOf(
+					ValidationError,
+				);
 			}
 		});
 	});
@@ -158,9 +162,9 @@ describe("ApiClient", () => {
 			mockFetch(mockUser);
 
 			const result = await apiClient.post(
-				"/users", 
-				requestData, 
-				testResponseSchema
+				"/users",
+				requestData,
+				testResponseSchema,
 			);
 
 			expect(result).toEqual(mockUser);
@@ -172,18 +176,14 @@ describe("ApiClient", () => {
 					headers: expect.objectContaining({
 						"Content-Type": "application/json",
 					}),
-				})
+				}),
 			);
 		});
 
 		it("POST リクエストで空のボディを送信できること", async () => {
 			mockFetch(mockUser);
 
-			const result = await apiClient.post(
-				"/users", 
-				{}, 
-				testResponseSchema
-			);
+			const result = await apiClient.post("/users", {}, testResponseSchema);
 
 			expect(result).toEqual(mockUser);
 			expect(fetch).toHaveBeenCalledWith(
@@ -191,7 +191,7 @@ describe("ApiClient", () => {
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify({}),
-				})
+				}),
 			);
 		});
 	});
@@ -206,9 +206,9 @@ describe("ApiClient", () => {
 			mockFetch(mockUser);
 
 			const result = await apiClient.put(
-				"/users/1", 
-				updateData, 
-				testResponseSchema
+				"/users/1",
+				updateData,
+				testResponseSchema,
 			);
 
 			expect(result).toEqual(mockUser);
@@ -217,7 +217,7 @@ describe("ApiClient", () => {
 				expect.objectContaining({
 					method: "PUT",
 					body: JSON.stringify(updateData),
-				})
+				}),
 			);
 		});
 	});
@@ -236,7 +236,7 @@ describe("ApiClient", () => {
 				"http://localhost:3000/api/users/1",
 				expect.objectContaining({
 					method: "DELETE",
-				})
+				}),
 			);
 		});
 	});
@@ -250,7 +250,7 @@ describe("ApiClient", () => {
 			mockFetch(mockErrorResponse, { status: 404, ok: false });
 
 			await expect(
-				apiClient.get("/users/999", testResponseSchema)
+				apiClient.get("/users/999", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -266,7 +266,7 @@ describe("ApiClient", () => {
 			mockFetch(mockErrorResponse, { status: 500, ok: false });
 
 			await expect(
-				apiClient.get("/users/1", testResponseSchema)
+				apiClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -282,7 +282,7 @@ describe("ApiClient", () => {
 			(global.fetch as any).mockRejectedValue(networkError);
 
 			await expect(
-				apiClient.get("/users/1", testResponseSchema)
+				apiClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -290,7 +290,9 @@ describe("ApiClient", () => {
 			} catch (error) {
 				expect(error).toBeInstanceOf(ApiError);
 				expect((error as ApiError).status).toBe(0);
-				expect((error as ApiError).message).toBe("ネットワークエラーが発生しました");
+				expect((error as ApiError).message).toBe(
+					"ネットワークエラーが発生しました",
+				);
 			}
 		});
 
@@ -317,7 +319,7 @@ describe("ApiClient", () => {
 			(global.fetch as any).mockResolvedValue(mockResponse);
 
 			await expect(
-				apiClient.get("/users/1", testResponseSchema)
+				apiClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -339,7 +341,7 @@ describe("ApiClient", () => {
 			mockFetch(invalidResponse);
 
 			await expect(
-				apiClient.get("/users/1", testResponseSchema)
+				apiClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -347,8 +349,12 @@ describe("ApiClient", () => {
 			} catch (error) {
 				expect(error).toBeInstanceOf(ApiError);
 				expect((error as ApiError).status).toBe(500);
-				expect((error as ApiError).message).toBe("レスポンスの検証に失敗しました");
-				expect((error as ApiError).originalError).toBeInstanceOf(ValidationError);
+				expect((error as ApiError).message).toBe(
+					"レスポンスの検証に失敗しました",
+				);
+				expect((error as ApiError).originalError).toBeInstanceOf(
+					ValidationError,
+				);
 			}
 		});
 	});
@@ -371,7 +377,7 @@ describe("ApiClient", () => {
 			});
 
 			await expect(
-				shortTimeoutClient.get("/users/1", testResponseSchema)
+				shortTimeoutClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			try {
@@ -379,7 +385,9 @@ describe("ApiClient", () => {
 			} catch (error) {
 				expect(error).toBeInstanceOf(ApiError);
 				expect((error as ApiError).status).toBe(408);
-				expect((error as ApiError).message).toBe("リクエストがタイムアウトしました");
+				expect((error as ApiError).message).toBe(
+					"リクエストがタイムアウトしました",
+				);
 			}
 		});
 
@@ -391,7 +399,7 @@ describe("ApiClient", () => {
 			(global.fetch as any).mockRejectedValue(abortError);
 
 			const promise = apiClient.get("/users/1", testResponseSchema);
-			
+
 			// キャンセル（実際にはfetchがAbortErrorで失敗する）
 			apiClient.cancelRequest();
 
@@ -408,7 +416,7 @@ describe("ApiClient", () => {
 			const customClient = new ApiClient({
 				baseUrl: "http://localhost:3000/api",
 				headers: {
-					"Authorization": "Bearer token123",
+					Authorization: "Bearer token123",
 					"X-Custom-Header": "custom-value",
 				},
 			});
@@ -422,11 +430,11 @@ describe("ApiClient", () => {
 				expect.objectContaining({
 					method: "GET",
 					headers: expect.objectContaining({
-						"Authorization": "Bearer token123",
+						Authorization: "Bearer token123",
 						"X-Custom-Header": "custom-value",
 					}),
 					signal: expect.any(AbortSignal),
-				})
+				}),
 			);
 		});
 
@@ -444,13 +452,13 @@ describe("ApiClient", () => {
 						"Content-Type": "application/json",
 					}),
 					signal: expect.any(AbortSignal),
-				})
+				}),
 			);
 
 			// 設定を更新
 			apiClient.updateConfig({
 				headers: {
-					"Authorization": "Bearer updated-token",
+					Authorization: "Bearer updated-token",
 				},
 			});
 
@@ -465,10 +473,10 @@ describe("ApiClient", () => {
 					method: "GET",
 					headers: expect.objectContaining({
 						"Content-Type": "application/json",
-						"Authorization": "Bearer updated-token",
+						Authorization: "Bearer updated-token",
 					}),
 					signal: expect.any(AbortSignal),
-				})
+				}),
 			);
 		});
 
@@ -497,7 +505,7 @@ describe("ApiClient", () => {
 					headers: expect.objectContaining({
 						"X-Intercepted": "true",
 					}),
-				})
+				}),
 			);
 		});
 
@@ -528,7 +536,7 @@ describe("ApiClient", () => {
 			mockFetch(mockErrorResponse, { status: 400, ok: false });
 
 			await expect(
-				interceptClient.get("/users/1", testResponseSchema)
+				interceptClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow();
 
 			expect(onError).toHaveBeenCalledTimes(1);
@@ -549,7 +557,7 @@ describe("ApiClient", () => {
 				baseUrl: "http://localhost:3000/api",
 				timeout: 1000,
 				headers: {
-					"Authorization": "Bearer token",
+					Authorization: "Bearer token",
 				},
 				onRequest,
 				onError,
@@ -558,7 +566,7 @@ describe("ApiClient", () => {
 			mockFetch(mockErrorResponse, { status: 401, ok: false });
 
 			await expect(
-				complexClient.get("/users/1", testResponseSchema)
+				complexClient.get("/users/1", testResponseSchema),
 			).rejects.toThrow(ApiError);
 
 			expect(onRequest).toHaveBeenCalled();
@@ -575,7 +583,7 @@ describe("ApiClient", () => {
 			]);
 
 			expect(results).toHaveLength(3);
-			expect(results.every(result => result.id === mockUser.id)).toBe(true);
+			expect(results.every((result) => result.id === mockUser.id)).toBe(true);
 			expect(fetch).toHaveBeenCalledTimes(3);
 		});
 	});
