@@ -92,7 +92,7 @@ class MockQueryBuilder {
 
 		// WHERE条件を適用
 		for (const condition of this.whereConditions) {
-			data = data.filter(condition);
+			data = (data as any[]).filter(condition);
 		}
 
 		// JOIN処理（簡略化）
@@ -142,6 +142,11 @@ class MockQueryBuilder {
 
 // モックデータベースクラス
 class MockDatabase {
+	// テーブル参照オブジェクト（Drizzleスキーマと互換性を保つため）
+	categories = Symbol('categories');
+	transactions = Symbol('transactions'); 
+	subscriptions = Symbol('subscriptions');
+
 	select(fields?: any) {
 		return {
 			from: (table: any) => {
@@ -220,11 +225,18 @@ class MockDatabase {
 	}
 
 	private getTableName(table: any): string {
-		// テーブルオブジェクトからテーブル名を取得（簡略化）
+		// テーブルオブジェクトからテーブル名を取得
 		if (typeof table === "object" && table._) {
 			return table._.name;
 		}
-		// フォールバック：シンボルまたは文字列として処理
+		// シンボルの場合の処理
+		if (typeof table === "symbol") {
+			const symbolStr = String(table);
+			if (symbolStr.includes("categories")) return "categories";
+			if (symbolStr.includes("transactions")) return "transactions";
+			if (symbolStr.includes("subscriptions")) return "subscriptions";
+		}
+		// フォールバック
 		return String(table).replace("Symbol(", "").replace(")", "");
 	}
 }

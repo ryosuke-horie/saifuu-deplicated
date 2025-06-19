@@ -11,6 +11,7 @@
 
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
+import React from "react";
 
 // ========================================
 // Fetch APIモック設定
@@ -155,4 +156,27 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 	observe: vi.fn(),
 	unobserve: vi.fn(),
 	disconnect: vi.fn(),
+}));
+
+// ========================================
+// React Router v7専用モック設定
+// ========================================
+
+// React Router関連のモック（プリアンブル問題を回避）
+vi.mock("@react-router/dev/vite", () => ({
+	reactRouter: vi.fn(() => ({
+		name: "react-router",
+		config: vi.fn(),
+	})),
+}));
+
+// React Routerフックのモック
+vi.mock("react-router", () => ({
+	useNavigate: vi.fn(() => vi.fn()),
+	useLocation: vi.fn(() => ({ pathname: "/", search: "", hash: "", state: null })),
+	useParams: vi.fn(() => ({})),
+	useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+	Link: vi.fn(),
+	NavLink: vi.fn(),
+	Outlet: vi.fn(),
 }));

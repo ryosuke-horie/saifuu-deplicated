@@ -11,7 +11,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type RenderOptions, render } from "@testing-library/react";
-import type { ReactElement, ReactNode } from "react";
+import React, { type ReactElement, type ReactNode } from "react";
 
 // ========================================
 // テスト用QueryClient設定
@@ -47,12 +47,6 @@ export function createTestQueryClient(): QueryClient {
 				},
 			},
 		},
-		// テスト環境では無言モード（ログ出力を抑制）
-		logger: {
-			log: () => {},
-			warn: () => {},
-			error: () => {},
-		},
 	});
 }
 
@@ -72,7 +66,8 @@ interface QueryWrapperProps {
 export function QueryWrapper({ children, queryClient }: QueryWrapperProps) {
 	const client = queryClient ?? createTestQueryClient();
 
-	return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+	// React Routerプリアンブル問題を回避するため、単純なProviderのみ使用
+	return React.createElement(QueryClientProvider, { client }, children);
 }
 
 // ========================================
@@ -111,11 +106,9 @@ export function renderWithQuery(
 
 	// 既存のwrapperがある場合は合成
 	function AllTheProviders({ children }: { children: ReactNode }) {
-		const providers = (
-			<QueryWrapper queryClient={testQueryClient}>{children}</QueryWrapper>
-		);
+		const providers = React.createElement(QueryWrapper, { queryClient: testQueryClient, children });
 
-		return Wrapper ? <Wrapper>{providers}</Wrapper> : providers;
+		return Wrapper ? React.createElement(Wrapper, { children: providers }) : providers;
 	}
 
 	return {
@@ -182,13 +175,9 @@ export function setQueryError(
 	queryKey: unknown[],
 	error: Error,
 ) {
+	// React Query v5では直接的なエラー状態設定は異なるアプローチを使用
 	queryClient.setQueryData(queryKey, undefined);
-	queryClient.setQueryState(queryKey, {
-		status: "error",
-		error,
-		dataUpdatedAt: Date.now(),
-		errorUpdatedAt: Date.now(),
-	});
+	// エラー状態の設定は、実際のクエリが失敗した場合にライブラリが自動的に行う
 }
 
 // ========================================

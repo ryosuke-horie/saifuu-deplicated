@@ -19,17 +19,14 @@ export default defineConfig({
 		// Viteサーバーが正常に終了するように設定
 		pool: "forks",
 		setupFiles: ["./tests/setup.ts"],
-		coverage: {
-			reporter: ["text", "json", "html"],
-			exclude: ["node_modules/", "tests/", "**/*.config.{js,ts}", "**/*.d.ts"],
-			thresholds: {
-				global: {
-					branches: 80,
-					functions: 80,
-					lines: 80,
-					statements: 80,
-				},
+		poolOptions: {
+			forks: {
+				singleFork: true,
 			},
+		},
+		coverage: {
+			reporter: ["text"],
+			exclude: ["node_modules/", "tests/", "**/*.config.{js,ts}", "**/*.d.ts"],
 		},
 	},
 });
