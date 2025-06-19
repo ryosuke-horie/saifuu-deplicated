@@ -2,6 +2,7 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
 	index("routes/home.tsx"),
+	route("dashboard", "routes/dashboard.tsx"),
 
 	// カテゴリAPIエンドポイント
 	route("api/categories", "routes/api/categories/index.ts"),
@@ -16,4 +17,22 @@ export default [
 	route("api/transactions/:id", "routes/api/transactions/$id.ts"),
 	route("api/transactions/:id/update", "routes/api/transactions/$id.update.ts"),
 	route("api/transactions/:id/delete", "routes/api/transactions/$id.delete.ts"),
+
+	// サブスクリプションAPIエンドポイント
+	route("api/subscriptions", "routes/api/subscriptions/index.ts"),
+	route("api/subscriptions/create", "routes/api/subscriptions/create.ts"),
+	route("api/subscriptions/:id", "routes/api/subscriptions/$id.ts"),
+	route(
+		"api/subscriptions/:id/update",
+		"routes/api/subscriptions/$id.update.ts",
+	),
+	route(
+		"api/subscriptions/:id/delete",
+		"routes/api/subscriptions/$id.delete.ts",
+	),
+	route("api/subscriptions/activate", "routes/api/subscriptions/activate.ts"),
+	route(
+		"api/subscriptions/deactivate",
+		"routes/api/subscriptions/deactivate.ts",
+	),
 ] satisfies RouteConfig;
