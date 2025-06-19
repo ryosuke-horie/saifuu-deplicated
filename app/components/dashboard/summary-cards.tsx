@@ -20,6 +20,9 @@ export interface SummaryCardsProps {
 	compact?: boolean;
 }
 
+// 取引データ取得時の制限値定数
+const MAX_TRANSACTION_LIMIT = 1000;
+
 // サマリーデータの型定義
 interface SummaryData {
 	totalIncome: number;
@@ -51,7 +54,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 		isLoading: isCurrentLoading,
 		error: currentError,
 	} = useCurrentMonthTransactions({
-		limit: 1000, // 全データを取得するため大きな値を設定
+		limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
 	});
 
 	// 前月の取引データを取得（比較用）
@@ -68,7 +71,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 			from: firstDayLastMonth.toISOString().split("T")[0],
 			to: lastDayLastMonth.toISOString().split("T")[0],
 		},
-		limit: 1000,
+		limit: MAX_TRANSACTION_LIMIT,
 	});
 
 	// サマリーデータの計算

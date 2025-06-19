@@ -55,6 +55,18 @@ interface MonthlyTrendData {
 	monthNumber: number; // 月番号
 }
 
+// カスタムツールチップのプロパティ型定義
+interface CustomTooltipProps {
+	active?: boolean;
+	payload?: {
+		dataKey: string;
+		color: string;
+		name: string;
+		value: number;
+	}[];
+	label?: string;
+}
+
 export function MonthlyTrendChart({
 	monthsToShow = 6,
 	height = 400,
@@ -141,13 +153,13 @@ export function MonthlyTrendChart({
 	}, [transactionsData?.data, monthsToShow]);
 
 	// カスタムツールチップコンポーネント
-	const CustomTooltip = ({ active, payload, label }: any) => {
+	const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 		if (!active || !payload || !payload.length) return null;
 
 		return (
 			<div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
 				<p className="font-medium text-gray-900 mb-2">{label}</p>
-				{payload.map((entry: any) => (
+				{payload.map((entry) => (
 					<div key={entry.dataKey} className="flex items-center mb-1">
 						<div
 							className="w-3 h-3 rounded-full mr-2"
