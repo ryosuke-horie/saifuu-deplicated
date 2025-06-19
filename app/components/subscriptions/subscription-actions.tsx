@@ -285,6 +285,7 @@ export function DeleteConfirmDialog({
 					}}
 					role="button"
 					tabIndex={0}
+					aria-label="ダイアログを閉じる"
 				/>
 
 				{/* ダイアログ本体 */}
