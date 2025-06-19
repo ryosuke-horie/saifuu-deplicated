@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	Cell,
 	Legend,
@@ -82,10 +82,18 @@ export function CategoryBreakdownChart({
 	compact = false,
 	onCategoryClick,
 }: CategoryBreakdownChartProps) {
+	// SSR対応: クライアントサイドでのみRechartsをレンダリング
+	const [isClient, setIsClient] = useState(false);
+
 	// 表示する取引タイプの状態管理
 	const [selectedType, setSelectedType] = useState<"income" | "expense">(
 		defaultType,
 	);
+
+	// クライアントサイドでマウントされたことを検知
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
 
 	// 今月の取引データを取得
 	const {
@@ -330,39 +338,48 @@ export function CategoryBreakdownChart({
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 					{/* 円グラフ */}
 					<div className="lg:col-span-2">
-						<ResponsiveContainer width="100%" height={height}>
-							<PieChart>
-								<Pie
-									data={chartData}
-									cx="50%"
-									cy="50%"
-									outerRadius={compact ? 80 : 120}
-									innerRadius={compact ? 30 : 50}
-									dataKey="value"
-									onClick={handleCellClick}
-									className="cursor-pointer"
-								>
-									{chartData.map((entry) => (
-										<Cell
-											key={`cell-${entry.categoryId || "uncategorized"}-${entry.name}`}
-											fill={entry.color}
-											stroke="white"
-											strokeWidth={2}
+						{isClient ? (
+							<ResponsiveContainer width="100%" height={height}>
+								<PieChart>
+									<Pie
+										data={chartData}
+										cx="50%"
+										cy="50%"
+										outerRadius={compact ? 80 : 120}
+										innerRadius={compact ? 30 : 50}
+										dataKey="value"
+										onClick={handleCellClick}
+										className="cursor-pointer"
+									>
+										{chartData.map((entry) => (
+											<Cell
+												key={`cell-${entry.categoryId || "uncategorized"}-${entry.name}`}
+												fill={entry.color}
+												stroke="white"
+												strokeWidth={2}
+											/>
+										))}
+									</Pie>
+									<Tooltip content={<CustomTooltip />} />
+									{!compact && (
+										<Legend
+											verticalAlign="bottom"
+											height={36}
+											formatter={(value, entry: any) => (
+												<span style={{ color: entry.color }}>{value}</span>
+											)}
 										/>
-									))}
-								</Pie>
-								<Tooltip content={<CustomTooltip />} />
-								{!compact && (
-									<Legend
-										verticalAlign="bottom"
-										height={36}
-										formatter={(value, entry: any) => (
-											<span style={{ color: entry.color }}>{value}</span>
-										)}
-									/>
-								)}
-							</PieChart>
-						</ResponsiveContainer>
+									)}
+								</PieChart>
+							</ResponsiveContainer>
+						) : (
+							<div
+								className="flex items-center justify-center bg-gray-50 rounded-lg"
+								style={{ height: `${height}px` }}
+							>
+								<div className="text-gray-500">チャートを読み込み中...</div>
+							</div>
+						)}
 					</div>
 
 					{/* 詳細リスト */}
