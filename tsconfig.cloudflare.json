@@ -12,6 +12,13 @@
 		"drizzle.config.ts",
 		"worker-configuration.d.ts"
 	],
+	"exclude": [
+		".storybook/**/*",
+		"app/**/*.stories.tsx",
+		"stories/**/*",
+		"storybook-static/**/*",
+		"node_modules/**/*"
+	],
 	"compilerOptions": {
 		"composite": true,
 		"strict": true,

@@ -26,10 +26,12 @@
 - **Biome** - コードフォーマッター・リンター
 - **pnpm** - パッケージマネージャー
 
-### テスト
+### テスト・開発ツール
 - **Playwright** - E2Eテストフレームワーク
 - **Vitest** - ユニットテストフレームワーク
 - **React Testing Library** - Reactコンポーネントテスト
+- **Storybook** - コンポーネント開発・テスト環境
+- **MSW (Mock Service Worker)** - APIモック
 
 ### データベース・状態管理
 - **Cloudflare D1** - SQLiteベースのエッジデータベース（予定）
@@ -94,6 +96,12 @@ pnpm check:fix
 # ビルド
 pnpm build
 
+# Storybook起動
+pnpm storybook
+
+# Storybookビルド
+pnpm build-storybook
+
 # E2Eテスト
 pnpm test:e2e
 
@@ -108,26 +116,210 @@ pnpm deploy
 
 ```
 saifuu/
-├── app/               # アプリケーションコード
-│   ├── routes/        # ページコンポーネント
-│   ├── components/    # 共通コンポーネント
-│   ├── utils/         # ユーティリティ関数
-│   ├── types/         # 型定義
-│   └── root.tsx      # ルートコンポーネント
-├── tests/            # テストコード
-│   └── e2e/         # E2Eテスト
-├── public/           # 静的ファイル
-├── workers/          # Cloudflare Workers設定
-└── CLAUDE.md        # このファイル
+├── app/                   # アプリケーションコード
+│   ├── routes/            # ページコンポーネント
+│   ├── components/        # 共通コンポーネント
+│   │   ├── **/*.stories.tsx  # Storybookストーリー
+│   │   └── **/*.tsx      # コンポーネント本体
+│   ├── utils/             # ユーティリティ関数
+│   ├── types/             # 型定義
+│   └── root.tsx          # ルートコンポーネント
+├── .storybook/           # Storybook設定
+│   ├── main.ts           # Storybook設定ファイル
+│   ├── preview.tsx       # グローバル設定・デコレーター
+│   ├── mocks/            # MSWモックファイル
+│   │   ├── server.ts     # MSWサーバー設定
+│   │   ├── handlers/     # APIハンドラー
+│   │   └── data/         # モックデータ
+│   ├── IMPLEMENTATION.md # 実装詳細ドキュメント
+│   └── USAGE.md         # 使用方法ガイド
+├── tests/                # テストコード
+│   └── e2e/             # E2Eテスト
+├── public/               # 静的ファイル
+├── workers/              # Cloudflare Workers設定
+└── CLAUDE.md            # このファイル
 ```
+
+## Storybook コンポーネント開発
+
+### 概要
+Storybookを使用したコンポーネント駆動開発により、UIコンポーネントの品質向上と開発効率化を実現します。
+
+### 基本方針
+- **コンポーネント分離開発** - アプリケーションロジックから独立したコンポーネント開発
+- **ストーリー駆動設計** - 使用パターンを明確化したストーリー作成
+- **MSWによるAPIモック** - 実際のAPIに依存しない開発環境
+- **包括的テストパターン** - 正常系・異常系・エッジケースの網羅
+
+### ストーリー作成ガイドライン
+
+#### 1. ファイル配置
+```bash
+# ストーリーファイルはコンポーネントと同じディレクトリに配置
+app/components/[category]/[component-name].stories.tsx
+```
+
+#### 2. 基本的なストーリー構造
+```typescript
+// app/components/example/example.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react";
+import { ExampleComponent } from "./example";
+
+const meta: Meta<typeof ExampleComponent> = {
+  title: "Components/ExampleComponent",
+  component: ExampleComponent,
+  parameters: {
+    layout: "padded",
+    docs: {
+      description: {
+        component: "コンポーネントの説明とユースケース"
+      }
+    }
+  },
+  argTypes: {
+    // プロパティ制御の定義
+  },
+  args: {
+    // デフォルト値
+  },
+  tags: ["autodocs"],
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// 基本ストーリー
+export const Default: Story = {};
+
+// バリエーション
+export const Loading: Story = { ... };
+export const Error: Story = { ... };
+export const Empty: Story = { ... };
+```
+
+#### 3. 必須ストーリーパターン
+- **Default**: 基本的な使用状態
+- **Loading**: ローディング状態（該当する場合）
+- **Error**: エラー状態（該当する場合）
+- **Empty**: 空データ状態（該当する場合）
+- **Edge Cases**: 境界値・特殊ケース
+
+#### 4. APIモックの使用
+```typescript
+// MSWを使用したAPIモック
+export const WithApiData: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get("/api/endpoint", () => {
+          return HttpResponse.json({ data: "mock data" });
+        }),
+      ],
+    },
+  },
+};
+```
+
+#### 5. インタラクションテスト
+```typescript
+import { expect, userEvent, within } from "@storybook/test";
+
+export const InteractionTest: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // ユーザー操作
+    await userEvent.click(canvas.getByRole("button"));
+    
+    // 結果検証
+    await expect(canvas.getByText("期待される結果")).toBeInTheDocument();
+  },
+};
+```
+
+### コンポーネント分類
+
+#### Components/ (汎用コンポーネント)
+- **Forms/** - フォーム関連コンポーネント
+- **Display/** - 表示専用コンポーネント
+- **Navigation/** - ナビゲーション関連
+- **Feedback/** - フィードバック・通知
+
+#### [Feature]/ (機能固有コンポーネント)
+- **Dashboard/** - ダッシュボード固有
+- **Transactions/** - 取引機能固有
+- **Subscriptions/** - サブスク機能固有
+
+### テスト戦略
+
+#### 1. テストピラミッド統合
+```
+E2Eテスト (Playwright)          # 統合テスト
+    ↑
+ストーリーテスト (Storybook)      # コンポーネントテスト  
+    ↑
+ユニットテスト (Vitest)          # 単体テスト
+```
+
+#### 2. 責務分担
+- **Vitest**: ロジック・ユーティリティ関数
+- **Storybook**: コンポーネント表示・インタラクション
+- **Playwright**: フルフロー・統合テスト
+
+#### 3. MSWモック戦略
+- **共通データ**: `.storybook/mocks/data/` で統一管理
+- **ハンドラー分離**: API別にハンドラーを分割
+- **エラーパターン**: ネットワーク・サーバーエラーの包括的対応
+
+### 開発ワークフロー
+
+#### 1. 新コンポーネント開発
+```bash
+1. コンポーネント設計・実装
+2. 基本ストーリー作成
+3. Storybookで動作確認
+4. エッジケース・エラーパターン追加
+5. インタラクションテスト追加
+6. ドキュメント更新
+```
+
+#### 2. 既存コンポーネント修正
+```bash
+1. 既存ストーリーで影響確認
+2. 必要に応じて新ストーリー追加
+3. インタラクションテスト更新
+4. 全ストーリーで動作確認
+```
+
+### ベストプラクティス
+
+#### 1. ストーリー命名
+- **意味のある名前**: 状態や用途が明確
+- **一貫した命名**: プロジェクト全体で統一
+- **階層化**: カテゴリ・サブカテゴリで整理
+
+#### 2. モックデータ設計
+- **現実的なデータ**: 実際の使用パターンに即したデータ
+- **エッジケース**: 境界値・特殊ケースのカバー
+- **パフォーマンス**: 適切なデータ量での動作確認
+
+#### 3. アクセシビリティ
+- **a11y アドオン**: 自動アクセシビリティチェック
+- **セマンティックHTML**: 適切なHTML要素の使用
+- **キーボード操作**: Tab・Enter等での操作確認
+
+### 詳細ドキュメント
+- **実装詳細**: `.storybook/IMPLEMENTATION.md`
+- **使用方法**: `.storybook/USAGE.md`
 
 ## 開発の進め方
 
 1. 新機能開発時は、まず設計意図をコメントで記載
-2. 小さな単位で実装し、都度 `pnpm check:fix` を実行
-3. テストを書く（E2E または ユニットテスト）
-4. 機能の完成度に応じて頻繁にコミット
-5. プルリクエストを作成してレビュー
+2. **Storybookでコンポーネント分離開発**
+3. 小さな単位で実装し、都度 `pnpm check:fix` を実行
+4. テストを書く（Storybook・ユニット・E2E）
+5. 機能の完成度に応じて頻繁にコミット
+6. プルリクエストを作成してレビュー
 
 ## 注意事項
 

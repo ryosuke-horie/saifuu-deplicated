@@ -1,0 +1,46 @@
+{
+	"generatedAt": 1750393901822,
+	"userSince": 1750392636678,
+	"hasCustomBabel": false,
+	"hasCustomWebpack": false,
+	"hasStaticDirs": false,
+	"hasStorybookEslint": false,
+	"refCount": 0,
+	"testPackages": {
+		"@testing-library/jest-dom": "6.6.3",
+		"@testing-library/react": "16.3.0",
+		"@testing-library/react-hooks": "8.0.1",
+		"@testing-library/user-event": null,
+		"@vitest/coverage-v8": "3.2.3",
+		"msw": "2.10.2",
+		"vitest": "3.2.3",
+		"vitest-environment-miniflare": "2.14.4"
+	},
+	"hasRouterPackage": true,
+	"packageManager": { "type": "pnpm", "agent": "pnpm" },
+	"typescriptOptions": {
+		"check": false,
+		"reactDocgen": "react-docgen-typescript",
+		"reactDocgenTypescriptOptions": {
+			"shouldExtractLiteralValuesFromEnum": true
+		}
+	},
+	"preview": { "usesGlobals": false },
+	"framework": {
+		"name": "@storybook/react-vite",
+		"options": { "viteConfigPath": ".storybook/vite.config.ts" }
+	},
+	"builder": "@storybook/builder-vite",
+	"renderer": "@storybook/react",
+	"portableStoriesFileCount": 0,
+	"applicationFileCount": 0,
+	"language": "typescript",
+	"storybookPackages": {},
+	"addons": {
+		"@storybook/addon-essentials": { "version": "8.6.14" },
+		"@storybook/addon-interactions": { "version": "8.6.14" },
+		"@storybook/addon-a11y": { "version": "8.6.14" },
+		"@storybook/addon-docs": { "version": "8.6.14" },
+		"msw-storybook-addon": { "version": "2.0.5" }
+	}
+}
