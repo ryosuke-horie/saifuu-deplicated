@@ -19,7 +19,9 @@
 			"**/worker-configuration.d.ts",
 			"**/db/migrations/**/*.sql",
 			"**/db/migrations/meta/**/*.json",
-			"**/*.css"
+			"**/*.css",
+			"**/storybook-static/**",
+			"**/stories/**"
 		]
 	},
 	"formatter": {

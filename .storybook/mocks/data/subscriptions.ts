@@ -438,23 +438,21 @@ export const getSubscriptionStatsByCategory = (
 		{ count: number; monthlyTotal: number; yearlyTotal: number }
 	> = {};
 
-	subscriptions
-		.filter((sub) => sub.isActive)
-		.forEach((sub) => {
-			if (!stats[sub.categoryId]) {
-				stats[sub.categoryId] = { count: 0, monthlyTotal: 0, yearlyTotal: 0 };
-			}
+	for (const sub of subscriptions.filter((sub) => sub.isActive)) {
+		if (!stats[sub.categoryId]) {
+			stats[sub.categoryId] = { count: 0, monthlyTotal: 0, yearlyTotal: 0 };
+		}
 
-			stats[sub.categoryId].count++;
+		stats[sub.categoryId].count++;
 
-			if (sub.frequency === "monthly") {
-				stats[sub.categoryId].monthlyTotal += sub.amount;
-				stats[sub.categoryId].yearlyTotal += sub.amount * 12;
-			} else if (sub.frequency === "yearly") {
-				stats[sub.categoryId].monthlyTotal += Math.round(sub.amount / 12);
-				stats[sub.categoryId].yearlyTotal += sub.amount;
-			}
-		});
+		if (sub.frequency === "monthly") {
+			stats[sub.categoryId].monthlyTotal += sub.amount;
+			stats[sub.categoryId].yearlyTotal += sub.amount * 12;
+		} else if (sub.frequency === "yearly") {
+			stats[sub.categoryId].monthlyTotal += Math.round(sub.amount / 12);
+			stats[sub.categoryId].yearlyTotal += sub.amount;
+		}
+	}
 
 	return stats;
 };

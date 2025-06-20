@@ -222,10 +222,10 @@ export const debugMSW = () => {
 export const listHandlers = () => {
 	if (process.env.NODE_ENV === "development") {
 		console.group("🛣️ MSW Handler Routes");
-		handlers.forEach((handler) => {
+		for (const handler of handlers) {
 			const info = handler.info as any;
 			console.log(`${info.method?.toUpperCase()} ${info.path}`);
-		});
+		}
 		console.groupEnd();
 	}
 };

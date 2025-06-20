@@ -425,13 +425,13 @@ export const transactionsHandlers = [
 		// カテゴリ別集計
 		const categoryBreakdown: Record<number, { amount: number; count: number }> =
 			{};
-		dataset.forEach((t) => {
+		for (const t of dataset) {
 			if (!categoryBreakdown[t.categoryId]) {
 				categoryBreakdown[t.categoryId] = { amount: 0, count: 0 };
 			}
 			categoryBreakdown[t.categoryId].amount += t.amount;
 			categoryBreakdown[t.categoryId].count += 1;
-		});
+		}
 
 		return HttpResponse.json({
 			success: true,
@@ -475,7 +475,7 @@ export const transactionsHandlers = [
 			const deletedIds: number[] = [];
 			const notFoundIds: number[] = [];
 
-			body.ids.forEach((id: number) => {
+			for (const id of body.ids as number[]) {
 				const index = mockTransactions.findIndex((t) => t.id === id);
 				if (index !== -1) {
 					mockTransactions.splice(index, 1);
@@ -483,7 +483,7 @@ export const transactionsHandlers = [
 				} else {
 					notFoundIds.push(id);
 				}
-			});
+			}
 
 			return HttpResponse.json({
 				success: true,
