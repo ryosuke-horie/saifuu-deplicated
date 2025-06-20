@@ -63,7 +63,7 @@ function createTestQueryClient(): QueryClient {
 		defaultOptions: {
 			queries: {
 				retry: false,
-				gcTime: 0,
+				gcTime: 30 * 60 * 1000, // 30分間キャッシュを保持（テスト用）
 				staleTime: 0,
 				refetchOnMount: false,
 				refetchOnWindowFocus: false,
