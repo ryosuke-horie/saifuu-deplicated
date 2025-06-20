@@ -45,7 +45,8 @@ vi.mock("../query/provider", () => {
 			categories: {
 				all: ["categories"] as const,
 				lists: () => ["categories", "list"] as const,
-				list: (filters?: Record<string, unknown>) => ["categories", "list", { filters }] as const,
+				list: (filters?: Record<string, unknown>) =>
+					["categories", "list", { filters }] as const,
 				details: () => ["categories", "detail"] as const,
 				detail: (id: number) => ["categories", "detail", id] as const,
 			},
@@ -361,7 +362,7 @@ describe("use-categories hooks", () => {
 		it("作成成功時にキャッシュが適切に更新されること", async () => {
 			// onSuccessが実行されることを確認するためのスパイ
 			const onSuccessSpy = vi.fn();
-			
+
 			mockApiServices.categories.createCategory.mockResolvedValue(
 				mockCategoryDetailResponse,
 			);
@@ -370,11 +371,15 @@ describe("use-categories hooks", () => {
 			const listQueryKey = queryKeys.categories.lists();
 			setQueryData(queryClient, listQueryKey, mockCategoriesListResponse);
 
-			const { result } = renderHook(() => useCreateCategory({
-				onSuccess: onSuccessSpy
-			}), {
-				wrapper: createWrapperWithQueryClient(queryClient),
-			});
+			const { result } = renderHook(
+				() =>
+					useCreateCategory({
+						onSuccess: onSuccessSpy,
+					}),
+				{
+					wrapper: createWrapperWithQueryClient(queryClient),
+				},
+			);
 
 			const createData: CreateCategoryRequest = {
 				name: "食費",
@@ -395,7 +400,7 @@ describe("use-categories hooks", () => {
 			expect(onSuccessSpy).toHaveBeenCalledWith(
 				mockCategoryDetailResponse,
 				createData,
-				undefined
+				undefined,
 			);
 
 			// 新しいカテゴリの詳細がキャッシュに追加されることを確認

@@ -46,8 +46,10 @@ vi.mock("../query/provider", () => {
 				limit?: number;
 			}) => [...mockQueryKeys.transactions.lists(), { params }] as const,
 			details: () => [...mockQueryKeys.transactions.all, "detail"] as const,
-			detail: (id: number) => [...mockQueryKeys.transactions.details(), id] as const,
-			stats: (params?: Record<string, unknown>) => [...mockQueryKeys.transactions.all, "stats", { params }] as const,
+			detail: (id: number) =>
+				[...mockQueryKeys.transactions.details(), id] as const,
+			stats: (params?: Record<string, unknown>) =>
+				[...mockQueryKeys.transactions.all, "stats", { params }] as const,
 		},
 	};
 	return { queryKeys: mockQueryKeys };

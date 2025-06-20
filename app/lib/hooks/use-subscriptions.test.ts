@@ -27,9 +27,11 @@ vi.mock("../query/provider", () => {
 		subscriptions: {
 			all: ["subscriptions"] as const,
 			lists: () => [...mockQueryKeys.subscriptions.all, "list"] as const,
-			list: (filters?: Record<string, unknown>) => [...mockQueryKeys.subscriptions.lists(), { filters }] as const,
+			list: (filters?: Record<string, unknown>) =>
+				[...mockQueryKeys.subscriptions.lists(), { filters }] as const,
 			details: () => [...mockQueryKeys.subscriptions.all, "detail"] as const,
-			detail: (id: number) => [...mockQueryKeys.subscriptions.details(), id] as const,
+			detail: (id: number) =>
+				[...mockQueryKeys.subscriptions.details(), id] as const,
 		},
 	};
 	return { queryKeys: mockQueryKeys };
