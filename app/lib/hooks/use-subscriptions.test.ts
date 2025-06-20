@@ -27,13 +27,18 @@ vi.mock("../query/provider", () => {
 		subscriptions: {
 			all: ["subscriptions"] as const,
 			lists: vi.fn(() => ["subscriptions", "list"] as const),
-			list: vi.fn((filters?: Record<string, unknown>) => ["subscriptions", "list", { filters }] as const),
+			list: vi.fn(
+				(filters?: Record<string, unknown>) =>
+					["subscriptions", "list", { filters }] as const,
+			),
 			details: vi.fn(() => ["subscriptions", "detail"] as const),
 			detail: vi.fn((id: number) => ["subscriptions", "detail", id] as const),
 		},
 	};
 	return { queryKeys: mockQueryKeys };
-});vi.mock("../api/services", () => ({
+});
+
+vi.mock("../api/services", () => ({
 	apiServices: {
 		subscriptions: {
 			getSubscriptions: vi.fn(),
@@ -50,7 +55,9 @@ vi.mock("../query/provider", () => {
 // モックした後にimportを行う
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
-const mockApiServices = vi.mocked(apiServices);
+
+// vi.mockedで正しく型付けされたmockApiServicesを取得
+const mockApiServices = vi.mocked(apiServices, true);
 
 // React Router v7の問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
@@ -118,7 +125,6 @@ import {
 // ========================================
 // モックセットアップ
 // ========================================
-
 
 // ========================================
 // テストデータ
