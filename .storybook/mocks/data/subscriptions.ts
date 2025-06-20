@@ -322,7 +322,7 @@ export const generateLargeSubscriptionDataset = (count = 50) => {
 
 		largeDataset.push({
 			id: i,
-			name: services[Math.floor(Math.random() * services.length)] + ` ${i}`,
+			name: `${services[Math.floor(Math.random() * services.length)]} ${i}`,
 			amount,
 			categoryId: categories[Math.floor(Math.random() * categories.length)],
 			frequency,
@@ -404,7 +404,8 @@ export const calculateMonthlyTotal = (
 		.reduce((total, sub) => {
 			if (sub.frequency === "monthly") {
 				return total + sub.amount;
-			} else if (sub.frequency === "yearly") {
+			}
+			if (sub.frequency === "yearly") {
 				return total + Math.round(sub.amount / 12);
 			}
 			return total;
@@ -420,7 +421,8 @@ export const calculateYearlyTotal = (
 		.reduce((total, sub) => {
 			if (sub.frequency === "monthly") {
 				return total + sub.amount * 12;
-			} else if (sub.frequency === "yearly") {
+			}
+			if (sub.frequency === "yearly") {
 				return total + sub.amount;
 			}
 			return total;

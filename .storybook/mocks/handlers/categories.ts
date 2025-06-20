@@ -69,7 +69,7 @@ export const categoriesHandlers = [
 	http.get("/api/categories/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なカテゴリIDです",
@@ -160,7 +160,7 @@ export const categoriesHandlers = [
 	http.put("/api/categories/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なカテゴリIDです",
@@ -236,7 +236,7 @@ export const categoriesHandlers = [
 	http.delete("/api/categories/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なカテゴリIDです",

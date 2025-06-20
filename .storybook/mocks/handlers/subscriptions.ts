@@ -84,7 +84,8 @@ export const subscriptionsHandlers = [
 			if (typeof aVal === "number" && typeof bVal === "number") {
 				const result = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
 				return sortOrder === "desc" ? -result : result;
-			} else if (typeof aVal === "string" && typeof bVal === "string") {
+			}
+			if (typeof aVal === "string" && typeof bVal === "string") {
 				const result = aVal.localeCompare(bVal);
 				return sortOrder === "desc" ? -result : result;
 			}
@@ -113,7 +114,7 @@ export const subscriptionsHandlers = [
 	http.get("/api/subscriptions/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なサブスクリプションIDです",
@@ -266,7 +267,7 @@ export const subscriptionsHandlers = [
 	http.put("/api/subscriptions/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なサブスクリプションIDです",
@@ -381,7 +382,7 @@ export const subscriptionsHandlers = [
 	http.delete("/api/subscriptions/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なサブスクリプションIDです",
@@ -423,7 +424,7 @@ export const subscriptionsHandlers = [
 	http.post("/api/subscriptions/:id/activate", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なサブスクリプションIDです",
@@ -487,7 +488,7 @@ export const subscriptionsHandlers = [
 	http.post("/api/subscriptions/:id/deactivate", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正なサブスクリプションIDです",

@@ -114,7 +114,7 @@ export const transactionsHandlers = [
 	http.get("/api/transactions/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正な取引IDです",
@@ -243,7 +243,7 @@ export const transactionsHandlers = [
 	http.put("/api/transactions/:id", async ({ params, request }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正な取引IDです",
@@ -337,7 +337,7 @@ export const transactionsHandlers = [
 	http.delete("/api/transactions/:id", ({ params }) => {
 		const id = Number(params.id);
 
-		if (isNaN(id) || id <= 0) {
+		if (Number.isNaN(id) || id <= 0) {
 			return HttpResponse.json(
 				{
 					error: "不正な取引IDです",
