@@ -38,21 +38,19 @@ vi.mock("../api/services", () => ({
 	},
 }));
 
+// queryKeysのみをモック（React Router問題を回避しつつ実際のキー生成を再現）
 vi.mock("../query/provider", () => {
-	// 実際の実装と一致するqueryKeysファクトリーモック
-	const mockQueryKeys = {
-		categories: {
-			all: ["categories"] as const,
-			lists: vi.fn(() => ["categories", "list"] as const),
-			list: vi.fn(
-				(filters?: Record<string, unknown>) =>
-					["categories", "list", { filters }] as const,
-			),
-			details: vi.fn(() => ["categories", "detail"] as const),
-			detail: vi.fn((id: number) => ["categories", "detail", id] as const),
+	return {
+		queryKeys: {
+			categories: {
+				all: ["categories"] as const,
+				lists: () => ["categories", "list"] as const,
+				list: (filters?: Record<string, unknown>) => ["categories", "list", { filters }] as const,
+				details: () => ["categories", "detail"] as const,
+				detail: (id: number) => ["categories", "detail", id] as const,
+			},
 		},
 	};
-	return { queryKeys: mockQueryKeys };
 });
 
 // モックした後にimportを行う
@@ -114,14 +112,14 @@ import type {
 
 // 実際のhookをインポート
 import {
+	useActiveCategories,
 	useCategories,
+	useCategoriesByType,
 	useCategory,
 	useCreateCategory,
-	useUpdateCategory,
 	useDeleteCategory,
 	useReorderCategories,
-	useCategoriesByType,
-	useActiveCategories,
+	useUpdateCategory,
 } from "./use-categories";
 
 // ========================================
@@ -361,6 +359,9 @@ describe("use-categories hooks", () => {
 		});
 
 		it("作成成功時にキャッシュが適切に更新されること", async () => {
+			// onSuccessが実行されることを確認するためのスパイ
+			const onSuccessSpy = vi.fn();
+			
 			mockApiServices.categories.createCategory.mockResolvedValue(
 				mockCategoryDetailResponse,
 			);
@@ -369,7 +370,9 @@ describe("use-categories hooks", () => {
 			const listQueryKey = queryKeys.categories.lists();
 			setQueryData(queryClient, listQueryKey, mockCategoriesListResponse);
 
-			const { result } = renderHook(() => useCreateCategory(), {
+			const { result } = renderHook(() => useCreateCategory({
+				onSuccess: onSuccessSpy
+			}), {
 				wrapper: createWrapperWithQueryClient(queryClient),
 			});
 
@@ -387,6 +390,13 @@ describe("use-categories hooks", () => {
 			await waitFor(() => {
 				expect(result.current.isSuccess).toBe(true);
 			});
+
+			// onSuccessコールバックが実行されたことを確認
+			expect(onSuccessSpy).toHaveBeenCalledWith(
+				mockCategoryDetailResponse,
+				createData,
+				undefined
+			);
 
 			// 新しいカテゴリの詳細がキャッシュに追加されることを確認
 			const detailQueryKey = queryKeys.categories.detail(1);

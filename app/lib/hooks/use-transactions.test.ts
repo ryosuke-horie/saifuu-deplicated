@@ -34,25 +34,20 @@ vi.mock("../api/services", () => ({
 }));
 
 vi.mock("../query/provider", () => {
-	// 実際の実装と一致するqueryKeysファクトリーモック
+	// 実際の実装と完全に一致するqueryKeysファクトリーモック（spread演算子使用）
 	const mockQueryKeys = {
 		transactions: {
 			all: ["transactions"] as const,
-			lists: vi.fn(() => ["transactions", "list"] as const),
-			list: vi.fn(
-				(params?: {
-					filters?: Record<string, unknown>;
-					sort?: Record<string, unknown>;
-					page?: number;
-					limit?: number;
-				}) => ["transactions", "list", { params }] as const,
-			),
-			details: vi.fn(() => ["transactions", "detail"] as const),
-			detail: vi.fn((id: number) => ["transactions", "detail", id] as const),
-			stats: vi.fn(
-				(params?: Record<string, unknown>) =>
-					["transactions", "stats", { params }] as const,
-			),
+			lists: () => [...mockQueryKeys.transactions.all, "list"] as const,
+			list: (params?: {
+				filters?: Record<string, unknown>;
+				sort?: Record<string, unknown>;
+				page?: number;
+				limit?: number;
+			}) => [...mockQueryKeys.transactions.lists(), { params }] as const,
+			details: () => [...mockQueryKeys.transactions.all, "detail"] as const,
+			detail: (id: number) => [...mockQueryKeys.transactions.details(), id] as const,
+			stats: (params?: Record<string, unknown>) => [...mockQueryKeys.transactions.all, "stats", { params }] as const,
 		},
 	};
 	return { queryKeys: mockQueryKeys };
