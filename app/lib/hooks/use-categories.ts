@@ -75,10 +75,12 @@ export function useCreateCategory(
 ) {
 	const queryClient = useQueryClient();
 
+	const { onSuccess: userOnSuccess, ...restOptions } = options ?? {};
+
 	return useMutation({
 		mutationFn: (data: CreateCategoryRequest) =>
 			apiServices.categories.createCategory(data),
-		onSuccess: (data) => {
+		onSuccess: (data, variables, context) => {
 			// カテゴリ一覧のキャッシュを無効化
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.categories.lists(),
@@ -86,8 +88,11 @@ export function useCreateCategory(
 
 			// 新しいカテゴリをキャッシュに追加
 			queryClient.setQueryData(queryKeys.categories.detail(data.data.id), data);
+
+			// ユーザー提供のonSuccessも実行
+			userOnSuccess?.(data, variables, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -103,6 +108,12 @@ export function useUpdateCategory(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		CategoryDetailResponse,
@@ -143,25 +154,31 @@ export function useUpdateCategory(
 					| undefined,
 			};
 		},
-		onError: (err, { id }, context) => {
+		onError: (err, variables, context) => {
 			// エラー時にロールバック
 			if (context?.previousCategory) {
 				queryClient.setQueryData(
-					queryKeys.categories.detail(id),
+					queryKeys.categories.detail(variables.id),
 					context.previousCategory,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, variables, context);
 		},
-		onSettled: (data, error, { id }) => {
+		onSettled: (data, error, variables, context) => {
 			// 関連するクエリを無効化
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.categories.detail(id),
+				queryKey: queryKeys.categories.detail(variables.id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.categories.lists(),
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, variables, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -177,6 +194,13 @@ export function useDeleteCategory(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onSuccess: userOnSuccess,
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		BaseApiResponse,
@@ -225,20 +249,29 @@ export function useDeleteCategory(
 					context.previousCategories,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, id, context);
 		},
-		onSuccess: (data, id) => {
+		onSuccess: (data, id, context) => {
 			// 削除されたカテゴリの詳細キャッシュを削除
 			queryClient.removeQueries({
 				queryKey: queryKeys.categories.detail(id),
 			});
+
+			// ユーザー提供のonSuccessも実行
+			userOnSuccess?.(data, id, context);
 		},
-		onSettled: () => {
+		onSettled: (data, error, id, context) => {
 			// 関連するクエリを無効化
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.categories.lists(),
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, id, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 

@@ -74,10 +74,12 @@ export function useCreateSubscription(
 ) {
 	const queryClient = useQueryClient();
 
+	const { onSuccess: userOnSuccess, ...restOptions } = options ?? {};
+
 	return useMutation({
 		mutationFn: (data: CreateSubscriptionRequest) =>
 			apiServices.subscriptions.createSubscription(data),
-		onSuccess: (data) => {
+		onSuccess: (data, variables, context) => {
 			// サブスクリプション一覧のキャッシュを無効化
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.lists(),
@@ -93,8 +95,11 @@ export function useCreateSubscription(
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.transactions.all,
 			});
+
+			// ユーザー提供のonSuccessも実行
+			userOnSuccess?.(data, variables, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -110,6 +115,12 @@ export function useUpdateSubscription(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		SubscriptionDetailResponse,
@@ -147,19 +158,22 @@ export function useUpdateSubscription(
 
 			return { previousSubscription };
 		},
-		onError: (err, { id }, context) => {
+		onError: (err, variables, context) => {
 			// エラー時にロールバック
 			if (context?.previousSubscription) {
 				queryClient.setQueryData<SubscriptionDetailResponse>(
-					queryKeys.subscriptions.detail(id),
+					queryKeys.subscriptions.detail(variables.id),
 					context.previousSubscription,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, variables, context);
 		},
-		onSettled: (data, error, { id }) => {
+		onSettled: (data, error, variables, context) => {
 			// 関連するクエリを無効化
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.subscriptions.detail(id),
+				queryKey: queryKeys.subscriptions.detail(variables.id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.lists(),
@@ -167,8 +181,11 @@ export function useUpdateSubscription(
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.transactions.all,
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, variables, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -184,6 +201,13 @@ export function useDeleteSubscription(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onSuccess: userOnSuccess,
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		BaseApiResponse,
@@ -230,14 +254,20 @@ export function useDeleteSubscription(
 					context.previousSubscriptions,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, id, context);
 		},
-		onSuccess: (data, id) => {
+		onSuccess: (data, id, context) => {
 			// 削除されたサブスクリプションの詳細キャッシュを削除
 			queryClient.removeQueries({
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
+
+			// ユーザー提供のonSuccessも実行
+			userOnSuccess?.(data, id, context);
 		},
-		onSettled: () => {
+		onSettled: (data, error, id, context) => {
 			// 関連するクエリを無効化
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.lists(),
@@ -245,8 +275,11 @@ export function useDeleteSubscription(
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.transactions.all,
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, id, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -262,6 +295,12 @@ export function useDeactivateSubscription(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		BaseApiResponse,
@@ -304,16 +343,22 @@ export function useDeactivateSubscription(
 					context.previousSubscription,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, id, context);
 		},
-		onSettled: (data, error, id) => {
+		onSettled: (data, error, id, context) => {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.lists(),
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, id, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
@@ -329,6 +374,12 @@ export function useActivateSubscription(
 	>,
 ) {
 	const queryClient = useQueryClient();
+
+	const {
+		onError: userOnError,
+		onSettled: userOnSettled,
+		...restOptions
+	} = options ?? {};
 
 	return useMutation<
 		BaseApiResponse,
@@ -371,16 +422,22 @@ export function useActivateSubscription(
 					context.previousSubscription,
 				);
 			}
+
+			// ユーザー提供のonErrorも実行
+			userOnError?.(err, id, context);
 		},
-		onSettled: (data, error, id) => {
+		onSettled: (data, error, id, context) => {
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.detail(id),
 			});
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.subscriptions.lists(),
 			});
+
+			// ユーザー提供のonSettledも実行
+			userOnSettled?.(data, error, id, context);
 		},
-		...options,
+		...restOptions,
 	});
 }
 
