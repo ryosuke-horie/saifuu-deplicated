@@ -112,166 +112,17 @@ import type {
 	UpdateCategoryRequest,
 } from "../schemas/api-responses";
 
-// React Router v7問題を回避するため、必要なフックを直接実装
-function useCategories() {
-	return useQuery({
-		queryKey: queryKeys.categories.lists(),
-		queryFn: () => apiServices.categories.getCategories(),
-	});
-}
-
-function useCategory(id: number) {
-	return useQuery({
-		queryKey: queryKeys.categories.detail(id),
-		queryFn: () => apiServices.categories.getCategory(id),
-		enabled: id > 0,
-	});
-}
-
-function useCreateCategory() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (data: CreateCategoryRequest) =>
-			apiServices.categories.createCategory(data),
-		onSuccess: (response: any) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
-			queryClient.setQueryData(
-				queryKeys.categories.detail(response.data.id),
-				response,
-			);
-		},
-	});
-}
-
-function useUpdateCategory() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, data }: { id: number; data: UpdateCategoryRequest }) =>
-			apiServices.categories.updateCategory(id, data),
-		onMutate: async ({ id, data }: any) => {
-			const queryKey = queryKeys.categories.detail(id);
-			await queryClient.cancelQueries({ queryKey });
-			const previousData = queryClient.getQueryData(queryKey) as any;
-
-			if (previousData) {
-				queryClient.setQueryData(queryKey, {
-					...previousData,
-					data: { ...previousData.data, ...data },
-				});
-			}
-
-			return { previousData };
-		},
-		onError: (error, variables, context) => {
-			if (context?.previousData) {
-				queryClient.setQueryData(
-					queryKeys.categories.detail(variables.id),
-					context.previousData,
-				);
-			}
-		},
-		onSuccess: (response: any) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
-			queryClient.setQueryData(
-				queryKeys.categories.detail(response.data.id),
-				response,
-			);
-		},
-	});
-}
-
-function useDeleteCategory() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (id: number) => apiServices.categories.deleteCategory(id),
-		onMutate: async (id: number) => {
-			const listQueryKey = queryKeys.categories.lists();
-			await queryClient.cancelQueries({ queryKey: listQueryKey });
-			const previousData = queryClient.getQueryData(listQueryKey) as any;
-
-			if (previousData?.data) {
-				const updatedData = {
-					...previousData,
-					data: previousData.data.filter((item: any) => item.id !== id),
-					count: previousData.count ? previousData.count - 1 : 0,
-				};
-				queryClient.setQueryData(listQueryKey, updatedData);
-			}
-
-			return { previousData };
-		},
-		onError: (error, variables, context) => {
-			if (context?.previousData) {
-				queryClient.setQueryData(
-					queryKeys.categories.lists(),
-					context.previousData,
-				);
-			}
-		},
-		onSuccess: (response: any, id: number) => {
-			queryClient.removeQueries({ queryKey: queryKeys.categories.detail(id) });
-		},
-	});
-}
-
-function useReorderCategories() {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: (data: ReorderCategoriesRequest) =>
-			apiServices.categories.reorderCategories(data),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.categories.lists() });
-		},
-	});
-}
-
-function useCategoriesByType(type: "income" | "expense") {
-	const categoriesQuery = useCategories();
-
-	if (!categoriesQuery.data?.data) {
-		return {
-			...categoriesQuery,
-			data: undefined,
-		};
-	}
-
-	const filteredData = categoriesQuery.data.data.filter(
-		(category) => category.type === type,
-	);
-
-	return {
-		...categoriesQuery,
-		data: {
-			...categoriesQuery.data,
-			data: filteredData,
-			count: filteredData.length,
-		},
-	};
-}
-
-function useActiveCategories() {
-	const categoriesQuery = useCategories();
-
-	if (!categoriesQuery.data?.data) {
-		return {
-			...categoriesQuery,
-			data: undefined,
-		};
-	}
-
-	const activeData = categoriesQuery.data.data.filter(
-		(category) => category.isActive,
-	);
-
-	return {
-		...categoriesQuery,
-		data: {
-			...categoriesQuery.data,
-			data: activeData,
-			count: activeData.length,
-		},
-	};
-}
+// 実際のhookをインポート
+import {
+	useCategories,
+	useCategory,
+	useCreateCategory,
+	useUpdateCategory,
+	useDeleteCategory,
+	useReorderCategories,
+	useCategoriesByType,
+	useActiveCategories,
+} from "./use-categories";
 
 // ========================================
 // モックセットアップ
