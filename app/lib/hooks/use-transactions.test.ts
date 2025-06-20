@@ -35,14 +35,15 @@ vi.mock("../api/services", () => ({
 
 
 vi.mock("../query/provider", () => {
+	// 実際の実装と一致するqueryKeysファクトリーモック
 	const mockQueryKeys = {
 		transactions: {
 			all: ["transactions"] as const,
-			lists: () => ["transactions", "list"] as const,
-			list: (params?: { filters?: Record<string, unknown>; sort?: Record<string, unknown>; page?: number; limit?: number; }) => ["transactions", "list", { params }] as const,
-			details: () => ["transactions", "detail"] as const,
-			detail: (id: number) => ["transactions", "detail", id] as const,
-			stats: (params?: Record<string, unknown>) => ["transactions", "stats", { params }] as const,
+			lists: vi.fn(() => ["transactions", "list"] as const),
+			list: vi.fn((params?: { filters?: Record<string, unknown>; sort?: Record<string, unknown>; page?: number; limit?: number; }) => ["transactions", "list", { params }] as const),
+			details: vi.fn(() => ["transactions", "detail"] as const),
+			detail: vi.fn((id: number) => ["transactions", "detail", id] as const),
+			stats: vi.fn((params?: Record<string, unknown>) => ["transactions", "stats", { params }] as const),
 		},
 	};
 	return { queryKeys: mockQueryKeys };
@@ -50,6 +51,7 @@ vi.mock("../query/provider", () => {
 // モックしたapiServicesを取得
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
+
 const mockApiServices = vi.mocked(apiServices);
 
 // query-wrapperを使わずに直接テスト用のQueryClientを作成

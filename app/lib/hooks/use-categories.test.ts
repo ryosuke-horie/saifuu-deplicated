@@ -39,13 +39,14 @@ vi.mock("../api/services", () => ({
 }));
 
 vi.mock("../query/provider", () => {
+	// 実際の実装と一致するqueryKeysファクトリーモック
 	const mockQueryKeys = {
 		categories: {
 			all: ["categories"] as const,
-			lists: () => ["categories", "list"] as const,
-			list: (filters?: Record<string, unknown>) => ["categories", "list", { filters }] as const,
-			details: () => ["categories", "detail"] as const,
-			detail: (id: number) => ["categories", "detail", id] as const,
+			lists: vi.fn(() => ["categories", "list"] as const),
+			list: vi.fn((filters?: Record<string, unknown>) => ["categories", "list", { filters }] as const),
+			details: vi.fn(() => ["categories", "detail"] as const),
+			detail: vi.fn((id: number) => ["categories", "detail", id] as const),
 		},
 	};
 	return { queryKeys: mockQueryKeys };

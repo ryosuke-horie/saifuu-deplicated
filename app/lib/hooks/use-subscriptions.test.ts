@@ -22,13 +22,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // queryKeysをモック
 
 vi.mock("../query/provider", () => {
+	// 実際の実装と一致するqueryKeysファクトリーモック
 	const mockQueryKeys = {
 		subscriptions: {
 			all: ["subscriptions"] as const,
-			lists: () => ["subscriptions", "list"] as const,
-			list: (filters?: Record<string, unknown>) => ["subscriptions", "list", { filters }] as const,
-			details: () => ["subscriptions", "detail"] as const,
-			detail: (id: number) => ["subscriptions", "detail", id] as const,
+			lists: vi.fn(() => ["subscriptions", "list"] as const),
+			list: vi.fn((filters?: Record<string, unknown>) => ["subscriptions", "list", { filters }] as const),
+			details: vi.fn(() => ["subscriptions", "detail"] as const),
+			detail: vi.fn((id: number) => ["subscriptions", "detail", id] as const),
 		},
 	};
 	return { queryKeys: mockQueryKeys };
