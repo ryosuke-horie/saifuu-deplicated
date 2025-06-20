@@ -18,14 +18,62 @@ import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-	clearQueryClientCache,
-	createTestQueryClient,
-	setQueryData,
-	setQueryError,
-} from "../../../tests/utils/query-wrapper";
+
+// queryKeysをモック
+vi.mock("../query/provider", () => ({
+	queryKeys: {
+		subscriptions: {
+			all: ["subscriptions"] as const,
+			lists: () => ["subscriptions", "list"] as const,
+			list: (params?: any) => ["subscriptions", "list", { params }] as const,
+			details: () => ["subscriptions", "detail"] as const,
+			detail: (id: number) => ["subscriptions", "detail", id] as const,
+			stats: (params?: Record<string, unknown>) => ["subscriptions", "stats", { params }] as const,
+		},
+	},
+}));
+// React Router v7の問題を回避するため、直接実装
+function createTestQueryClient(): QueryClient {
+	return new QueryClient({
+		defaultOptions: {
+			queries: {
+				retry: false,
+				gcTime: 0,
+				staleTime: 0,
+				refetchOnMount: false,
+				refetchOnWindowFocus: false,
+				refetchOnReconnect: false,
+			},
+			mutations: {
+				retry: false,
+				onError: () => {},
+			},
+		},
+	});
+}
+
+function clearQueryClientCache(queryClient: QueryClient) {
+	queryClient.clear();
+	queryClient.removeQueries();
+	queryClient.cancelQueries();
+}
+
+function setQueryData<T>(
+	queryClient: QueryClient,
+	queryKey: unknown[],
+	data: T,
+) {
+	queryClient.setQueryData(queryKey, data);
+}
+
+function setQueryError(
+	queryClient: QueryClient,
+	queryKey: unknown[],
+	error: Error,
+) {
+	queryClient.setQueryData(queryKey, undefined);
+}
 import type { ApiError } from "../api/client";
-import { queryKeys } from "../query/provider";
 import type {
 	BaseApiResponse,
 	CreateSubscriptionRequest,
@@ -52,21 +100,23 @@ import {
 // ========================================
 
 // apiServicesをモック
-const mockApiServices = {
-	subscriptions: {
-		getSubscriptions: vi.fn(),
-		getSubscription: vi.fn(),
-		createSubscription: vi.fn(),
-		updateSubscription: vi.fn(),
-		deleteSubscription: vi.fn(),
-		deactivateSubscription: vi.fn(),
-		activateSubscription: vi.fn(),
-	},
-};
-
 vi.mock("../api/services", () => ({
-	apiServices: mockApiServices,
+	apiServices: {
+		subscriptions: {
+			getSubscriptions: vi.fn(),
+			getSubscription: vi.fn(),
+			createSubscription: vi.fn(),
+			updateSubscription: vi.fn(),
+			deleteSubscription: vi.fn(),
+			deactivateSubscription: vi.fn(),
+			activateSubscription: vi.fn(),
+		},
+	},
 }));
+
+// モックしたapiServicesを取得
+import { apiServices } from "../api/services";
+const mockApiServices = vi.mocked(apiServices);
 
 // ========================================
 // テストデータ

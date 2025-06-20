@@ -18,6 +18,40 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// queryKeysをモック
+vi.mock("../api/services", () => ({
+	apiServices: {
+		transactions: {
+			getTransactions: vi.fn(),
+			getInfiniteTransactions: vi.fn(),
+			getTransaction: vi.fn(),
+			getTransactionStats: vi.fn(),
+			createTransaction: vi.fn(),
+			updateTransaction: vi.fn(),
+			deleteTransaction: vi.fn(),
+		},
+	},
+}));
+
+vi.mock("../query/provider", () => ({
+	queryKeys: {
+		transactions: {
+			all: ["transactions"] as const,
+			lists: () => ["transactions", "list"] as const,
+			list: (params?: any) => ["transactions", "list", { params }] as const,
+			details: () => ["transactions", "detail"] as const,
+			detail: (id: number) => ["transactions", "detail", id] as const,
+			stats: (params?: Record<string, unknown>) =>
+				["transactions", "stats", { params }] as const,
+		},
+	},
+}));
+
+// モックしたapiServicesを取得
+import { apiServices } from "../api/services";
+import { queryKeys } from "../query/provider";
+const mockApiServices = vi.mocked(apiServices);
+
 // query-wrapperを使わずに直接テスト用のQueryClientを作成
 function createTestQueryClient(): QueryClient {
 	return new QueryClient({
@@ -62,19 +96,6 @@ function setQueryError(
 }
 import type { ApiError } from "../api/client";
 
-// queryKeysを直接定義してReact Router Viteプラグインの問題を回避
-const queryKeys = {
-	transactions: {
-		all: ["transactions"] as const,
-		lists: () => [...queryKeys.transactions.all, "list"] as const,
-		list: (params?: any) =>
-			[...queryKeys.transactions.lists(), { params }] as const,
-		details: () => [...queryKeys.transactions.all, "detail"] as const,
-		detail: (id: number) => [...queryKeys.transactions.details(), id] as const,
-		stats: (params?: Record<string, unknown>) =>
-			[...queryKeys.transactions.all, "stats", { params }] as const,
-	},
-} as const;
 import type {
 	BaseApiResponse,
 	CreateTransactionRequest,
@@ -99,24 +120,7 @@ import {
 } from "./use-transactions";
 
 // ========================================
-// モックセットアップ
-// ========================================
-
-// apiServicesをモック
-const mockApiServices = {
-	transactions: {
-		getTransactions: vi.fn(),
-		getTransaction: vi.fn(),
-		getTransactionStats: vi.fn(),
-		createTransaction: vi.fn(),
-		updateTransaction: vi.fn(),
-		deleteTransaction: vi.fn(),
-	},
-};
-
-vi.mock("../api/services", () => ({
-	apiServices: mockApiServices,
-}));
+const mockApiServices = vi.mocked(apiServices);
 
 // ========================================
 // テストデータ

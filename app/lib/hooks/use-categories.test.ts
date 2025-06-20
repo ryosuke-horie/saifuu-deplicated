@@ -23,6 +23,32 @@ import {
 import { act, renderHook, waitFor } from "@testing-library/react";
 import * as React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+// apiServicesをモック
+vi.mock("../api/services", () => ({
+	apiServices: {
+		categories: {
+			getCategories: vi.fn(),
+			getCategory: vi.fn(),
+			createCategory: vi.fn(),
+			updateCategory: vi.fn(),
+			deleteCategory: vi.fn(),
+			reorderCategories: vi.fn(),
+		},
+	},
+}));
+
+vi.mock("../query/provider", () => ({
+	queryKeys: {
+		categories: {
+			all: ["categories"] as const,
+			lists: () => ["categories", "list"] as const,
+			list: (params?: any) => ["categories", "list", { params }] as const,
+			details: () => ["categories", "detail"] as const,
+			detail: (id: number) => ["categories", "detail", id] as const,
+		},
+	},
+}));
 import { apiServices } from "../api/services";
 // React QueryとReact Router v7の統合問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
@@ -69,17 +95,7 @@ function setQueryError(
 }
 import { ApiError } from "../api/client";
 
-// queryKeysを直接定義してReact Router問題を回避
-const queryKeys = {
-	categories: {
-		all: ["categories"] as const,
-		lists: () => [...queryKeys.categories.all, "list"] as const,
-		list: (params?: any) =>
-			[...queryKeys.categories.lists(), { params }] as const,
-		details: () => [...queryKeys.categories.all, "detail"] as const,
-		detail: (id: number) => [...queryKeys.categories.details(), id] as const,
-	},
-};
+import { queryKeys } from "../query/provider";
 import type {
 	BaseApiResponse,
 	CategoriesListResponse,
