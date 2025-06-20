@@ -1,0 +1,365 @@
+{
+	"v": 5,
+	"entries": {
+		"dashboard-summarycards--documentation": {
+			"id": "dashboard-summarycards--documentation",
+			"title": "Dashboard/SummaryCards",
+			"name": "Documentation",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-summarycards--default": {
+			"type": "story",
+			"id": "dashboard-summarycards--default",
+			"name": "Default",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--compact": {
+			"type": "story",
+			"id": "dashboard-summarycards--compact",
+			"name": "Compact",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--loading": {
+			"type": "story",
+			"id": "dashboard-summarycards--loading",
+			"name": "Loading",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--error-state": {
+			"type": "story",
+			"id": "dashboard-summarycards--error-state",
+			"name": "Error State",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--negative-balance": {
+			"type": "story",
+			"id": "dashboard-summarycards--negative-balance",
+			"name": "Negative Balance",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--empty-data": {
+			"type": "story",
+			"id": "dashboard-summarycards--empty-data",
+			"name": "Empty Data",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-summarycards--large-numbers": {
+			"type": "story",
+			"id": "dashboard-summarycards--large-numbers",
+			"name": "Large Numbers",
+			"title": "Dashboard/SummaryCards",
+			"importPath": "./app/components/dashboard/summary-cards.stories.tsx",
+			"componentPath": "./app/components/dashboard/summary-cards.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-filterpanel--documentation": {
+			"id": "transactions-filterpanel--documentation",
+			"title": "Transactions/FilterPanel",
+			"name": "Documentation",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"transactions-filterpanel--default": {
+			"type": "story",
+			"id": "transactions-filterpanel--default",
+			"name": "Default",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-filterpanel--collapsed": {
+			"type": "story",
+			"id": "transactions-filterpanel--collapsed",
+			"name": "Collapsed",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--expanded": {
+			"type": "story",
+			"id": "transactions-filterpanel--expanded",
+			"name": "Expanded",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--no-filters-applied": {
+			"type": "story",
+			"id": "transactions-filterpanel--no-filters-applied",
+			"name": "No Filters Applied",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-filterpanel--with-filters-applied": {
+			"type": "story",
+			"id": "transactions-filterpanel--with-filters-applied",
+			"name": "With Filters Applied",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--search-active": {
+			"type": "story",
+			"id": "transactions-filterpanel--search-active",
+			"name": "Search Active",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--categories-loading": {
+			"type": "story",
+			"id": "transactions-filterpanel--categories-loading",
+			"name": "Categories Loading",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--categories-error": {
+			"type": "story",
+			"id": "transactions-filterpanel--categories-error",
+			"name": "Categories Error",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--filter-application": {
+			"type": "story",
+			"id": "transactions-filterpanel--filter-application",
+			"name": "Filter Application",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--sort-changes": {
+			"type": "story",
+			"id": "transactions-filterpanel--sort-changes",
+			"name": "Sort Changes",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--clear-filters": {
+			"type": "story",
+			"id": "transactions-filterpanel--clear-filters",
+			"name": "Clear Filters",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--many-categories": {
+			"type": "story",
+			"id": "transactions-filterpanel--many-categories",
+			"name": "Many Categories",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--few-categories": {
+			"type": "story",
+			"id": "transactions-filterpanel--few-categories",
+			"name": "Few Categories",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--no-categories": {
+			"type": "story",
+			"id": "transactions-filterpanel--no-categories",
+			"name": "No Categories",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--positive-balance": {
+			"type": "story",
+			"id": "transactions-filterpanel--positive-balance",
+			"name": "Positive Balance",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--negative-balance": {
+			"type": "story",
+			"id": "transactions-filterpanel--negative-balance",
+			"name": "Negative Balance",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--loading-amount": {
+			"type": "story",
+			"id": "transactions-filterpanel--loading-amount",
+			"name": "Loading Amount",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-filterpanel--large-amount": {
+			"type": "story",
+			"id": "transactions-filterpanel--large-amount",
+			"name": "Large Amount",
+			"title": "Transactions/FilterPanel",
+			"importPath": "./app/components/transactions/filter-panel.stories.tsx",
+			"componentPath": "./app/components/transactions/filter-panel.tsx",
+			"tags": ["dev", "test", "autodocs", "play-fn"]
+		},
+		"transactions-transactionlist--documentation": {
+			"id": "transactions-transactionlist--documentation",
+			"title": "Transactions/TransactionList",
+			"name": "Documentation",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"transactions-transactionlist--default": {
+			"type": "story",
+			"id": "transactions-transactionlist--default",
+			"name": "Default",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--compact-mode": {
+			"type": "story",
+			"id": "transactions-transactionlist--compact-mode",
+			"name": "Compact Mode",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--large-dataset": {
+			"type": "story",
+			"id": "transactions-transactionlist--large-dataset",
+			"name": "Large Dataset",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--loading-state": {
+			"type": "story",
+			"id": "transactions-transactionlist--loading-state",
+			"name": "Loading State",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--empty-state": {
+			"type": "story",
+			"id": "transactions-transactionlist--empty-state",
+			"name": "Empty State",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--error-state": {
+			"type": "story",
+			"id": "transactions-transactionlist--error-state",
+			"name": "Error State",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--income-only": {
+			"type": "story",
+			"id": "transactions-transactionlist--income-only",
+			"name": "Income Only",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--expense-only": {
+			"type": "story",
+			"id": "transactions-transactionlist--expense-only",
+			"name": "Expense Only",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--category-filtered": {
+			"type": "story",
+			"id": "transactions-transactionlist--category-filtered",
+			"name": "Category Filtered",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--date-range-filtered": {
+			"type": "story",
+			"id": "transactions-transactionlist--date-range-filtered",
+			"name": "Date Range Filtered",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--single-transaction": {
+			"type": "story",
+			"id": "transactions-transactionlist--single-transaction",
+			"name": "Single Transaction",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"transactions-transactionlist--mixed-categories": {
+			"type": "story",
+			"id": "transactions-transactionlist--mixed-categories",
+			"name": "Mixed Categories",
+			"title": "Transactions/TransactionList",
+			"importPath": "./app/components/transactions/transaction-list.stories.tsx",
+			"componentPath": "./app/components/transactions/transaction-list.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		}
+	}
+}
