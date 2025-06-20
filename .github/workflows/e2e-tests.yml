@@ -50,7 +50,6 @@ jobs:
       
       - name: Setup database
         run: |
-          pnpm run db:generate
           pnpm run db:migrate:local
           pnpm run db:seed
       
