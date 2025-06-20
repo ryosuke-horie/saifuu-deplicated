@@ -40,18 +40,19 @@ vi.mock("../api/services", () => ({
 
 // queryKeysのみをモック（React Router問題を回避しつつ実際のキー生成を再現）
 vi.mock("../query/provider", () => {
-	return {
-		queryKeys: {
-			categories: {
-				all: ["categories"] as const,
-				lists: () => ["categories", "list"] as const,
-				list: (filters?: Record<string, unknown>) =>
-					["categories", "list", { filters }] as const,
-				details: () => ["categories", "detail"] as const,
-				detail: (id: number) => ["categories", "detail", id] as const,
-			},
+	// 実際の実装と完全に一致するqueryKeysファクトリーモック（spread演算子使用）
+	const mockQueryKeys = {
+		categories: {
+			all: ["categories"] as const,
+			lists: () => [...mockQueryKeys.categories.all, "list"] as const,
+			list: (filters?: Record<string, unknown>) =>
+				[...mockQueryKeys.categories.lists(), { filters }] as const,
+			details: () => [...mockQueryKeys.categories.all, "detail"] as const,
+			detail: (id: number) =>
+				[...mockQueryKeys.categories.details(), id] as const,
 		},
 	};
+	return { queryKeys: mockQueryKeys };
 });
 
 // モックした後にimportを行う
@@ -126,20 +127,6 @@ import {
 // ========================================
 // モックセットアップ
 // ========================================
-
-// apiServicesをモック
-vi.mock("../api/services", () => ({
-	apiServices: {
-		categories: {
-			getCategories: vi.fn(),
-			getCategory: vi.fn(),
-			createCategory: vi.fn(),
-			updateCategory: vi.fn(),
-			deleteCategory: vi.fn(),
-			reorderCategories: vi.fn(),
-		},
-	},
-}));
 
 // モックしたapiServicesを取得
 const mockApiServices = vi.mocked(apiServices, true);
