@@ -41,20 +41,20 @@ export class DashboardPage {
 		const summaryStates = [
 			this.selectors.summaryCards,
 			'[data-testid="summary-cards-loading"]',
-			'[data-testid="summary-cards-error"]'
+			'[data-testid="summary-cards-error"]',
 		];
-		
+
 		await this.page.waitForFunction(
 			(selectors) => {
-				return selectors.some(selector => {
+				return selectors.some((selector) => {
 					const element = document.querySelector(selector);
 					return element && element instanceof HTMLElement;
 				});
 			},
 			summaryStates,
-			{ timeout: 30000 }
+			{ timeout: 30000 },
 		);
-		
+
 		// 通常状態のサマリーカードが表示されるまで追加で待機
 		try {
 			await this.page.waitForSelector(this.selectors.summaryCards, {
@@ -64,12 +64,16 @@ export class DashboardPage {
 		} catch (error) {
 			// エラー状態かローディング状態で止まっている可能性があるため、
 			// 現在の状態をチェック
-			const hasError = await this.page.locator('[data-testid="summary-cards-error"]').isVisible();
+			const hasError = await this.page
+				.locator('[data-testid="summary-cards-error"]')
+				.isVisible();
 			if (hasError) {
 				console.log("Summary cards are in error state");
 				return;
 			}
-			const hasLoading = await this.page.locator('[data-testid="summary-cards-loading"]').isVisible();
+			const hasLoading = await this.page
+				.locator('[data-testid="summary-cards-loading"]')
+				.isVisible();
 			if (hasLoading) {
 				console.log("Summary cards are still loading");
 				return;
@@ -106,7 +110,9 @@ export class DashboardPage {
 	// アクション
 	async clickAddTransaction() {
 		// data-testidがない場合はテキストで検索
-		const addButton = this.page.getByRole('link', { name: '取引を登録' }).first();
+		const addButton = this.page
+			.getByRole("link", { name: "取引を登録" })
+			.first();
 		await addButton.click();
 	}
 

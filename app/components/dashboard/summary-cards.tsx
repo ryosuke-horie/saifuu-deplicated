@@ -268,7 +268,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	// エラー表示
 	if (currentError || lastError) {
 		return (
-			<div 
+			<div
 				className="bg-red-50 border border-red-200 rounded-lg p-4"
 				data-testid="summary-cards-error"
 			>
@@ -301,7 +301,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	if (isCurrentLoading || isLastLoading) {
 		const loadingCards = ["income", "expense", "balance", "count"];
 		return (
-			<div 
+			<div
 				className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
 				data-testid="summary-cards-loading"
 			>
@@ -323,7 +323,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	}
 
 	return (
-		<div 
+		<div
 			className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
 			data-testid="summary-cards"
 		>
