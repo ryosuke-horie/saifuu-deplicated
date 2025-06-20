@@ -1,0 +1,124 @@
+# E2Eテスト実行のGitHub Actions設定
+# プルリクエストとメインブランチへのプッシュ時にPlaywright E2Eテストを実行
+#
+# 設計判断：
+# - Node.js 22使用でプロジェクトのエンジン要件に合わせる
+# - pnpm使用でパッケージマネージャーを統一
+# - テスト失敗時のアーティファクト保存でデバッグを支援
+# - 複数ブラウザでのテスト実行
+
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        browser: [chromium]
+      fail-fast: false
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Setup database
+        run: |
+          pnpm run db:migrate:local
+          pnpm run db:seed
+      
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      
+      - name: Run type check and linting
+        run: pnpm run check
+      
+      - name: Run E2E tests
+        run: pnpm exec playwright test --project=${{ matrix.browser }}
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          CI: true
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-${{ matrix.browser }}
+          path: coverage/
+          retention-days: 7
+
+  # 結果を統合して最終レポートを作成
+  e2e-report:
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts
+      
+      - name: Generate combined report
+        run: |
+          echo "## E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Browser | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -d "test-artifacts/playwright-report-chromium" ]; then
+            echo "| chromium | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| chromium | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('test-artifacts')) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '🎭 E2Eテストが完了しました。詳細はActions画面でご確認ください。'
+              });
+            }

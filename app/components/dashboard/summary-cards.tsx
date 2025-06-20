@@ -268,7 +268,10 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	// エラー表示
 	if (currentError || lastError) {
 		return (
-			<div className="bg-red-50 border border-red-200 rounded-lg p-4">
+			<div
+				className="bg-red-50 border border-red-200 rounded-lg p-4"
+				data-testid="summary-cards-error"
+			>
 				<div className="flex items-center space-x-2">
 					<div className="text-red-600">
 						<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -298,7 +301,10 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	if (isCurrentLoading || isLastLoading) {
 		const loadingCards = ["income", "expense", "balance", "count"];
 		return (
-			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+			<div
+				className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+				data-testid="summary-cards-loading"
+			>
 				{loadingCards.map((cardType) => (
 					<div
 						key={`loading-${cardType}`}
@@ -317,7 +323,10 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+		<div
+			className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+			data-testid="summary-cards"
+		>
 			{cardItems.map((item) => (
 				<div
 					key={item.id}
