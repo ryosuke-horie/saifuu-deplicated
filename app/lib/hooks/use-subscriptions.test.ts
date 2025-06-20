@@ -14,24 +14,43 @@
  * Issue #37の例に基づいたテスト実装
  */
 
-import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // queryKeysをモック
-vi.mock("../query/provider", () => ({
-	queryKeys: {
+
+vi.mock("../query/provider", () => {
+	const mockQueryKeys = {
 		subscriptions: {
 			all: ["subscriptions"] as const,
 			lists: () => ["subscriptions", "list"] as const,
-			list: (params?: any) => ["subscriptions", "list", { params }] as const,
+			list: (filters?: Record<string, unknown>) => ["subscriptions", "list", { filters }] as const,
 			details: () => ["subscriptions", "detail"] as const,
 			detail: (id: number) => ["subscriptions", "detail", id] as const,
-			stats: (params?: Record<string, unknown>) => ["subscriptions", "stats", { params }] as const,
+		},
+	};
+	return { queryKeys: mockQueryKeys };
+});vi.mock("../api/services", () => ({
+	apiServices: {
+		subscriptions: {
+			getSubscriptions: vi.fn(),
+			getSubscription: vi.fn(),
+			createSubscription: vi.fn(),
+			updateSubscription: vi.fn(),
+			deleteSubscription: vi.fn(),
+			deactivateSubscription: vi.fn(),
+			activateSubscription: vi.fn(),
 		},
 	},
 }));
+
+// モックした後にimportを行う
+import { apiServices } from "../api/services";
+import { queryKeys } from "../query/provider";
+const mockApiServices = vi.mocked(apiServices);
+
 // React Router v7の問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
 	return new QueryClient({
@@ -99,24 +118,6 @@ import {
 // モックセットアップ
 // ========================================
 
-// apiServicesをモック
-vi.mock("../api/services", () => ({
-	apiServices: {
-		subscriptions: {
-			getSubscriptions: vi.fn(),
-			getSubscription: vi.fn(),
-			createSubscription: vi.fn(),
-			updateSubscription: vi.fn(),
-			deleteSubscription: vi.fn(),
-			deactivateSubscription: vi.fn(),
-			activateSubscription: vi.fn(),
-		},
-	},
-}));
-
-// モックしたapiServicesを取得
-import { apiServices } from "../api/services";
-const mockApiServices = vi.mocked(apiServices);
 
 // ========================================
 // テストデータ

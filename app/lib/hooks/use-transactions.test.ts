@@ -33,20 +33,20 @@ vi.mock("../api/services", () => ({
 	},
 }));
 
-vi.mock("../query/provider", () => ({
-	queryKeys: {
+
+vi.mock("../query/provider", () => {
+	const mockQueryKeys = {
 		transactions: {
 			all: ["transactions"] as const,
 			lists: () => ["transactions", "list"] as const,
-			list: (params?: any) => ["transactions", "list", { params }] as const,
+			list: (params?: { filters?: Record<string, unknown>; sort?: Record<string, unknown>; page?: number; limit?: number; }) => ["transactions", "list", { params }] as const,
 			details: () => ["transactions", "detail"] as const,
 			detail: (id: number) => ["transactions", "detail", id] as const,
-			stats: (params?: Record<string, unknown>) =>
-				["transactions", "stats", { params }] as const,
+			stats: (params?: Record<string, unknown>) => ["transactions", "stats", { params }] as const,
 		},
-	},
-}));
-
+	};
+	return { queryKeys: mockQueryKeys };
+});
 // モックしたapiServicesを取得
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
@@ -120,7 +120,6 @@ import {
 } from "./use-transactions";
 
 // ========================================
-const mockApiServices = vi.mocked(apiServices);
 
 // ========================================
 // テストデータ

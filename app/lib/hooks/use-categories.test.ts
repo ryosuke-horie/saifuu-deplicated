@@ -38,17 +38,18 @@ vi.mock("../api/services", () => ({
 	},
 }));
 
-vi.mock("../query/provider", () => ({
-	queryKeys: {
+vi.mock("../query/provider", () => {
+	const mockQueryKeys = {
 		categories: {
 			all: ["categories"] as const,
 			lists: () => ["categories", "list"] as const,
-			list: (params?: any) => ["categories", "list", { params }] as const,
+			list: (filters?: Record<string, unknown>) => ["categories", "list", { filters }] as const,
 			details: () => ["categories", "detail"] as const,
 			detail: (id: number) => ["categories", "detail", id] as const,
 		},
-	},
-}));
+	};
+	return { queryKeys: mockQueryKeys };
+});
 import { apiServices } from "../api/services";
 // React QueryとReact Router v7の統合問題を回避するため、直接実装
 function createTestQueryClient(): QueryClient {
