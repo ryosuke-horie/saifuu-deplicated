@@ -8,6 +8,7 @@ import {
 	selectCategorySchema,
 	selectSubscriptionSchema,
 	selectTransactionSchema,
+	selectTransactionWithParsedTagsSchema,
 } from "../../../db/schema";
 
 /**
@@ -127,9 +128,7 @@ export const transactionSortSchema = z.object({
 });
 
 // APIレスポンス用の取引スキーマ（タグがパースされた状態）
-export const apiTransactionSchema = selectTransactionSchema.extend({
-	tags: z.array(z.string()).nullable(),
-});
+export const apiTransactionSchema = selectTransactionWithParsedTagsSchema;
 
 // 取引一覧レスポンス（ページネーション対応）
 export const transactionsListResponseSchema = baseApiResponseSchema.extend({
