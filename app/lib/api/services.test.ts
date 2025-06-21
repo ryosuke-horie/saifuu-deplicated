@@ -562,12 +562,12 @@ describe("API Services", () => {
 			it("収入カテゴリでサブスクリプションを正常に作成できること", async () => {
 				// Issue #31の修正により収入カテゴリでのサブスクリプション作成が許可される
 				const createDataWithIncomeCategory: CreateSubscriptionRequest = {
-					name: "定期収入サブスク",
+					name: "給与サブスク",
 					amount: 250000,
 					categoryId: 100, // 収入カテゴリのID（仮定）
 					frequency: "monthly",
 					nextPaymentDate: "2024-02-01",
-					description: "給与・定期収入",
+					description: "給与・定期契約収入",
 					autoGenerate: true,
 				};
 

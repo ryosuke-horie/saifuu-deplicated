@@ -78,7 +78,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 				);
 			}
 
-			// 収入タイプのサブスクリプションは珍しいが許可（給与、定期収入等のユースケース）
+			// 収入タイプのサブスクリプションは珍しいが許可（給与、定期契約収入のユースケース）
 			// 警告をログに出力して管理者が把握できるようにする
 			if (category.type === "income") {
 				console.warn(
