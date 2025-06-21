@@ -665,4 +665,169 @@ describe("Utility functions", () => {
 			expect(isValidationError(error)).toBe(false);
 		});
 	});
+
+	// ========================================
+	// AbortController 修正後の新しいテスト
+	// ========================================
+
+	describe("Enhanced AbortController functionality", () => {
+		it("複数の同時リクエストが独立したAbortControllerを使用すること", async () => {
+			// 長時間のリクエストをシミュレート
+			const longRequest = new Promise((resolve) => {
+				setTimeout(() => resolve(mockUser), 1000);
+			});
+			(global.fetch as any).mockImplementation(() => longRequest);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+				timeout: 5000,
+			});
+
+			// 複数のリクエストを同時に開始
+			const request1 = client.get("/users/1", testResponseSchema);
+			const request2 = client.get("/users/2", testResponseSchema);
+			const request3 = client.get("/users/3", testResponseSchema);
+
+			// 同時リクエストが管理されていることを確認
+			expect(client.getActiveRequestCount()).toBe(3);
+
+			// すべてのリクエストをキャンセル
+			client.cancelRequest();
+
+			// キャンセル後、アクティブリクエストがクリアされていることを確認
+			expect(client.getActiveRequestCount()).toBe(0);
+
+			// リクエストがキャンセルされることを確認
+			await expect(request1).rejects.toThrow();
+			await expect(request2).rejects.toThrow();
+			await expect(request3).rejects.toThrow();
+		});
+
+		it("リクエスト完了後にアクティブリクエストから自動削除されること", async () => {
+			mockFetch(mockUser);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+			});
+
+			// リクエスト開始前はアクティブリクエストが0
+			expect(client.getActiveRequestCount()).toBe(0);
+
+			// リクエスト実行
+			const result = await client.get("/users/1", testResponseSchema);
+
+			// リクエスト完了後はアクティブリクエストが再び0
+			expect(client.getActiveRequestCount()).toBe(0);
+			expect(result).toEqual(mockUser);
+		});
+
+		it("エラー発生時もアクティブリクエストから削除されること", async () => {
+			mockFetch(mockErrorResponse, { status: 500, ok: false });
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+			});
+
+			// リクエスト開始前はアクティブリクエストが0
+			expect(client.getActiveRequestCount()).toBe(0);
+
+			// エラーが発生するリクエスト
+			await expect(
+				client.get("/users/1", testResponseSchema),
+			).rejects.toThrow();
+
+			// エラー後もアクティブリクエストが適切にクリアされている
+			expect(client.getActiveRequestCount()).toBe(0);
+		});
+
+		it("タイムアウトIDが確実にクリアされること", async () => {
+			const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
+
+			mockFetch(mockUser);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+				timeout: 1000,
+			});
+
+			await client.get("/users/1", testResponseSchema);
+
+			// clearTimeoutが呼ばれていることを確認
+			expect(clearTimeoutSpy).toHaveBeenCalled();
+
+			clearTimeoutSpy.mockRestore();
+		});
+
+		it("タイムアウトエラー時もタイムアウトIDがクリアされること", async () => {
+			const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
+
+			// AbortErrorをシミュレート
+			const abortError = new Error("The operation was aborted");
+			abortError.name = "AbortError";
+			(global.fetch as any).mockRejectedValue(abortError);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+				timeout: 100,
+			});
+
+			await expect(
+				client.get("/users/1", testResponseSchema),
+			).rejects.toThrow();
+
+			// エラー時でもclearTimeoutが呼ばれていることを確認
+			expect(clearTimeoutSpy).toHaveBeenCalled();
+
+			clearTimeoutSpy.mockRestore();
+		});
+
+		it("個別リクエストIDによるキャンセルが機能すること", async () => {
+			// 長時間のリクエストをシミュレート
+			const longRequest = new Promise((resolve) => {
+				setTimeout(() => resolve(mockUser), 1000);
+			});
+			(global.fetch as any).mockImplementation(() => longRequest);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+				timeout: 5000,
+			});
+
+			// 複数のリクエストを開始
+			const request1 = client.get("/users/1", testResponseSchema);
+			const request2 = client.get("/users/2", testResponseSchema);
+
+			expect(client.getActiveRequestCount()).toBe(2);
+
+			// 存在しないIDのキャンセルは失敗
+			expect(client.cancelRequestById("non-existent")).toBe(false);
+
+			// アクティブリクエスト数は変わらない
+			expect(client.getActiveRequestCount()).toBe(2);
+
+			// 全リクエストをキャンセル
+			client.cancelRequest();
+			expect(client.getActiveRequestCount()).toBe(0);
+		});
+
+		it("crypto.randomUUIDが利用可能でない環境でも動作すること", async () => {
+			// crypto.randomUUIDを一時的に無効にする
+			const originalRandomUUID = crypto.randomUUID;
+			// @ts-ignore
+			crypto.randomUUID = undefined;
+
+			mockFetch(mockUser);
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+			});
+
+			// エラーなく実行できることを確認
+			const result = await client.get("/users/1", testResponseSchema);
+			expect(result).toEqual(mockUser);
+
+			// crypto.randomUUIDを復元
+			crypto.randomUUID = originalRandomUUID;
+		});
+	});
 });
