@@ -7,6 +7,7 @@ import {
 	useQuery,
 	useQueryClient,
 } from "@tanstack/react-query";
+import type { SelectTransaction } from "../../../db/schema";
 import type { ApiError } from "../api/client";
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
@@ -173,7 +174,10 @@ export function useUpdateTransaction(
 		TransactionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateTransactionRequest },
-		{ previousTransaction: TransactionDetailResponse | undefined }
+		{
+			previousTransaction: TransactionDetailResponse | undefined;
+			previousLists: Array<[any, any]>;
+		}
 	>,
 ) {
 	const queryClient = useQueryClient();
@@ -182,14 +186,20 @@ export function useUpdateTransaction(
 		TransactionDetailResponse,
 		ApiError,
 		{ id: number; data: UpdateTransactionRequest },
-		{ previousTransaction: TransactionDetailResponse | undefined }
+		{
+			previousTransaction: TransactionDetailResponse | undefined;
+			previousLists: Array<[any, any]>;
+		}
 	>({
 		mutationFn: ({ id, data }) =>
 			apiServices.transactions.updateTransaction(id, data),
 		onMutate: async ({ id, data }) => {
-			// オプティミスティックアップデート用のキャンセル
+			// 進行中のクエリをキャンセル
 			await queryClient.cancelQueries({
 				queryKey: queryKeys.transactions.detail(id),
+			});
+			await queryClient.cancelQueries({
+				queryKey: queryKeys.transactions.lists(),
 			});
 
 			// 現在のデータを取得（ロールバック用）
@@ -198,33 +208,99 @@ export function useUpdateTransaction(
 					queryKeys.transactions.detail(id),
 				);
 
-			// オプティミスティックにデータを更新
-			// 注意: 型安全性のため、クエリキャッシュの無効化のみ実行
-			// 実際のデータ更新はサーバーレスポンス後にonSettledで行う
+			const previousLists = queryClient.getQueriesData({
+				queryKey: queryKeys.transactions.lists(),
+			});
+
+			// タグの型変換処理（配列 -> JSON文字列、データベース形式に合わせる）
+			const convertTagsForDb = (tags: string[] | string | undefined | null) => {
+				if (Array.isArray(tags)) {
+					return JSON.stringify(tags);
+				}
+				return tags;
+			};
+
+			// オプティミスティックアップデート用のデータ準備
+			const optimisticData: Partial<SelectTransaction> = {
+				...data,
+				tags: convertTagsForDb(data.tags) as string | null,
+				updatedAt: new Date().toISOString(),
+			};
+
+			// オプティミスティックアップデート: 詳細データ
+			if (previousTransaction) {
+				const optimisticTransaction: TransactionDetailResponse = {
+					...previousTransaction,
+					data: {
+						...previousTransaction.data,
+						...optimisticData,
+					},
+				};
+
+				queryClient.setQueryData(
+					queryKeys.transactions.detail(id),
+					optimisticTransaction,
+				);
+			}
+
+			// オプティミスティックアップデート: 一覧データ
+			queryClient.setQueriesData(
+				{ queryKey: queryKeys.transactions.lists() },
+				(old: TransactionsListResponse | undefined) => {
+					if (!old) return old;
+
+					return {
+						...old,
+						data: old.data.map((transaction) =>
+							transaction.id === id
+								? { ...transaction, ...optimisticData }
+								: transaction,
+						),
+					};
+				},
+			);
 
 			return {
-				previousTransaction: previousTransaction as
-					| TransactionDetailResponse
-					| undefined,
+				previousTransaction,
+				previousLists,
 			};
 		},
 		onError: (err, { id }, context) => {
-			// エラー時にロールバック
+			// エラー時にロールバック: 詳細データ
 			if (context?.previousTransaction) {
 				queryClient.setQueryData(
 					queryKeys.transactions.detail(id),
 					context.previousTransaction,
 				);
 			}
+
+			// エラー時にロールバック: 一覧データ
+			if (context?.previousLists) {
+				for (const [queryKey, queryData] of context.previousLists) {
+					queryClient.setQueryData(queryKey, queryData);
+				}
+			}
 		},
-		onSettled: (data, error, { id }) => {
-			// 関連するクエリを無効化
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.transactions.detail(id),
-			});
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.transactions.lists(),
-			});
+		onSuccess: (data, { id }) => {
+			// 成功時: サーバーからの最新データでキャッシュを更新
+			queryClient.setQueryData(queryKeys.transactions.detail(id), data);
+
+			// 一覧データもサーバーからの最新データで更新
+			queryClient.setQueriesData(
+				{ queryKey: queryKeys.transactions.lists() },
+				(old: TransactionsListResponse | undefined) => {
+					if (!old) return old;
+
+					return {
+						...old,
+						data: old.data.map((transaction) =>
+							transaction.id === id ? data.data : transaction,
+						),
+					};
+				},
+			);
+
+			// 統計情報のキャッシュを無効化（金額や日付変更により影響を受ける可能性）
 			queryClient.invalidateQueries({
 				queryKey: queryKeys.transactions.all,
 			});
