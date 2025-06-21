@@ -60,7 +60,7 @@
     ]
   },
   "app/root.tsx?__react-router-build-client-route": {
-    "file": "assets/root-BhGNNV7p.js",
+    "file": "assets/root-AqQuFrY3.js",
     "name": "root",
     "src": "app/root.tsx?__react-router-build-client-route",
     "isEntry": true,
@@ -70,7 +70,7 @@
       "_provider-Bc6krIuI.js"
     ],
     "css": [
-      "assets/root-Dq91_mlO.css"
+      "assets/root-CqnWUK1o.css"
     ]
   },
   "app/routes/api/categories/$id.delete.ts?__react-router-build-client-route": {
@@ -176,7 +176,7 @@
     "isEntry": true
   },
   "app/routes/home.tsx?__react-router-build-client-route": {
-    "file": "assets/home-DiQAwAse.js",
+    "file": "assets/home-CYOSudEM.js",
     "name": "home",
     "src": "app/routes/home.tsx?__react-router-build-client-route",
     "isEntry": true,
@@ -190,7 +190,7 @@
     ]
   },
   "app/routes/subscriptions.tsx?__react-router-build-client-route": {
-    "file": "assets/subscriptions-cJR-YBEi.js",
+    "file": "assets/subscriptions-Dbon86Os.js",
     "name": "subscriptions",
     "src": "app/routes/subscriptions.tsx?__react-router-build-client-route",
     "isEntry": true,
