@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createDb } from "../../../../db/connection";
 import { getTransactionById } from "../../../../db/queries/transactions";
+import { parseTransactionWithTags } from "../../../utils/tags";
 import type { Route } from "./+types/$id";
 
 /**
@@ -69,28 +70,9 @@ export async function loader({ params, context }: Route.LoaderArgs) {
 			);
 		}
 
-		// tagsがJSON文字列の場合は配列に変換
+		// タグのJSONパーシング処理
 		// データベースではJSON文字列として保存されているため、クライアントには配列として返す
-		let parsedTags: string[] | null = null;
-		if (transaction.tags) {
-			try {
-				parsedTags = JSON.parse(transaction.tags);
-			} catch (parseError) {
-				// JSON解析に失敗した場合はログに記録し、nullを設定
-				console.warn(
-					`取引ID ${transactionId} のタグJSON解析に失敗:`,
-					parseError,
-				);
-				parsedTags = null;
-			}
-		}
-
-		// レスポンス用のデータ構造を構築
-		// カテゴリAPIのパターンに従って success, data 形式で返す
-		const responseData = {
-			...transaction,
-			tags: parsedTags,
-		};
+		const responseData = parseTransactionWithTags(transaction);
 
 		return new Response(
 			JSON.stringify({

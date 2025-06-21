@@ -1,4 +1,5 @@
 import { type SQL, and, asc, desc, eq, gte, like, lte, sql } from "drizzle-orm";
+import { stringifyTransactionTags } from "../../app/utils/tags";
 import type { Database } from "../connection";
 import {
 	type CreateTransaction,
@@ -28,7 +29,7 @@ export async function createTransaction(
 	// createdAt/updatedAtはデータベースのCURRENT_TIMESTAMPデフォルト値を使用
 	const transactionData: InsertTransaction = {
 		...transaction,
-		tags: transaction.tags ? JSON.stringify(transaction.tags) : null,
+		tags: stringifyTransactionTags(transaction.tags),
 	};
 
 	const [created] = await db
@@ -159,11 +160,9 @@ export async function updateTransaction(
 	// tagsをJSON文字列に変換してDBに保存
 	const updateData: Partial<InsertTransaction> = {
 		...updates,
-		tags: updates.tags
-			? JSON.stringify(updates.tags)
-			: updates.tags === null
-				? null
-				: undefined,
+		tags: updates.tags !== undefined 
+			? stringifyTransactionTags(updates.tags)
+			: undefined,
 		updatedAt: new Date().toISOString(),
 	};
 

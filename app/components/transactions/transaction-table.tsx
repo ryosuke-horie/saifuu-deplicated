@@ -1,4 +1,5 @@
-import type { SelectTransaction, TransactionSort } from "../../types";
+import type { ApiTransaction } from "../../lib/schemas/api-responses";
+import type { TransactionSort } from "../../types";
 import {
 	formatAmount,
 	formatDate,
@@ -18,7 +19,7 @@ import {
  */
 
 export interface TransactionTableProps {
-	transactions: SelectTransaction[];
+	transactions: ApiTransaction[];
 	sort: Partial<TransactionSort>;
 	onSortChange: (sort: Partial<TransactionSort>) => void;
 	compact?: boolean;

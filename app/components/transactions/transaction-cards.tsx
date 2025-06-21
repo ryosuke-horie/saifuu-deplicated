@@ -1,4 +1,4 @@
-import type { SelectTransaction } from "../../types";
+import type { ApiTransaction } from "../../lib/schemas/api-responses";
 import {
 	formatAmount,
 	formatDate,
@@ -18,7 +18,7 @@ import {
  */
 
 export interface TransactionCardsProps {
-	transactions: SelectTransaction[];
+	transactions: ApiTransaction[];
 	compact?: boolean;
 }
 

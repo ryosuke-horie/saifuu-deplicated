@@ -126,9 +126,14 @@ export const transactionSortSchema = z.object({
 	sort_order: z.enum(["asc", "desc"]),
 });
 
+// APIレスポンス用の取引スキーマ（タグがパースされた状態）
+export const apiTransactionSchema = selectTransactionSchema.extend({
+	tags: z.array(z.string()).nullable(),
+});
+
 // 取引一覧レスポンス（ページネーション対応）
 export const transactionsListResponseSchema = baseApiResponseSchema.extend({
-	data: z.array(selectTransactionSchema),
+	data: z.array(apiTransactionSchema),
 	pagination: paginationSchema,
 	filters: transactionFiltersSchema,
 	sort: transactionSortSchema,
@@ -136,7 +141,7 @@ export const transactionsListResponseSchema = baseApiResponseSchema.extend({
 
 // 取引詳細レスポンス
 export const transactionDetailResponseSchema = baseApiResponseSchema.extend({
-	data: selectTransactionSchema,
+	data: apiTransactionSchema,
 });
 
 // ========================================
@@ -176,6 +181,13 @@ export const subscriptionsListResponseSchema = baseApiResponseSchema.extend({
 export const subscriptionDetailResponseSchema = baseApiResponseSchema.extend({
 	data: selectSubscriptionSchema,
 });
+
+// ========================================
+// 型定義エクスポート
+// ========================================
+
+// APIレスポンス用の取引型（タグがパースされた状態）
+export type ApiTransaction = z.infer<typeof apiTransactionSchema>;
 
 // ========================================
 // 共通エラーハンドリング
