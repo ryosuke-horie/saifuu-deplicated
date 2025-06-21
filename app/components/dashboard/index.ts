@@ -21,3 +21,6 @@ export type { MonthlyTrendChartProps } from "./monthly-trend-chart";
 
 export { CategoryBreakdownChart } from "./category-breakdown-chart";
 export type { CategoryBreakdownChartProps } from "./category-breakdown-chart";
+
+export { TrendWidget } from "./trend-widget";
+export type { TrendWidgetProps } from "./trend-widget";
