@@ -160,9 +160,10 @@ export async function updateTransaction(
 	// tagsをJSON文字列に変換してDBに保存
 	const updateData: Partial<InsertTransaction> = {
 		...updates,
-		tags: updates.tags !== undefined 
-			? stringifyTransactionTags(updates.tags)
-			: undefined,
+		tags:
+			updates.tags !== undefined
+				? stringifyTransactionTags(updates.tags)
+				: undefined,
 		updatedAt: new Date().toISOString(),
 	};
 

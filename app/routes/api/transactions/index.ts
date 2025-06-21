@@ -125,7 +125,9 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 		// タグのJSONパーシング処理を追加（詳細APIと同じ処理）
 		// データベースではJSON文字列として保存されているため、クライアントには配列として返す
-		const transactionsWithParsedTags = parseTransactionsWithTags(result.transactions);
+		const transactionsWithParsedTags = parseTransactionsWithTags(
+			result.transactions,
+		);
 
 		// カテゴリAPIの形式に合わせたレスポンス構造
 		// 追加でページネーション情報も含める
