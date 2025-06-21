@@ -28,8 +28,7 @@ export const meta: MetaFunction = () => {
 			content:
 				"支出・収入の概要と最近の取引を確認できるホームページ。家計管理の全体像を把握しましょう。",
 		},
-		{ name: "viewport", content: "width=device-width, initial-scale=1" },
-		{ name: "robots", content: "noindex, nofollow" }, // 個人用アプリのため検索エンジンに登録しない
+		// robots meta タグとviewportは root.tsx で設定済み
 	];
 };
 
