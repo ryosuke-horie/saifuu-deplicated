@@ -127,6 +127,7 @@ export const transactionSortSchema = z.object({
 });
 
 // APIレスポンス用の取引スキーマ（タグがパースされた状態）
+// CI環境での型推論問題を防ぐため、明示的にtagsフィールドを定義
 export const apiTransactionSchema = selectTransactionSchema.extend({
 	tags: z.array(z.string()).nullable(),
 });

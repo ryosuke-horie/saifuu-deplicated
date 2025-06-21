@@ -111,9 +111,19 @@ export const createTransactionSchema = insertTransactionSchema.extend({
 	tags: z.array(z.string()).optional(),
 });
 export const selectTransactionSchema = createSelectSchema(transactions);
+
+// APIレスポンス用の取引型（tagsが配列として解析済み）
+export const selectTransactionWithParsedTagsSchema =
+	selectTransactionSchema.extend({
+		tags: z.array(z.string()).nullable(),
+	});
+
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type CreateTransaction = z.infer<typeof createTransactionSchema>;
 export type SelectTransaction = z.infer<typeof selectTransactionSchema>;
+export type SelectTransactionWithParsedTags = z.infer<
+	typeof selectTransactionWithParsedTagsSchema
+>;
 
 // サブスクリプションのスキーマ
 export const insertSubscriptionSchema = createInsertSchema(subscriptions, {

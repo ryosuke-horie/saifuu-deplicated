@@ -57,7 +57,8 @@ export class ValidationError extends Error {
 
 export class ApiClient {
 	private config: Required<ApiClientConfig>;
-	private abortController: AbortController | null = null;
+	// 複数の同時リクエストを管理するためのMap
+	private activeRequests = new Map<string, AbortController>();
 
 	constructor(config: ApiClientConfig = {}) {
 		this.config = {
@@ -76,17 +77,32 @@ export class ApiClient {
 	/**
 	 * 汎用HTTPリクエストメソッド
 	 * Zodスキーマによる型安全なレスポンス処理
+	 *
+	 * 修正内容:
+	 * - リクエストごとに独立したAbortControllerを生成
+	 * - タイムアウトIDの確実なクリーンアップ
+	 * - 競合状態の回避（同時リクエスト対応）
 	 */
 	private async request<T>(
 		endpoint: string,
 		options: RequestInit,
 		responseSchema: ZodSchema<T>,
 	): Promise<T> {
+		// リクエスト固有のIDを生成（重複リクエスト管理）
+		const requestId =
+			crypto?.randomUUID?.() ??
+			`req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		let abortController: AbortController | null = null;
+		let timeoutId: NodeJS.Timeout | null = null;
+
 		try {
-			// アボートコントローラーをセットアップ
-			this.abortController = new AbortController();
-			const timeoutId = setTimeout(
-				() => this.abortController?.abort(),
+			// リクエスト固有のAbortControllerを作成
+			abortController = new AbortController();
+			this.activeRequests.set(requestId, abortController);
+
+			// タイムアウト設定
+			timeoutId = setTimeout(
+				() => abortController?.abort(),
 				this.config.timeout,
 			);
 
@@ -98,7 +114,7 @@ export class ApiClient {
 					...this.config.headers,
 					...options.headers,
 				},
-				signal: this.abortController.signal,
+				signal: abortController.signal,
 			};
 
 			// リクエストインターセプター
@@ -106,7 +122,6 @@ export class ApiClient {
 
 			// HTTPリクエスト実行
 			const response = await fetch(url, interceptedRequest);
-			clearTimeout(timeoutId);
 
 			// レスポンスインターセプター
 			const interceptedResponse = await this.config.onResponse(response);
@@ -135,7 +150,13 @@ export class ApiClient {
 			this.config.onError(apiError);
 			throw apiError;
 		} finally {
-			this.abortController = null;
+			// 確実なクリーンアップ処理
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+			if (requestId) {
+				this.activeRequests.delete(requestId);
+			}
 		}
 	}
 
@@ -155,8 +176,9 @@ export class ApiClient {
 			// JSONパースに失敗した場合は無視
 		}
 
-		const message = errorResponse?.error || `HTTPエラー: ${response.status}`;
-		throw new ApiError(message, response.status, errorResponse);
+		const status = response.status ?? 500;
+		const message = errorResponse?.error || `HTTPエラー: ${status}`;
+		throw new ApiError(message, status, errorResponse);
 	}
 
 	/**
@@ -243,11 +265,45 @@ export class ApiClient {
 
 	/**
 	 * 進行中のリクエストをキャンセル
+	 *
+	 * 修正内容:
+	 * - 全ての進行中リクエストを適切にキャンセル
+	 * - 個別リクエストのキャンセル機能も追加
 	 */
 	cancelRequest(): void {
-		if (this.abortController) {
-			this.abortController.abort();
+		// 全ての進行中リクエストをキャンセル
+		for (const [requestId, controller] of this.activeRequests) {
+			controller.abort();
 		}
+		this.activeRequests.clear();
+	}
+
+	/**
+	 * 特定のリクエストIDをキャンセル（将来の拡張用）
+	 *
+	 * @param requestId - キャンセルするリクエストの一意識別子
+	 * @returns リクエストが見つかってキャンセルされた場合はtrue、見つからない場合はfalse
+	 *
+	 * 副作用:
+	 * - 対象リクエストのAbortControllerがabortされる
+	 * - activeRequestsから該当エントリが削除される
+	 * - アクティブリクエスト数が1つ減少する
+	 */
+	cancelRequestById(requestId: string): boolean {
+		const controller = this.activeRequests.get(requestId);
+		if (controller) {
+			controller.abort();
+			this.activeRequests.delete(requestId);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 進行中のリクエスト数を取得
+	 */
+	getActiveRequestCount(): number {
+		return this.activeRequests.size;
 	}
 
 	/**

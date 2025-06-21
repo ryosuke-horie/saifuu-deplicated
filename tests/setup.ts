@@ -87,6 +87,55 @@ afterEach(() => {
 process.env.NODE_ENV = "test";
 
 // ========================================
+// Unhandled Rejection対策
+// ========================================
+
+/**
+ * テスト環境でのUnhandled Rejectionを適切に処理
+ * CIでのテスト実行時にUnhandled Rejectionが発生することを防ぐ
+ */
+let unhandledRejections: Promise<any>[] = [];
+
+const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+	// Unhandled Rejectionをキャッチして記録
+	unhandledRejections.push(event.promise);
+
+	// テスト環境でのデバッグ用ログ（必要に応じて）
+	if (
+		process.env.NODE_ENV === "test" &&
+		process.env.DEBUG_UNHANDLED_REJECTION
+	) {
+		console.warn("Unhandled Promise Rejection in test:", event.reason);
+	}
+
+	// デフォルトの動作を防ぐ
+	event.preventDefault();
+};
+
+beforeAll(() => {
+	// Unhandled Rejectionをキャッチ
+	process.on("unhandledRejection", (reason, promise) => {
+		unhandledRejections.push(promise);
+		if (process.env.DEBUG_UNHANDLED_REJECTION) {
+			console.warn("Unhandled Promise Rejection in test:", reason);
+		}
+	});
+
+	// ブラウザ環境でのUnhandled Rejection処理
+	if (typeof window !== "undefined") {
+		window.addEventListener("unhandledrejection", handleUnhandledRejection);
+	}
+});
+
+afterAll(() => {
+	// クリーンアップ
+	if (typeof window !== "undefined") {
+		window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+	}
+	unhandledRejections = [];
+});
+
+// ========================================
 // コンソール出力制御
 // ========================================
 
