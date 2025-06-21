@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useTransactions } from "../../lib/hooks/use-transactions";
-import type { SelectTransaction } from "../../types";
+import type { ApiTransaction } from "../../lib/schemas/api-responses";
 import {
 	formatAmount,
 	formatDate,
@@ -147,7 +147,7 @@ export function RecentTransactions({
  * ダッシュボード表示用に最適化された軽量版
  */
 interface TransactionItemProps {
-	transaction: SelectTransaction;
+	transaction: ApiTransaction;
 }
 
 /**
