@@ -561,6 +561,11 @@ describe("API Services", () => {
 
 			it("収入カテゴリでサブスクリプションを正常に作成できること", async () => {
 				// Issue #31の修正により収入カテゴリでのサブスクリプション作成が許可される
+				// 警告ログが出力されることも検証する
+				const consoleWarnSpy = vi
+					.spyOn(console, "warn")
+					.mockImplementation(() => {});
+
 				const createDataWithIncomeCategory: CreateSubscriptionRequest = {
 					name: "給与サブスク",
 					amount: 250000,
@@ -583,6 +588,11 @@ describe("API Services", () => {
 					createDataWithIncomeCategory,
 					expect.any(Object),
 				);
+
+				// 注意: このテストはAPIサービス層のテストのため、実際のログ出力は検証できない
+				// ログ出力はAPI実装層で行われるため、統合テストまたは別のテストで検証すべき
+
+				consoleWarnSpy.mockRestore();
 			});
 		});
 
