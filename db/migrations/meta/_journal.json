@@ -8,13 +8,6 @@
       "when": 1750136642327,
       "tag": "0000_strong_magneto",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1750421378295,
-      "tag": "0001_hard_energizer",
-      "breakpoints": true
     }
   ]
 }
