@@ -1,15 +1,17 @@
+import { useMemo } from "react";
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import {
 	BudgetPlaceholder,
 	CategoryBreakdownChart,
-	MonthlyTrendChart,
 	SubscriptionWidget,
 	SummaryCards,
 	TrendWidget,
 } from "../components/dashboard";
 import { Header } from "../components/layout/header";
 import { TransactionList } from "../components/transactions";
+import { useCategories } from "../lib/hooks/use-categories";
+import { useCurrentMonthTransactions } from "../lib/hooks/use-transactions";
 import type {
 	SelectCategory,
 	TransactionFilters,
@@ -90,16 +92,6 @@ export default function Home() {
 				{/* カテゴリ別円グラフ */}
 				<div className="mb-8">
 					<CategoryBreakdownChart />
-				</div>
-
-				{/* 月次推移チャート */}
-				<div className="mb-8">
-					<MonthlyTrendChart
-						monthsToShow={6}
-						height={320}
-						showTitle={true}
-						showLegend={true}
-					/>
 				</div>
 
 				{/* 2カラムレイアウト */}
@@ -193,6 +185,9 @@ export default function Home() {
 
 						{/* 今月のトレンド */}
 						<TrendWidget />
+
+						{/* サブスクリプションウィジェット */}
+						<SubscriptionWidget />
 					</div>
 				</div>
 

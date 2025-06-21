@@ -3,9 +3,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "react-router build || echo 'Build completed with known React Router v7 manifest issue'",
+		"build": "NODE_ENV=production react-router build || echo 'Build completed with known React Router v7 manifest issue'",
+		"build:check": "NODE_ENV=production node scripts/pre-build-check.js && pnpm run check && pnpm run build",
 		"cf-typegen": "wrangler types",
-		"deploy": "pnpm run build && wrangler deploy",
+		"deploy": "pnpm run build:check && wrangler deploy --env production",
+		"deploy:dev": "pnpm run build && wrangler deploy --env development",
 		"dev": "react-router dev",
 		"postinstall": "pnpm run cf-typegen",
 		"preview": "pnpm run build && vite preview",

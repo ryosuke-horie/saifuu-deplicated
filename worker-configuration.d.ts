@@ -7,6 +7,10 @@ declare namespace Cloudflare {
 		USE_MOCK_EMAIL: string;
 		AWS_ACCESS_KEY_ID: string;
 		AWS_SECRET_ACCESS_KEY: string;
+		NODE_ENV: "production" | "development" | "test";
+		DEBUG: "true" | "false";
+		LOG_LEVEL: "debug" | "warn";
+		DISABLE_MSW: "true";
 		DB: D1Database;
 	}
 }
@@ -15,7 +19,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "VALUE_FROM_CLOUDFLARE" | "USE_MOCK_EMAIL" | "AWS_ACCESS_KEY_ID" | "AWS_SECRET_ACCESS_KEY">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "VALUE_FROM_CLOUDFLARE" | "USE_MOCK_EMAIL" | "AWS_ACCESS_KEY_ID" | "AWS_SECRET_ACCESS_KEY" | "NODE_ENV" | "DEBUG" | "LOG_LEVEL" | "DISABLE_MSW">> {}
 }
 
 // Begin runtime types

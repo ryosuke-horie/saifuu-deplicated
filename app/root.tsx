@@ -1,6 +1,7 @@
 import type { MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
+import { EnvDebug } from "./components/dev/env-debug";
 import { AppProvider } from "./contexts/app-context";
 import { QueryProvider } from "./lib/query/provider";
 
@@ -30,6 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				{children}
+				<EnvDebug />
 				<Scripts />
 			</body>
 		</html>
