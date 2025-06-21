@@ -42,8 +42,10 @@ const queryParamsSchema = z.object({
 	// カテゴリ・タイプフィルタ
 	type: z.enum(["income", "expense"]).optional(),
 	category_id: z
-		.string()
-		.transform((val) => Number.parseInt(val, 10))
+		.union([z.string(), z.number()])
+		.transform((val) =>
+			typeof val === "string" ? Number.parseInt(val, 10) : val,
+		)
 		.refine((val) => !Number.isNaN(val), {
 			message: "category_idは有効な数値である必要があります",
 		})
@@ -54,19 +56,23 @@ const queryParamsSchema = z.object({
 
 	// ページネーション
 	page: z
-		.string()
-		.transform((val) => Number.parseInt(val, 10))
-		.refine((val) => val >= 1, {
+		.union([z.string(), z.number()])
+		.transform((val) =>
+			typeof val === "string" ? Number.parseInt(val, 10) : val,
+		)
+		.refine((val) => !Number.isNaN(val) && val >= 1, {
 			message: "pageは1以上の数値である必要があります",
 		})
-		.default("1"),
+		.default(1),
 	limit: z
-		.string()
-		.transform((val) => Number.parseInt(val, 10))
-		.refine((val) => val >= 1 && val <= 100, {
-			message: "limitは1以上100以下の数値である必要があります",
+		.union([z.string(), z.number()])
+		.transform((val) =>
+			typeof val === "string" ? Number.parseInt(val, 10) : val,
+		)
+		.refine((val) => !Number.isNaN(val) && val >= 1 && val <= 1000, {
+			message: "limitは1以上1000以下の数値である必要があります",
 		})
-		.default("20"),
+		.default(20),
 
 	// ソート
 	sort_by: z
@@ -84,12 +90,17 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 		const url = new URL(request.url);
 		const queryParams = Object.fromEntries(url.searchParams.entries());
 
+		// デバッグログ: 受信したパラメータを確認
+		console.log("受信したクエリパラメータ:", queryParams);
+
 		const parsedParams = queryParamsSchema.safeParse(queryParams);
 		if (!parsedParams.success) {
+			console.log("バリデーションエラー:", parsedParams.error.errors);
 			return new Response(
 				JSON.stringify({
 					error: "無効なクエリパラメータです",
 					details: parsedParams.error.errors,
+					receivedParams: queryParams,
 				}),
 				{
 					status: 400,
