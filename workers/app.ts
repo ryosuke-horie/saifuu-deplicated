@@ -96,14 +96,12 @@ export default {
 	): Promise<Response> {
 		const url = new URL(request.url);
 
-		// APIルート（/api/*）はHonoで処理
-		if (url.pathname.startsWith("/api/")) {
-			// /api プレフィックスを除去してHonoに渡す
-			const apiRequest = new Request(request.url.replace("/api", ""), request);
-			return api.fetch(apiRequest, env, ctx);
+		// ヘルスチェックエンドポイントのみHonoで処理
+		if (url.pathname === "/api/health") {
+			return api.fetch(request, env, ctx);
 		}
 
-		// その他のルートはReact Routerで処理
+		// その他の全てのルート（APIルートを含む）はReact Routerで処理
 		return requestHandler(request, {
 			cloudflare: { env, ctx },
 		});
