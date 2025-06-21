@@ -1,0 +1,6 @@
+# Robots.txt for Saifuu - Personal Finance Application
+# This application contains sensitive personal financial information
+# and should not be indexed by search engines or accessed by web crawlers.
+
+User-agent: *
+Disallow: /

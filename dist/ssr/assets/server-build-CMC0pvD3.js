@@ -1,4 +1,4 @@
-import { r as requireReact, S as ServerRouter, a as reactExports, w as withComponentProps, M as Meta, L as Links, b as Scripts, O as Outlet, c as Link, d as commonjsGlobal, g as getDefaultExportFromCjs, R as React__default } from "./app-B1VW2SrN.js";
+import { r as requireReact, S as ServerRouter, a as reactExports, w as withComponentProps, M as Meta, L as Links, b as Scripts, O as Outlet, c as Link, d as commonjsGlobal, g as getDefaultExportFromCjs, R as React__default } from "./app-B1XaC6rI.js";
 import "node:events";
 import "node:stream";
 var jsxRuntime = { exports: {} };
@@ -12151,6 +12151,12 @@ const queryKeys = {
     detail: (id) => [...queryKeys.subscriptions.details(), id]
   }
 };
+const meta$2 = () => {
+  return [{
+    name: "robots",
+    content: "noindex, nofollow, noarchive, nosnippet, notranslate, noimageindex"
+  }];
+};
 function Layout({
   children
 }) {
@@ -12186,7 +12192,8 @@ const root = withComponentProps(function App() {
 const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   Layout,
-  default: root
+  default: root,
+  meta: meta$2
 }, Symbol.toStringTag, { value: "Module" }));
 var util;
 (function(util2) {
@@ -20868,14 +20875,14 @@ const formatTotalAmount = (amount) => {
   const sign2 = amount >= 0 ? "+" : "";
   return `${sign2}¥${Math.abs(amount).toLocaleString()}`;
 };
-const MAX_TRANSACTION_LIMIT = 1e3;
+const MAX_TRANSACTION_LIMIT$1 = 1e3;
 function SummaryCards({ compact: compact2 = false }) {
   const {
     data: currentMonthData,
     isLoading: isCurrentLoading,
     error: currentError
   } = useCurrentMonthTransactions({
-    limit: MAX_TRANSACTION_LIMIT
+    limit: MAX_TRANSACTION_LIMIT$1
     // 全データを取得するため大きな値を設定
   });
   const now = /* @__PURE__ */ new Date();
@@ -20890,7 +20897,7 @@ function SummaryCards({ compact: compact2 = false }) {
       from: firstDayLastMonth.toISOString().split("T")[0],
       to: lastDayLastMonth.toISOString().split("T")[0]
     },
-    limit: MAX_TRANSACTION_LIMIT
+    limit: MAX_TRANSACTION_LIMIT$1
   });
   const summaryData = reactExports.useMemo(() => {
     const currentTransactions = currentMonthData?.data || [];
@@ -43742,6 +43749,180 @@ function CategoryBreakdownChart({
     ] }) })
   ] });
 }
+const MAX_TRANSACTION_LIMIT = 1e3;
+function TrendWidget({ compact: compact2 = false }) {
+  const {
+    data: currentMonthData,
+    isLoading: isCurrentLoading,
+    error: currentError
+  } = useCurrentMonthTransactions({
+    limit: MAX_TRANSACTION_LIMIT
+    // 全データを取得するため大きな値を設定
+  });
+  const now = /* @__PURE__ */ new Date();
+  const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+  const {
+    data: lastMonthData,
+    isLoading: isLastLoading,
+    error: lastError
+  } = useCurrentMonthTransactions({
+    filters: {
+      from: firstDayLastMonth.toISOString().split("T")[0],
+      to: lastDayLastMonth.toISOString().split("T")[0]
+    },
+    limit: MAX_TRANSACTION_LIMIT
+  });
+  const {
+    data: categoriesResponse,
+    isLoading: isCategoriesLoading,
+    error: categoriesError
+  } = useCategories();
+  const trendData = reactExports.useMemo(() => {
+    const currentTransactions = currentMonthData?.data || [];
+    const lastTransactions = lastMonthData?.data || [];
+    const categories2 = categoriesResponse?.data || [];
+    const hasCurrentData = currentTransactions.length > 0;
+    const hasPreviousData = lastTransactions.length > 0;
+    const currentExpenseTotal = currentTransactions.filter((t2) => t2.type === "expense").reduce((sum, t2) => sum + t2.amount, 0);
+    const lastExpenseTotal = lastTransactions.filter((t2) => t2.type === "expense").reduce((sum, t2) => sum + t2.amount, 0);
+    let monthOverMonthChange = null;
+    if (hasPreviousData && hasCurrentData) {
+      if (lastExpenseTotal === 0) {
+        monthOverMonthChange = currentExpenseTotal > 0 ? 100 : 0;
+      } else {
+        monthOverMonthChange = (currentExpenseTotal - lastExpenseTotal) / lastExpenseTotal * 100;
+      }
+    }
+    let mostUsedCategory = null;
+    if (hasCurrentData) {
+      const categoryUsageCount = /* @__PURE__ */ new Map();
+      const expenseTransactions = currentTransactions.filter(
+        (t2) => t2.type === "expense"
+      );
+      for (const transaction of expenseTransactions) {
+        const categoryId = transaction.categoryId;
+        categoryUsageCount.set(
+          categoryId,
+          (categoryUsageCount.get(categoryId) || 0) + 1
+        );
+      }
+      let maxCount = 0;
+      let mostUsedCategoryId = null;
+      for (const [categoryId, count] of categoryUsageCount.entries()) {
+        if (count > maxCount) {
+          maxCount = count;
+          mostUsedCategoryId = categoryId;
+        }
+      }
+      if (mostUsedCategoryId === null) {
+        mostUsedCategory = "未分類";
+      } else {
+        const category = categories2.find((c2) => c2.id === mostUsedCategoryId);
+        mostUsedCategory = category?.name || "不明なカテゴリ";
+      }
+      if (maxCount === 0) {
+        mostUsedCategory = null;
+      }
+    }
+    let dailyAverageExpense = null;
+    if (hasCurrentData && currentExpenseTotal > 0) {
+      const today = /* @__PURE__ */ new Date();
+      const firstDayThisMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+      const daysPassed = Math.floor(
+        (today.getTime() - firstDayThisMonth.getTime()) / (1e3 * 60 * 60 * 24)
+      ) + 1;
+      dailyAverageExpense = Math.round(currentExpenseTotal / daysPassed);
+    }
+    return {
+      monthOverMonthChange,
+      mostUsedCategory,
+      dailyAverageExpense,
+      hasCurrentData,
+      hasPreviousData
+    };
+  }, [currentMonthData?.data, lastMonthData?.data, categoriesResponse?.data]);
+  if (currentError || lastError || categoriesError) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-sm border p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-4", children: "今月のトレンド" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center text-red-500", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm mb-2", children: "⚠️" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "データの取得に失敗しました" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-red-400 mt-1", children: currentError?.message || lastError?.message || categoriesError?.message || "不明なエラーが発生しました" })
+      ] })
+    ] });
+  }
+  if (isCurrentLoading || isLastLoading || isCategoriesLoading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-sm border p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-4", children: "今月のトレンド" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 text-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "先月との比較" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-4 bg-gray-200 rounded animate-pulse" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "よく使うカテゴリ" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-4 bg-gray-200 rounded animate-pulse" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "1日平均支出" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-18 h-4 bg-gray-200 rounded animate-pulse" })
+        ] })
+      ] })
+    ] });
+  }
+  const renderMonthComparison = () => {
+    if (trendData.monthOverMonthChange === null) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-500 font-medium", children: "データがありません" });
+    }
+    const change = trendData.monthOverMonthChange;
+    const isIncrease = change > 0;
+    const colorClass = isIncrease ? "text-red-600" : "text-green-600";
+    const sign2 = isIncrease ? "+" : "";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `${colorClass} font-medium`, children: [
+      sign2,
+      change.toFixed(1),
+      "%"
+    ] });
+  };
+  const renderMostUsedCategory = () => {
+    if (!trendData.mostUsedCategory) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-500 font-medium", children: "データがありません" });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-900 font-medium", children: trendData.mostUsedCategory });
+  };
+  const renderDailyAverage = () => {
+    if (trendData.dailyAverageExpense === null) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-500 font-medium", children: "データがありません" });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-gray-900 font-medium", children: [
+      "¥",
+      trendData.dailyAverageExpense.toLocaleString()
+    ] });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-sm border p-6", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-4", children: "今月のトレンド" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 text-sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "先月との比較" }),
+        renderMonthComparison()
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "よく使うカテゴリ" }),
+        renderMostUsedCategory()
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-gray-600", children: "1日平均支出" }),
+        renderDailyAverage()
+      ] })
+    ] }),
+    !trendData.hasCurrentData && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-4 pt-4 border-t border-gray-200", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-gray-500 text-center", children: "今月の取引データがまだありません" }) })
+  ] });
+}
 function Logo({
   size = 128,
   className = "",
@@ -43759,7 +43940,7 @@ function Logo({
     "img",
     {
       src: svgPath,
-      alt: "Saifuu ロゴ",
+      alt: ariaLabel,
       width: size,
       height: size,
       className: `${className} ${clickable ? "cursor-pointer" : ""}`,
@@ -44700,16 +44881,8 @@ const meta$1 = () => {
     {
       name: "description",
       content: "支出・収入の概要と最近の取引を確認できるホームページ。家計管理の全体像を把握しましょう。"
-    },
-    {
-      name: "viewport",
-      content: "width=device-width, initial-scale=1"
-    },
-    {
-      name: "robots",
-      content: "noindex, nofollow"
     }
-    // 個人用アプリのため検索エンジンに登録しない
+    // robots meta タグとviewportは root.tsx で設定済み
   ];
 };
 const home = withComponentProps(function Home() {
@@ -44826,113 +44999,48 @@ const home = withComponentProps(function Home() {
               className: "text-lg font-semibold text-gray-900 mb-4",
               children: "今月の予算"
             }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-              className: "space-y-4",
-              children: [/* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                  className: "flex justify-between text-sm mb-2",
-                  children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-600",
-                    children: "食費"
-                  }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-900",
-                    children: "¥--,--- / ¥--,---"
-                  })]
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                  className: "w-full bg-gray-200 rounded-full h-2",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                    className: "bg-orange-500 h-2 rounded-full",
-                    style: {
-                      width: "75%"
-                    }
+              className: "text-center py-8",
+              children: [/* @__PURE__ */ jsxRuntimeExports.jsx("div", {
+                className: "w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("svg", {
+                  className: "w-8 h-8 text-gray-400",
+                  fill: "none",
+                  stroke: "currentColor",
+                  viewBox: "0 0 24 24",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    strokeWidth: 2,
+                    d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   })
-                })]
-              }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                  className: "flex justify-between text-sm mb-2",
-                  children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-600",
-                    children: "交通費"
-                  }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-900",
-                    children: "¥--,--- / ¥--,---"
-                  })]
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                  className: "w-full bg-gray-200 rounded-full h-2",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                    className: "bg-blue-500 h-2 rounded-full",
-                    style: {
-                      width: "45%"
-                    }
-                  })
-                })]
-              }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                  className: "flex justify-between text-sm mb-2",
-                  children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-600",
-                    children: "娯楽"
-                  }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                    className: "text-gray-900",
-                    children: "¥--,--- / ¥--,---"
-                  })]
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                  className: "w-full bg-gray-200 rounded-full h-2",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-                    className: "bg-red-500 h-2 rounded-full",
-                    style: {
-                      width: "90%"
-                    }
-                  })
-                })]
-              })]
-            }), /* @__PURE__ */ jsxRuntimeExports.jsx("div", {
-              className: "mt-4 pt-4 border-t border-gray-200",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", {
+                })
+              }), /* @__PURE__ */ jsxRuntimeExports.jsx("p", {
+                className: "text-gray-600 mb-4",
+                children: "予算が設定されていません"
+              }), /* @__PURE__ */ jsxRuntimeExports.jsx("p", {
+                className: "text-sm text-gray-500 mb-6",
+                children: "月ごとの支出予算を設定して、支出管理を始めましょう"
+              }), /* @__PURE__ */ jsxRuntimeExports.jsxs("button", {
                 type: "button",
-                className: "w-full text-sm text-blue-600 hover:text-blue-800 font-medium",
+                className: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors",
                 onClick: () => {
                   console.log("Navigate to budget settings");
                 },
-                children: "予算を設定 →"
-              })
-            })]
-          }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-            className: "bg-white rounded-lg shadow-sm border p-6",
-            children: [/* @__PURE__ */ jsxRuntimeExports.jsx("h3", {
-              className: "text-lg font-semibold text-gray-900 mb-4",
-              children: "今月のトレンド"
-            }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-              className: "space-y-3 text-sm",
-              children: [/* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                className: "flex items-center justify-between",
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-gray-600",
-                  children: "先月との比較"
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-red-600 font-medium",
-                  children: "+12.5%"
-                })]
-              }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                className: "flex items-center justify-between",
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-gray-600",
-                  children: "よく使うカテゴリ"
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-gray-900 font-medium",
-                  children: "食費"
-                })]
-              }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
-                className: "flex items-center justify-between",
-                children: [/* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-gray-600",
-                  children: "1日平均支出"
-                }), /* @__PURE__ */ jsxRuntimeExports.jsx("span", {
-                  className: "text-gray-900 font-medium",
-                  children: "¥--,---"
-                })]
+                children: [/* @__PURE__ */ jsxRuntimeExports.jsx("svg", {
+                  className: "w-4 h-4 mr-2",
+                  fill: "none",
+                  stroke: "currentColor",
+                  viewBox: "0 0 24 24",
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    strokeWidth: 2,
+                    d: "M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  })
+                }), "予算を設定する"]
               })]
             })]
-          })]
+          }), /* @__PURE__ */ jsxRuntimeExports.jsx(TrendWidget, {})]
         })]
       }), /* @__PURE__ */ jsxRuntimeExports.jsxs("div", {
         className: "mt-12 bg-gray-800 text-gray-100 rounded-lg p-6",
@@ -47511,15 +47619,16 @@ function SubscriptionForm({
   ] });
 }
 const meta = () => {
-  return [{
-    title: "サブスクリプション管理 | Saifuu - 家計管理アプリ"
-  }, {
-    name: "description",
-    content: "サブスクリプション（定期支払い）の管理画面。登録・編集・一時停止・解約予定の設定が可能です。月額・年額の切り替え表示で総コストを把握できます。"
-  }, {
-    name: "robots",
-    content: "noindex, nofollow"
-  }];
+  return [
+    {
+      title: "サブスクリプション管理 | Saifuu - 家計管理アプリ"
+    },
+    {
+      name: "description",
+      content: "サブスクリプション（定期支払い）の管理画面。登録・編集・一時停止・解約予定の設定が可能です。月額・年額の切り替え表示で総コストを把握できます。"
+    }
+    // robots meta タグは root.tsx で設定済み
+  ];
 };
 const subscriptions$1 = withComponentProps(function SubscriptionsPage() {
   const {
@@ -50240,7 +50349,7 @@ const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   action
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-BwL7i1AT.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/root-BhGNNV7p.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/app-context-CqH02Xoe.js", "/assets/provider-Bc6krIuI.js"], "css": ["/assets/root-Dq91_mlO.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-DiQAwAse.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/transaction-list-DfvP3ykG.js", "/assets/services-Cmawh7FO.js", "/assets/use-subscriptions-COnicVse.js", "/assets/use-categories-CfBzUFga.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/subscriptions": { "id": "routes/subscriptions", "parentId": "root", "path": "subscriptions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/subscriptions-cJR-YBEi.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/use-subscriptions-COnicVse.js", "/assets/zod-MM32q9E5.js", "/assets/services-Cmawh7FO.js", "/assets/app-context-CqH02Xoe.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/transaction-form-demo": { "id": "routes/transaction-form-demo", "parentId": "root", "path": "transaction-form-demo", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/transaction-form-demo-kLwhq7_2.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/zod-MM32q9E5.js", "/assets/use-categories-CfBzUFga.js", "/assets/services-Cmawh7FO.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/transaction-list-demo": { "id": "routes/transaction-list-demo", "parentId": "root", "path": "transaction-list-demo", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/transaction-list-demo-C69_-JTE.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/transaction-list-DfvP3ykG.js", "/assets/services-Cmawh7FO.js", "/assets/provider-Bc6krIuI.js", "/assets/use-categories-CfBzUFga.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/index": { "id": "routes/api/categories/index", "parentId": "root", "path": "api/categories", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/create": { "id": "routes/api/categories/create", "parentId": "root", "path": "api/categories/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/reorder": { "id": "routes/api/categories/reorder", "parentId": "root", "path": "api/categories/reorder", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/reorder-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/$id.update": { "id": "routes/api/categories/$id.update", "parentId": "root", "path": "api/categories/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/$id.delete": { "id": "routes/api/categories/$id.delete", "parentId": "root", "path": "api/categories/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/index": { "id": "routes/api/transactions/index", "parentId": "root", "path": "api/transactions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/create": { "id": "routes/api/transactions/create", "parentId": "root", "path": "api/transactions/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id": { "id": "routes/api/transactions/$id", "parentId": "root", "path": "api/transactions/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id.update": { "id": "routes/api/transactions/$id.update", "parentId": "root", "path": "api/transactions/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id.delete": { "id": "routes/api/transactions/$id.delete", "parentId": "root", "path": "api/transactions/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/index": { "id": "routes/api/subscriptions/index", "parentId": "root", "path": "api/subscriptions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/create": { "id": "routes/api/subscriptions/create", "parentId": "root", "path": "api/subscriptions/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id": { "id": "routes/api/subscriptions/$id", "parentId": "root", "path": "api/subscriptions/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id.update": { "id": "routes/api/subscriptions/$id.update", "parentId": "root", "path": "api/subscriptions/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id.delete": { "id": "routes/api/subscriptions/$id.delete", "parentId": "root", "path": "api/subscriptions/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/activate": { "id": "routes/api/subscriptions/activate", "parentId": "root", "path": "api/subscriptions/activate", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/activate-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/deactivate": { "id": "routes/api/subscriptions/deactivate", "parentId": "root", "path": "api/subscriptions/deactivate", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/deactivate-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-350259ba.js", "version": "350259ba", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-BwL7i1AT.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/root-AqQuFrY3.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/app-context-CqH02Xoe.js", "/assets/provider-Bc6krIuI.js"], "css": ["/assets/root-CqnWUK1o.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-CYOSudEM.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/transaction-list-DfvP3ykG.js", "/assets/services-Cmawh7FO.js", "/assets/use-subscriptions-COnicVse.js", "/assets/use-categories-CfBzUFga.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/subscriptions": { "id": "routes/subscriptions", "parentId": "root", "path": "subscriptions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/subscriptions-Dbon86Os.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/use-subscriptions-COnicVse.js", "/assets/zod-MM32q9E5.js", "/assets/services-Cmawh7FO.js", "/assets/app-context-CqH02Xoe.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/transaction-form-demo": { "id": "routes/transaction-form-demo", "parentId": "root", "path": "transaction-form-demo", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/transaction-form-demo-kLwhq7_2.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/zod-MM32q9E5.js", "/assets/use-categories-CfBzUFga.js", "/assets/services-Cmawh7FO.js", "/assets/provider-Bc6krIuI.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/transaction-list-demo": { "id": "routes/transaction-list-demo", "parentId": "root", "path": "transaction-list-demo", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/transaction-list-demo-C69_-JTE.js", "imports": ["/assets/chunk-NL6KNZEE-luD2_20O.js", "/assets/transaction-list-DfvP3ykG.js", "/assets/services-Cmawh7FO.js", "/assets/provider-Bc6krIuI.js", "/assets/use-categories-CfBzUFga.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/index": { "id": "routes/api/categories/index", "parentId": "root", "path": "api/categories", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/create": { "id": "routes/api/categories/create", "parentId": "root", "path": "api/categories/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/reorder": { "id": "routes/api/categories/reorder", "parentId": "root", "path": "api/categories/reorder", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/reorder-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/$id.update": { "id": "routes/api/categories/$id.update", "parentId": "root", "path": "api/categories/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/categories/$id.delete": { "id": "routes/api/categories/$id.delete", "parentId": "root", "path": "api/categories/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/index": { "id": "routes/api/transactions/index", "parentId": "root", "path": "api/transactions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/create": { "id": "routes/api/transactions/create", "parentId": "root", "path": "api/transactions/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id": { "id": "routes/api/transactions/$id", "parentId": "root", "path": "api/transactions/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id.update": { "id": "routes/api/transactions/$id.update", "parentId": "root", "path": "api/transactions/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/transactions/$id.delete": { "id": "routes/api/transactions/$id.delete", "parentId": "root", "path": "api/transactions/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/index": { "id": "routes/api/subscriptions/index", "parentId": "root", "path": "api/subscriptions", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/index-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/create": { "id": "routes/api/subscriptions/create", "parentId": "root", "path": "api/subscriptions/create", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/create-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id": { "id": "routes/api/subscriptions/$id", "parentId": "root", "path": "api/subscriptions/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id-DP2rzg_V.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id.update": { "id": "routes/api/subscriptions/$id.update", "parentId": "root", "path": "api/subscriptions/:id/update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.update-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/$id.delete": { "id": "routes/api/subscriptions/$id.delete", "parentId": "root", "path": "api/subscriptions/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/_id.delete-K6Dvbx-E.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/activate": { "id": "routes/api/subscriptions/activate", "parentId": "root", "path": "api/subscriptions/activate", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/activate-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/api/subscriptions/deactivate": { "id": "routes/api/subscriptions/deactivate", "parentId": "root", "path": "api/subscriptions/deactivate", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/deactivate-l0sNRNKZ.js", "imports": [], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-24176433.js", "version": "24176433", "sri": void 0 };
 const assetsBuildDirectory = "dist/client";
 const basename = "/";
 const future = { "unstable_middleware": false, "unstable_optimizeDeps": false, "unstable_splitRouteModules": false, "unstable_subResourceIntegrity": false, "unstable_viteEnvironmentApi": false };

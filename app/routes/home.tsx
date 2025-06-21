@@ -1,6 +1,7 @@
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import {
+	BudgetPlaceholder,
 	CategoryBreakdownChart,
 	SubscriptionWidget,
 	SummaryCards,
@@ -168,61 +169,12 @@ export default function Home() {
 						</div>
 
 						{/* 今月の予算 */}
-						<div className="bg-white rounded-lg shadow-sm border p-6">
-							<h3 className="text-lg font-semibold text-gray-900 mb-4">
-								今月の予算
-							</h3>
-							<div className="space-y-4">
-								<div>
-									<div className="flex justify-between text-sm mb-2">
-										<span className="text-gray-600">食費</span>
-										<span className="text-gray-900">¥--,--- / ¥--,---</span>
-									</div>
-									<div className="w-full bg-gray-200 rounded-full h-2">
-										<div
-											className="bg-orange-500 h-2 rounded-full"
-											style={{ width: "75%" }}
-										/>
-									</div>
-								</div>
-								<div>
-									<div className="flex justify-between text-sm mb-2">
-										<span className="text-gray-600">交通費</span>
-										<span className="text-gray-900">¥--,--- / ¥--,---</span>
-									</div>
-									<div className="w-full bg-gray-200 rounded-full h-2">
-										<div
-											className="bg-blue-500 h-2 rounded-full"
-											style={{ width: "45%" }}
-										/>
-									</div>
-								</div>
-								<div>
-									<div className="flex justify-between text-sm mb-2">
-										<span className="text-gray-600">娯楽</span>
-										<span className="text-gray-900">¥--,--- / ¥--,---</span>
-									</div>
-									<div className="w-full bg-gray-200 rounded-full h-2">
-										<div
-											className="bg-red-500 h-2 rounded-full"
-											style={{ width: "90%" }}
-										/>
-									</div>
-								</div>
-							</div>
-							<div className="mt-4 pt-4 border-t border-gray-200">
-								<button
-									type="button"
-									className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium"
-									onClick={() => {
-										// TODO: 予算設定ページへのナビゲーション
-										console.log("Navigate to budget settings");
-									}}
-								>
-									予算を設定 →
-								</button>
-							</div>
-						</div>
+						<BudgetPlaceholder
+							onSetBudgetClick={() => {
+								// TODO: 予算設定ページへのナビゲーション
+								console.log("Navigate to budget settings");
+							}}
+						/>
 
 						{/* 今月のトレンド */}
 						<TrendWidget />

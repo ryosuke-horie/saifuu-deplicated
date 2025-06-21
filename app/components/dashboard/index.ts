@@ -24,3 +24,5 @@ export type { CategoryBreakdownChartProps } from "./category-breakdown-chart";
 
 export { TrendWidget } from "./trend-widget";
 export type { TrendWidgetProps } from "./trend-widget";
+
+export { BudgetPlaceholder } from "./budget-placeholder";
