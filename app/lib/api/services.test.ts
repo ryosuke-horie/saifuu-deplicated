@@ -558,6 +558,32 @@ describe("API Services", () => {
 					subscriptionService.createSubscription(invalidData),
 				).rejects.toThrow(ZodError);
 			});
+
+			it("収入カテゴリでサブスクリプションを正常に作成できること", async () => {
+				// Issue #31の修正により収入カテゴリでのサブスクリプション作成が許可される
+				const createDataWithIncomeCategory: CreateSubscriptionRequest = {
+					name: "定期収入サブスク",
+					amount: 250000,
+					categoryId: 100, // 収入カテゴリのID（仮定）
+					frequency: "monthly",
+					nextPaymentDate: "2024-02-01",
+					description: "給与・定期収入",
+					autoGenerate: true,
+				};
+
+				mockApiClient.post.mockResolvedValue(mockSubscriptionDetailResponse);
+
+				const result = await subscriptionService.createSubscription(
+					createDataWithIncomeCategory,
+				);
+
+				expect(result).toEqual(mockSubscriptionDetailResponse);
+				expect(mockApiClient.post).toHaveBeenCalledWith(
+					"/subscriptions/create",
+					createDataWithIncomeCategory,
+					expect.any(Object),
+				);
+			});
 		});
 
 		describe("updateSubscription", () => {
