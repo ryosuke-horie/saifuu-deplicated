@@ -10,7 +10,7 @@ test.describe("基本ページロード", () => {
 		await page.goto("/");
 
 		// ページタイトルが表示されることを確認
-		await expect(page.getByRole("heading", { name: "ホーム" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "ホーム", level: 1 })).toBeVisible();
 
 		// サマリーカードコンテナが表示されることを確認（ローディング中でも可）
 		await expect(
@@ -22,28 +22,13 @@ test.describe("基本ページロード", () => {
 		).toBeVisible({ timeout: 30000 });
 	});
 
-	test("取引フォームページが正常にロードされる", async ({ page }) => {
-		// 取引フォームページにアクセス
-		await page.goto("/transaction-form-demo");
+	test("サブスクリプションページが正常にロードされる", async ({ page }) => {
+		// サブスクリプションページにアクセス
+		await page.goto("/subscriptions");
 
 		// ページタイトルが表示されることを確認
 		await expect(
-			page.getByRole("heading", { name: "Transaction Form Demo" }),
-		).toBeVisible();
-
-		// フォームが表示されることを確認
-		await expect(
-			page.getByRole("heading", { name: "支出を登録" }),
-		).toBeVisible();
-	});
-
-	test("取引一覧ページが正常にロードされる", async ({ page }) => {
-		// 取引一覧ページにアクセス
-		await page.goto("/transaction-list-demo");
-
-		// ページタイトルまたはメインコンテンツが表示されることを確認
-		await expect(
-			page.getByText("Transaction List Demo").or(page.getByText("取引一覧")),
+			page.getByRole("heading", { name: "サブスクリプション管理", level: 1 }),
 		).toBeVisible();
 	});
 });
