@@ -16,6 +16,7 @@ CREATE TABLE `categories` (
 	`type` text NOT NULL,
 	`color` text,
 	`icon` text,
+	`display_order` integer DEFAULT 0 NOT NULL,
 	`is_active` integer DEFAULT true NOT NULL,
 	`created_at` text DEFAULT 'CURRENT_TIMESTAMP' NOT NULL,
 	`updated_at` text DEFAULT 'CURRENT_TIMESTAMP' NOT NULL
