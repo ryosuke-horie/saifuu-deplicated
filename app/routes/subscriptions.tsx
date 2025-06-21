@@ -26,7 +26,7 @@ export const meta: MetaFunction = () => {
 			content:
 				"サブスクリプション（定期支払い）の管理画面。登録・編集・一時停止・解約予定の設定が可能です。月額・年額の切り替え表示で総コストを把握できます。",
 		},
-		{ name: "robots", content: "noindex, nofollow" },
+		// robots meta タグは root.tsx で設定済み
 	];
 };
 

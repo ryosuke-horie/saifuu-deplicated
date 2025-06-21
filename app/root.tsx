@@ -1,7 +1,21 @@
+import type { MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
 import { AppProvider } from "./contexts/app-context";
 import { QueryProvider } from "./lib/query/provider";
+
+// グローバルメタタグ設定
+// 検索エンジンによるインデックス化を完全に防止するため、
+// 包括的なrobots metaタグを設定
+export const meta: MetaFunction = () => {
+	return [
+		{
+			name: "robots",
+			content:
+				"noindex, nofollow, noarchive, nosnippet, notranslate, noimageindex",
+		},
+	];
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
