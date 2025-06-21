@@ -1,5 +1,6 @@
 import { TransactionList } from "../components/transactions";
 import type { TransactionFilters, TransactionSort } from "../types";
+import { redirectIfProduction } from "../utils/environment";
 
 /**
  * 取引一覧機能のデモページ
@@ -12,6 +13,8 @@ import type { TransactionFilters, TransactionSort } from "../types";
  */
 
 export default function TransactionListDemo() {
+	// 本番環境では404リダイレクト
+	redirectIfProduction();
 	// デフォルトフィルター（過去30日間）
 	const defaultFilters: Partial<TransactionFilters> = {
 		from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)

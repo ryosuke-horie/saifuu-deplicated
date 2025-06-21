@@ -52,13 +52,13 @@ export default function Home() {
 	const headerActions = (
 		<div className="flex flex-wrap gap-3">
 			<Link
-				to="/transaction-form-demo"
+				to="/transactions/new"
 				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 			>
 				取引を登録
 			</Link>
 			<Link
-				to="/transaction-list-demo"
+				to="/transactions"
 				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
 			>
 				全ての取引を見る
@@ -98,7 +98,7 @@ export default function Home() {
 										最近の取引
 									</h2>
 									<Link
-										to="/transaction-list-demo"
+										to="/transactions"
 										className="text-sm text-blue-600 hover:text-blue-800 font-medium"
 									>
 										すべて見る →
@@ -128,7 +128,7 @@ export default function Home() {
 							</h3>
 							<div className="space-y-3">
 								<Link
-									to="/transaction-form-demo"
+									to="/transactions/new"
 									className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 								>
 									<svg
@@ -147,7 +147,7 @@ export default function Home() {
 									支出を登録
 								</Link>
 								<Link
-									to="/transaction-form-demo"
+									to="/transactions/new"
 									className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
 								>
 									<svg
@@ -178,31 +178,6 @@ export default function Home() {
 
 						{/* 今月のトレンド */}
 						<TrendWidget />
-					</div>
-				</div>
-
-				{/* 開発者向け情報（開発中のみ表示） */}
-				<div className="mt-12 bg-gray-800 text-gray-100 rounded-lg p-6">
-					<h2 className="text-lg font-semibold mb-3">🚧 開発状況</h2>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">実装済み機能</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>✅ レスポンシブレイアウト</li>
-								<li>✅ 最近の取引一覧表示</li>
-								<li>✅ クイックアクション</li>
-								<li>✅ SEOメタデータ</li>
-							</ul>
-						</div>
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">今後の実装予定</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>🔄 統計データの自動計算</li>
-								<li>🔄 予算機能の実装</li>
-								<li>🔄 グラフ・チャート表示</li>
-								<li>🔄 通知・アラート機能</li>
-							</ul>
-						</div>
 					</div>
 				</div>
 			</div>

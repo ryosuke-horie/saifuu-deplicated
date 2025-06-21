@@ -1,5 +1,6 @@
 import { TransactionForm } from "../components/forms";
 import type { CreateTransactionRequest } from "../types";
+import { redirectIfProduction } from "../utils/environment";
 
 /**
  * TransactionFormのデモページ
@@ -11,6 +12,8 @@ import type { CreateTransactionRequest } from "../types";
  */
 
 export default function TransactionFormDemo() {
+	// 本番環境では404リダイレクト
+	redirectIfProduction();
 	// フォーム送信処理のモック
 	const handleSubmit = async (data: CreateTransactionRequest) => {
 		console.log("Form submitted:", data);
