@@ -1,0 +1,30 @@
+{
+  "_app-B1VW2SrN.js": {
+    "file": "assets/app-B1VW2SrN.js",
+    "name": "app",
+    "dynamicImports": [
+      "virtual:react-router/server-build"
+    ]
+  },
+  "virtual:react-router/server-build": {
+    "file": "assets/server-build-D6ZIdJR2.js",
+    "name": "server-build",
+    "src": "virtual:react-router/server-build",
+    "isDynamicEntry": true,
+    "imports": [
+      "_app-B1VW2SrN.js"
+    ],
+    "css": [
+      "assets/server-build-ChNGA508.css"
+    ]
+  },
+  "workers/app.ts": {
+    "file": "index.js",
+    "name": "app",
+    "src": "workers/app.ts",
+    "isEntry": true,
+    "imports": [
+      "_app-B1VW2SrN.js"
+    ]
+  }
+}

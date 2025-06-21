@@ -5,6 +5,7 @@ import {
 	SubscriptionWidget,
 	SummaryCards,
 } from "../components/dashboard";
+import { Header } from "../components/layout/header";
 import { TransactionList } from "../components/transactions";
 import type { TransactionFilters, TransactionSort } from "../types";
 
@@ -46,37 +47,32 @@ export default function Home() {
 		sort_order: "desc",
 	};
 
+	// クイックアクション
+	const headerActions = (
+		<div className="flex flex-wrap gap-3">
+			<Link
+				to="/transaction-form-demo"
+				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+			>
+				取引を登録
+			</Link>
+			<Link
+				to="/transaction-list-demo"
+				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
+			>
+				全ての取引を見る
+			</Link>
+		</div>
+	);
+
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* ページヘッダー */}
-			<div className="bg-white border-b border-gray-200">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-						<div>
-							<h1 className="text-3xl font-bold text-gray-900">ホーム</h1>
-							<p className="text-gray-600 mt-2">
-								家計の概要と最近の取引を確認できます
-							</p>
-						</div>
-
-						{/* クイックアクション */}
-						<div className="mt-4 lg:mt-0 flex flex-wrap gap-3">
-							<Link
-								to="/transaction-form-demo"
-								className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
-							>
-								取引を登録
-							</Link>
-							<Link
-								to="/transaction-list-demo"
-								className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
-							>
-								全ての取引を見る
-							</Link>
-						</div>
-					</div>
-				</div>
-			</div>
+			<Header
+				title="ホーム"
+				description="家計の概要と最近の取引を確認できます"
+				actions={headerActions}
+			/>
 
 			{/* メインコンテンツ */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
