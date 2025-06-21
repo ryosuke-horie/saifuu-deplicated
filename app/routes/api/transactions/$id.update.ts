@@ -149,13 +149,14 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 				}
 
 				// 取引タイプとカテゴリタイプの整合性チェック
-				// typeが指定されている場合はそれを使用し、そうでなければ既存の取引のtypeを使用
-				const transactionType =
-					parsedData.data.type || existingTransaction.type;
-				if (category.type !== transactionType) {
+				// 新しい取引タイプを決定（更新されるタイプまたは既存のタイプ）
+				const newTransactionType =
+					parsedData.data.type ?? existingTransaction.type;
+				if (category.type !== newTransactionType) {
 					return new Response(
 						JSON.stringify({
-							error: `${transactionType === "income" ? "収入" : "支出"}取引には${category.type === "income" ? "収入" : "支出"}カテゴリを指定してください`,
+							error: "カテゴリタイプと取引タイプが一致しません",
+							details: `取引を「${newTransactionType === "income" ? "収入" : "支出"}」に変更するには、${newTransactionType === "income" ? "収入" : "支出"}用のカテゴリを選択してください`,
 						}),
 						{
 							status: 400,
@@ -163,6 +164,27 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 						},
 					);
 				}
+			}
+		}
+
+		// タイプのみ変更の場合の検証
+		// カテゴリが指定されておらず、タイプが変更され、既存の取引にカテゴリが設定されている場合
+		if (
+			parsedData.data.type &&
+			parsedData.data.categoryId === undefined &&
+			existingTransaction.category
+		) {
+			if (existingTransaction.category.type !== parsedData.data.type) {
+				return new Response(
+					JSON.stringify({
+						error: "取引タイプとカテゴリタイプが一致しません",
+						details: `現在のカテゴリ「${existingTransaction.category.name}」は${existingTransaction.category.type === "income" ? "収入" : "支出"}用です。取引タイプを「${parsedData.data.type === "income" ? "収入" : "支出"}」に変更するには、対応するカテゴリも変更してください`,
+					}),
+					{
+						status: 400,
+						headers: { "Content-Type": "application/json" },
+					},
+				);
 			}
 		}
 
