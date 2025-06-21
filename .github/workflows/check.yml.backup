@@ -1,0 +1,63 @@
+# セルフホストランナーが利用できない場合のフォールバックワークフロー
+# 使用方法: このファイルを check.yml にリネームして使用してください
+name: Check (Fallback)
+
+on:
+  pull_request:
+    paths:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '.github/workflows/check.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run TypeScript check and linting
+        run: pnpm run check
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: check
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test:unit
+        env:
+          CI: true
+          NODE_ENV: test
