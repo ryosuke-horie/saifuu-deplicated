@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Logo, HeaderLogo, IconLogo, LargeLogo } from "./logo";
+import { HeaderLogo, IconLogo, LargeLogo, Logo } from "./logo";
 
 /**
  * Saifuu ロゴコンポーネントのストーリー
- * 
+ *
  * 設計方針:
  * - 財布をモチーフにしたアイコンデザインの表示確認
  * - 様々なサイズでの視認性テスト
@@ -18,7 +18,8 @@ const meta: Meta<typeof Logo> = {
 		layout: "padded",
 		docs: {
 			description: {
-				component: "Saifuu 家計管理アプリのロゴコンポーネント。財布をモチーフにしたデザインで、様々なサイズに対応。",
+				component:
+					"Saifuu 家計管理アプリのロゴコンポーネント。財布をモチーフにしたデザインで、様々なサイズに対応。",
 			},
 		},
 	},
@@ -185,9 +186,7 @@ export const DarkTheme: Story = {
 	parameters: {
 		backgrounds: {
 			default: "dark",
-			values: [
-				{ name: "dark", value: "#1f2937" },
-			],
+			values: [{ name: "dark", value: "#1f2937" }],
 		},
 	},
 	decorators: [
@@ -216,10 +215,7 @@ export const AccessibilityTest: Story = {
 			</div>
 			<div>
 				<h3 className="text-lg font-semibold mb-2">スクリーンリーダー対応</h3>
-				<Logo
-					size={64}
-					ariaLabel="Saifuu - 家計管理アプリケーション ロゴ"
-				/>
+				<Logo size={64} ariaLabel="Saifuu - 家計管理アプリケーション ロゴ" />
 				<p className="text-sm text-gray-600 mt-2">
 					適切なaria-labelとalt属性を設定
 				</p>
