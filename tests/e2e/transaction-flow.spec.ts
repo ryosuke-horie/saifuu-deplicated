@@ -10,9 +10,7 @@ test.describe("基本ページロード", () => {
 		await page.goto("/");
 
 		// ページタイトルが表示されることを確認
-		await expect(
-			page.getByRole("heading", { name: "ホーム" }),
-		).toBeVisible();
+		await expect(page.getByRole("heading", { name: "ホーム" })).toBeVisible();
 
 		// サマリーカードコンテナが表示されることを確認（ローディング中でも可）
 		await expect(
