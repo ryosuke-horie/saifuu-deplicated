@@ -6,6 +6,7 @@
  * - 本番環境では絶対に表示されない
  * - 開発時のトラブルシューティングを支援
  * - MSWの状態など重要な情報を可視化
+ * - クライアントサイドでのみ動作（SSR対応）
  */
 
 import { useEffect, useState } from "react";
@@ -19,23 +20,28 @@ interface EnvInfo {
 	buildTime: string;
 }
 
-export function EnvDebug() {
+function EnvDebug() {
 	const [envInfo, setEnvInfo] = useState<EnvInfo | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
+		// クライアントサイドでのみ実行
+		if (typeof window === "undefined") {
+			return;
+		}
+
 		// 本番環境では何も表示しない
-		const currentEnv = process.env.NODE_ENV as string;
+		const currentEnv = import.meta.env?.MODE || "unknown";
 		if (currentEnv === "production") {
 			return;
 		}
 
 		// 環境情報を収集
 		const info: EnvInfo = {
-			nodeEnv: currentEnv || "unknown",
+			nodeEnv: currentEnv,
 			isDevelopment: currentEnv === "development",
 			isProduction: currentEnv === "production",
-			isBrowser: typeof window !== "undefined",
+			isBrowser: true,
 			mswStatus: getMSWStatus(),
 			buildTime: new Date().toISOString(),
 		};
@@ -152,4 +158,24 @@ export function EnvDebug() {
 			)}
 		</div>
 	);
+}
+
+/**
+ * クライアントサイドでのみレンダリングされるEnvDebugコンポーネント
+ * SSR時は何もレンダリングしない
+ */
+export function ClientOnlyEnvDebug() {
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	// サーバーサイドレンダリング時は何も表示しない
+	if (!isMounted) {
+		return null;
+	}
+
+	// クライアントサイドでのみEnvDebugを表示
+	return <EnvDebug />;
 }
