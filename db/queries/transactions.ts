@@ -25,11 +25,10 @@ export async function createTransaction(
 	transaction: CreateTransaction,
 ) {
 	// tagsをJSON文字列に変換してDBに保存
+	// createdAt/updatedAtはデータベースのCURRENT_TIMESTAMPデフォルト値を使用
 	const transactionData: InsertTransaction = {
 		...transaction,
 		tags: transaction.tags ? JSON.stringify(transaction.tags) : null,
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
 	};
 
 	const [created] = await db
