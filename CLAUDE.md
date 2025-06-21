@@ -326,6 +326,44 @@ GitHub Actions無料枠を効率的に使用するため、E2Eテストは最小
 - **実装詳細**: `.storybook/IMPLEMENTATION.md`
 - **使用方法**: `.storybook/USAGE.md`
 
+## セルフホストランナー運用ルール
+
+### 重要な制約
+- **キャッシュ無効**: セルフホストランナーのマシン性能の都合により、`cache: 'pnpm'` や Node.js キャッシュは使用しない
+- **パフォーマンス優先**: キャッシュによる遅延を避けるため、毎回クリーンインストールを実行
+- **pnpmディレクトリクリーンアップ**: `/home/runner-user/setup-pnpm` に残留するnode_modulesがエラー原因となるため、毎回削除
+- **複数ランナー対応**: 同一マシンで複数ランナーが同時実行される場合があるため、安全なクリーンアップを実行
+
+### 設定例
+```yaml
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+  
+  # ✅ 必須: pnpm setup ディレクトリクリーンアップ
+  - name: Clean up pnpm setup directory
+    run: rm -rf /home/runner-user/setup-pnpm || true
+  
+  - name: Setup pnpm
+    uses: pnpm/action-setup@v4
+    with:
+      version: '10'
+      standalone: true
+  
+  # ✅ 正しい設定: キャッシュなし
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '22'  # cache設定なし
+  
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
+```
+
+### 注意事項
+- **複数ランナー同時実行**: 同一マシンで複数ジョブが並行実行される場合、ディレクトリ競合に注意
+- **エラー無視**: `|| true` により削除エラーを無視し、ジョブ継続を保証
+
 ## 開発の進め方
 
 1. 新機能開発時は、まず設計意図をコメントで記載
