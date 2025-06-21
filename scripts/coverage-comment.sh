@@ -35,63 +35,62 @@ strip_ansi() {
 
 # テスト統計を抽出（ANSIコードを除去）
 CLEAN_TEST_OUTPUT=$(strip_ansi "$TEST_OUTPUT")
-TOTAL_TESTS=$(echo "$CLEAN_TEST_OUTPUT" | grep -o "Test Files [0-9]* passed" | head -1 || echo "テスト統計取得失敗")
-TEST_DETAILS=$(echo "$CLEAN_TEST_OUTPUT" | grep -o "Tests [0-9]* passed" | head -1 || echo "詳細統計取得失敗")
+TOTAL_TESTS=$(echo "$CLEAN_TEST_OUTPUT" | grep "Test Files.*passed" | head -1 || echo "テスト統計取得失敗")
+TEST_DETAILS=$(echo "$CLEAN_TEST_OUTPUT" | grep "Tests.*passed" | grep -v "Test Files" | head -1 || echo "詳細統計取得失敗")
 
 # カバレッジ情報を抽出
 if [ "$COVERAGE_AVAILABLE" = true ]; then
   # HTMLファイルからカバレッジ数値を抽出
   HTML_CONTENT=$(cat coverage/index.html 2>/dev/null || echo "")
   
-  # HTMLから数値を抽出（簡易パターンマッチング）
-  STATEMENTS_COV=$(echo "$HTML_CONTENT" | grep -o "Statements[^0-9]*[0-9]*\.[0-9]*%" | head -1 || echo "")
-  BRANCHES_COV=$(echo "$HTML_CONTENT" | grep -o "Branches[^0-9]*[0-9]*\.[0-9]*%" | head -1 || echo "")
-  FUNCTIONS_COV=$(echo "$HTML_CONTENT" | grep -o "Functions[^0-9]*[0-9]*\.[0-9]*%" | head -1 || echo "")
-  LINES_COV=$(echo "$HTML_CONTENT" | grep -o "Lines[^0-9]*[0-9]*\.[0-9]*%" | head -1 || echo "")
+  # HTMLから数値を抽出（実際のHTML構造に合わせたパターン）
+  STATEMENTS_COV=$(echo "$HTML_CONTENT" | grep -B 2 "Statements" | grep -o "[0-9]*%" | head -1 || echo "")
+  BRANCHES_COV=$(echo "$HTML_CONTENT" | grep -B 2 "Branches" | grep -o "[0-9]*%" | head -1 || echo "")
+  FUNCTIONS_COV=$(echo "$HTML_CONTENT" | grep -B 2 "Functions" | grep -o "[0-9]*%" | head -1 || echo "")
+  LINES_COV=$(echo "$HTML_CONTENT" | grep -B 2 "Lines" | grep -o "[0-9]*%" | head -1 || echo "")
   
   # 数値のみを抽出してステータス判定
   get_coverage_status() {
-    local coverage_line="$1"
-    local percentage=$(echo "$coverage_line" | grep -o "[0-9]*\.[0-9]*%" | sed 's/%//')
+    local metric_name="$1"
+    local percentage="$2"
     
-    if [ -n "$percentage" ] && [ -n "$coverage_line" ]; then
-      # bc が利用できない場合は、awkを使用
+    if [ -n "$percentage" ] && [ "$percentage" != "" ]; then
+      # %マークを除去
+      local num=$(echo "$percentage" | sed 's/%//')
       local status
-      if command -v bc >/dev/null 2>&1; then
-        if (( $(echo "$percentage >= 90" | bc -l 2>/dev/null || echo "0") )); then
-          status="✅ (優秀)"
-        elif (( $(echo "$percentage >= 80" | bc -l 2>/dev/null || echo "0") )); then
-          status="⚠️ (要改善)"  
-        else
-          status="❌ (不十分)"
-        fi
+      
+      # 簡易的な比較（整数のみ）
+      if [ "$num" -ge 90 ]; then
+        status="✅ (優秀)"
+      elif [ "$num" -ge 80 ]; then
+        status="⚠️ (要改善)"
       else
-        # 簡易的な比較（整数部のみ）
-        local int_part=$(echo "$percentage" | cut -d'.' -f1)
-        if [ "$int_part" -ge 90 ]; then
-          status="✅ (優秀)"
-        elif [ "$int_part" -ge 80 ]; then
-          status="⚠️ (要改善)"
-        else
-          status="❌ (不十分)"
-        fi
+        status="❌ (不十分)"
       fi
-      echo "$coverage_line $status"
+      echo "${metric_name}: ${percentage} $status"
     else
-      echo "$coverage_line"
+      echo "${metric_name}: データなし"
     fi
   }
   
   # カバレッジ詳細
   COVERAGE_DETAILS=""
-  [ -n "$STATEMENTS_COV" ] && COVERAGE_DETAILS+="$(get_coverage_status "$STATEMENTS_COV")
+  if [ -n "$STATEMENTS_COV" ]; then
+    COVERAGE_DETAILS+="$(get_coverage_status "Statements" "$STATEMENTS_COV")
 "
-  [ -n "$BRANCHES_COV" ] && COVERAGE_DETAILS+="$(get_coverage_status "$BRANCHES_COV")
+  fi
+  if [ -n "$BRANCHES_COV" ]; then
+    COVERAGE_DETAILS+="$(get_coverage_status "Branches" "$BRANCHES_COV")
 "
-  [ -n "$FUNCTIONS_COV" ] && COVERAGE_DETAILS+="$(get_coverage_status "$FUNCTIONS_COV")
+  fi
+  if [ -n "$FUNCTIONS_COV" ]; then
+    COVERAGE_DETAILS+="$(get_coverage_status "Functions" "$FUNCTIONS_COV")
 "
-  [ -n "$LINES_COV" ] && COVERAGE_DETAILS+="$(get_coverage_status "$LINES_COV")
+  fi
+  if [ -n "$LINES_COV" ]; then
+    COVERAGE_DETAILS+="$(get_coverage_status "Lines" "$LINES_COV")
 "
+  fi
   
   # 低カバレッジファイルを抽出（存在する場合）
   LOW_COVERAGE_FILES=$(echo "$HTML_CONTENT" | grep -o "href=\"[^\"]*\.html\"[^>]*>[^<]*\.(ts|tsx|js|jsx)</a>[^0-9]*[0-9]*\.[0-9]*%" | grep -E "[0-7][0-9]\.[0-9]*%|[0-9]\.[0-9]*%" | head -3 || echo "")
@@ -114,11 +113,19 @@ $(echo "$LOW_COVERAGE_FILES" | sed 's/<[^>]*>//g' | sed 's/href="[^"]*"//g')
 $COVERAGE_DETAILS$COVERAGE_GAPS"
   else
     COVERAGE_INFO="### 📈 カバレッジ情報
-📊 カバレッジレポートは利用可能ですが、詳細な数値の抽出に失敗しました"
+❌ カバレッジレポートは利用可能ですが、詳細な数値の抽出に失敗しました"
+    echo "ERROR: カバレッジデータの抽出に失敗しました" >&2
   fi
 else
   COVERAGE_INFO="### 📈 カバレッジ情報
 ⚠️ カバレッジレポートが見つかりません"
+  echo "WARNING: カバレッジレポートが見つかりません" >&2
+fi
+
+# データの検証
+if [ "$TOTAL_TESTS" = "テスト統計取得失敗" ] || [ "$TEST_DETAILS" = "詳細統計取得失敗" ]; then
+  echo "ERROR: テスト統計の抽出に失敗しました" >&2
+  echo "テスト出力: $CLEAN_TEST_OUTPUT" >&2
 fi
 
 # PRコメント本文を作成
