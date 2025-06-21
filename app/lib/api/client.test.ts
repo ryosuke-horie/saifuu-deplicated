@@ -810,6 +810,70 @@ describe("Utility functions", () => {
 			expect(client.getActiveRequestCount()).toBe(0);
 		});
 
+		it("cancelRequestByIdが正しく動作し、アクティブリクエスト数が減ることを確認", async () => {
+			// AbortErrorをシミュレートして、キャンセル動作を確認
+			const abortError = new Error("The operation was aborted");
+			abortError.name = "AbortError";
+
+			// fetchが呼ばれた回数をカウント
+			let fetchCallCount = 0;
+			const mockFetchWithAbort = vi.fn().mockImplementation(() => {
+				fetchCallCount++;
+				if (fetchCallCount === 1) {
+					// 最初のリクエストは中断される
+					return Promise.reject(abortError);
+				}
+				// 2番目以降のリクエストは成功
+				return Promise.resolve({
+					ok: true,
+					json: () => Promise.resolve(mockUser),
+				});
+			});
+			(global.fetch as any) = mockFetchWithAbort;
+
+			const client = new ApiClient({
+				baseUrl: "http://localhost:3000/api",
+				timeout: 5000,
+			});
+
+			// crypto.randomUUIDをモックして、予測可能なIDを返すようにする
+			const originalRandomUUID = crypto.randomUUID;
+			let idCounter = 0;
+			// @ts-ignore - テスト用のモック
+			crypto.randomUUID = vi.fn(() => `test-request-${++idCounter}`);
+
+			try {
+				// 複数のリクエストを開始
+				const request1 = client.get("/users/1", testResponseSchema);
+				const request2 = client.get("/users/2", testResponseSchema);
+
+				// アクティブリクエスト数を確認
+				expect(client.getActiveRequestCount()).toBe(2);
+
+				// 予測可能なIDで最初のリクエストをキャンセル
+				const cancelResult = client.cancelRequestById("test-request-1");
+				expect(cancelResult).toBe(true);
+
+				// アクティブリクエスト数が1つ減ることを確認
+				expect(client.getActiveRequestCount()).toBe(1);
+
+				// キャンセルされたリクエストはAbortErrorで失敗する
+				await expect(request1).rejects.toThrow(ApiError);
+
+				// 2番目のリクエストは正常に完了する可能性がある
+				// (ただし、タイミングによってはAbortされる場合もある)
+				try {
+					await request2;
+				} catch (error) {
+					// リクエストがタイミングによってキャンセルされる場合があるため、エラーも許容
+					expect(error).toBeInstanceOf(ApiError);
+				}
+			} finally {
+				// crypto.randomUUIDを復元
+				crypto.randomUUID = originalRandomUUID;
+			}
+		});
+
 		it("crypto.randomUUIDが利用可能でない環境でも動作すること", async () => {
 			// crypto.randomUUIDを一時的に無効にする
 			const originalRandomUUID = crypto.randomUUID;

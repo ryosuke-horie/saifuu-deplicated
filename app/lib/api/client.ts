@@ -279,6 +279,14 @@ export class ApiClient {
 
 	/**
 	 * 特定のリクエストIDをキャンセル（将来の拡張用）
+	 *
+	 * @param requestId - キャンセルするリクエストの一意識別子
+	 * @returns リクエストが見つかってキャンセルされた場合はtrue、見つからない場合はfalse
+	 *
+	 * 副作用:
+	 * - 対象リクエストのAbortControllerがabortされる
+	 * - activeRequestsMapから該当エントリが削除される
+	 * - アクティブリクエスト数が1つ減少する
 	 */
 	cancelRequestById(requestId: string): boolean {
 		const controller = this.activeRequests.get(requestId);
