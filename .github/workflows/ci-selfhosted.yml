@@ -53,6 +53,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Clean up pnpm setup directory
+        run: rm -rf /home/runner-user/setup-pnpm || true
+      
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -78,6 +81,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Clean up pnpm setup directory
+        run: rm -rf /home/runner-user/setup-pnpm || true
       
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -115,6 +121,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Clean up pnpm setup directory
+        run: rm -rf /home/runner-user/setup-pnpm || true
       
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
