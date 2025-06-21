@@ -123,37 +123,6 @@ export default function SubscriptionsPage() {
 				<div className="space-y-6">
 					<SubscriptionCards onEdit={handleEdit} />
 				</div>
-
-				{/* 年間コスト予測とアドバイス（将来実装予定） */}
-				<div className="mt-12 bg-gray-800 text-gray-100 rounded-lg p-6">
-					<h2 className="text-lg font-semibold mb-3">
-						🚧 追加機能（開発予定）
-					</h2>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">実装予定機能</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>🔄 次回請求日カレンダー表示</li>
-								<li>🔄 年間コスト計算とトレンド分析</li>
-								<li>🔄 カテゴリ別グルーピング表示</li>
-								<li>🔄 解約予定の設定とリマインダー</li>
-								<li>🔄 請求サイクル変更履歴</li>
-								<li>🔄 支出最適化のアドバイス機能</li>
-							</ul>
-						</div>
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">現在の対応状況</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>✅ サブスクリプション基本CRUD操作</li>
-								<li>✅ アクティブ/非アクティブ切り替え</li>
-								<li>✅ 月間・年間コスト計算</li>
-								<li>✅ 請求頻度（日次・週次・月次・年次）対応</li>
-								<li>✅ ダッシュボード統合</li>
-								<li>✅ レスポンシブデザイン</li>
-							</ul>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	);

@@ -228,31 +228,6 @@ export default function Home() {
 						<TrendWidget />
 					</div>
 				</div>
-
-				{/* 開発者向け情報（開発中のみ表示） */}
-				<div className="mt-12 bg-gray-800 text-gray-100 rounded-lg p-6">
-					<h2 className="text-lg font-semibold mb-3">🚧 開発状況</h2>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">実装済み機能</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>✅ レスポンシブレイアウト</li>
-								<li>✅ 最近の取引一覧表示</li>
-								<li>✅ クイックアクション</li>
-								<li>✅ SEOメタデータ</li>
-							</ul>
-						</div>
-						<div>
-							<h3 className="font-medium text-gray-300 mb-2">今後の実装予定</h3>
-							<ul className="space-y-1 text-gray-400">
-								<li>🔄 統計データの自動計算</li>
-								<li>🔄 予算機能の実装</li>
-								<li>🔄 グラフ・チャート表示</li>
-								<li>🔄 通知・アラート機能</li>
-							</ul>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	);

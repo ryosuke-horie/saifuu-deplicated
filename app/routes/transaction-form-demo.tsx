@@ -11,6 +11,10 @@ import type { CreateTransactionRequest } from "../types";
  */
 
 export default function TransactionFormDemo() {
+	// 本番環境では404リダイレクト
+	if (process.env.NODE_ENV === "production") {
+		throw new Response("Not Found", { status: 404 });
+	}
 	// フォーム送信処理のモック
 	const handleSubmit = async (data: CreateTransactionRequest) => {
 		console.log("Form submitted:", data);
