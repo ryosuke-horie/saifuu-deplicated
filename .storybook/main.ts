@@ -1,4 +1,4 @@
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
@@ -53,10 +53,10 @@ const config: StorybookConfig = {
 		// React Routerプラグインを除外（Storybookでは不要）
 		if (config.plugins) {
 			config.plugins = config.plugins.filter((plugin: any) => {
-				return !plugin?.name?.includes('react-router');
+				return !plugin?.name?.includes("react-router");
 			});
 		}
-		
+
 		return mergeConfig(config, {
 			plugins: [tsconfigPaths()], // パスエイリアス設定のみ
 			resolve: {
