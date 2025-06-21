@@ -15,8 +15,8 @@ test.describe("基本動作確認", () => {
 		await expect(page.locator("body")).toBeVisible();
 	});
 
-	test("ダッシュボードページにアクセスできる", async ({ page }) => {
-		await page.goto("/dashboard");
+	test("ホームページにアクセスできる", async ({ page }) => {
+		await page.goto("/");
 
 		// ページが読み込まれることを確認
 		await expect(page).toHaveTitle(/.*/, { timeout: 10000 });

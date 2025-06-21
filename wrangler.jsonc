@@ -22,7 +22,7 @@
 		{
 			"binding": "DB",
 			"database_name": "saifuu-db",
-			"database_id": "saifuu-db",
+			"database_id": "98f133e5-2824-486e-877f-ea1f3c0210b8",
 			"migrations_dir": "./db/migrations"
 		}
 	]

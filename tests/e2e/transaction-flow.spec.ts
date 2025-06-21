@@ -5,14 +5,12 @@ import { expect, test } from "@playwright/test";
  * CI効率化のため最小限のテストのみ実行
  */
 test.describe("基本ページロード", () => {
-	test("ダッシュボードページが正常にロードされる", async ({ page }) => {
-		// ダッシュボードページにアクセス
-		await page.goto("/dashboard");
+	test("ホームページが正常にロードされる", async ({ page }) => {
+		// ホームページにアクセス
+		await page.goto("/");
 
 		// ページタイトルが表示されることを確認
-		await expect(
-			page.getByRole("heading", { name: "ダッシュボード" }),
-		).toBeVisible();
+		await expect(page.getByRole("heading", { name: "ホーム" })).toBeVisible();
 
 		// サマリーカードコンテナが表示されることを確認（ローディング中でも可）
 		await expect(
