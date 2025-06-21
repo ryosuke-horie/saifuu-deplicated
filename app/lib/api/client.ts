@@ -176,8 +176,9 @@ export class ApiClient {
 			// JSONパースに失敗した場合は無視
 		}
 
-		const message = errorResponse?.error || `HTTPエラー: ${response.status}`;
-		throw new ApiError(message, response.status, errorResponse);
+		const status = response.status ?? 500;
+		const message = errorResponse?.error || `HTTPエラー: ${status}`;
+		throw new ApiError(message, status, errorResponse);
 	}
 
 	/**
