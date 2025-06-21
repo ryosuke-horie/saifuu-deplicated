@@ -1,0 +1,23 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 財布のベース形状 -->
+  <rect x="16" y="32" width="96" height="64" rx="8" ry="8" fill="#4F46E5" stroke="#3730A3" stroke-width="2"/>
+  
+  <!-- 財布の開閉部分（上部の切り込み） -->
+  <path d="M24 32 L104 32 L104 40 L96 48 L32 48 L24 40 Z" fill="#6366F1" stroke="#3730A3" stroke-width="1.5"/>
+  
+  <!-- 財布の内側の線 -->
+  <rect x="20" y="36" width="88" height="56" rx="4" ry="4" fill="none" stroke="#E0E7FF" stroke-width="1" opacity="0.6"/>
+  
+  <!-- コインのシルエット -->
+  <circle cx="48" cy="64" r="8" fill="#FCD34D" stroke="#F59E0B" stroke-width="1.5"/>
+  <circle cx="48" cy="64" r="4" fill="none" stroke="#F59E0B" stroke-width="1"/>
+  <text x="48" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#92400E">¥</text>
+  
+  <!-- お札のシルエット -->
+  <rect x="68" y="56" width="32" height="16" rx="2" ry="2" fill="#10B981" stroke="#059669" stroke-width="1.5"/>
+  <rect x="72" y="60" width="24" height="8" rx="1" ry="1" fill="none" stroke="#D1FAE5" stroke-width="0.8" opacity="0.7"/>
+  
+  <!-- 財布のクリップ部分 -->
+  <rect x="56" y="28" width="16" height="8" rx="4" ry="4" fill="#6B7280" stroke="#374151" stroke-width="1.5"/>
+  <rect x="60" y="30" width="8" height="4" rx="2" ry="2" fill="#9CA3AF"/>
+</svg>

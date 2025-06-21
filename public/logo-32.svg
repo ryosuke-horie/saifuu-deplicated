@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 財布のベース形状（簡素化版） -->
+  <rect x="4" y="8" width="24" height="16" rx="2" ry="2" fill="#4F46E5" stroke="#3730A3" stroke-width="1"/>
+  
+  <!-- 財布の開閉部分 -->
+  <path d="M6 8 L26 8 L26 10 L24 12 L8 12 L6 10 Z" fill="#6366F1"/>
+  
+  <!-- コイン -->
+  <circle cx="12" cy="16" r="2" fill="#FCD34D" stroke="#F59E0B" stroke-width="0.5"/>
+  <text x="12" y="17" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" font-weight="bold" fill="#92400E">¥</text>
+  
+  <!-- お札 -->
+  <rect x="17" y="14" width="8" height="4" rx="0.5" ry="0.5" fill="#10B981" stroke="#059669" stroke-width="0.5"/>
+  
+  <!-- クリップ -->
+  <rect x="14" y="7" width="4" height="2" rx="1" ry="1" fill="#6B7280"/>
+</svg>
