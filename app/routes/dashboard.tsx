@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import {
 	BudgetPlaceholder,
 	CategoryBreakdownChart,
+	MonthlyTrendChart,
 	SubscriptionWidget,
 	SummaryCards,
 	TrendWidget,
@@ -92,6 +93,16 @@ export default function Dashboard() {
 				{/* カテゴリ別円グラフ */}
 				<div className="mb-8">
 					<CategoryBreakdownChart />
+				</div>
+
+				{/* 月次推移チャート */}
+				<div className="mb-8">
+					<MonthlyTrendChart
+						monthsToShow={6}
+						height={320}
+						showTitle={true}
+						showLegend={true}
+					/>
 				</div>
 
 				{/* 2カラムレイアウト */}
