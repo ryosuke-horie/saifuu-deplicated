@@ -25,8 +25,9 @@ export default defineConfig({
 			},
 		},
 		coverage: {
-			reporter: ["text"],
+			reporter: ["text", "html"],
 			exclude: ["node_modules/", "tests/", "**/*.config.{js,ts}", "**/*.d.ts"],
+			reportOnFailure: true,
 		},
 	},
 });
