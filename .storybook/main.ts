@@ -1,7 +1,11 @@
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const config: StorybookConfig = {
 	// ストーリーファイルのパターン - app/components以下の全てのストーリーファイルを対象
@@ -11,15 +15,14 @@ const config: StorybookConfig = {
 	addons: [
 		"@storybook/addon-essentials", // 基本的なアドオン群（Controls, Actions, Docs等）
 		"@storybook/addon-interactions", // インタラクションテスト用
-		"@storybook/addon-a11y", // アクセシビリティチェック用
-		"@storybook/addon-docs", // ドキュメント生成用
-		"msw-storybook-addon", // API モック用（将来的にAPI呼び出しが必要な場合）
 	],
 
 	// React + Viteフレームワークを使用
 	framework: {
 		name: "@storybook/react-vite",
-		options: {},
+		options: {
+			viteConfigPath: false, // vite.config.tsを読み込まない
+		},
 	},
 
 	// TypeScript対応
@@ -47,6 +50,13 @@ const config: StorybookConfig = {
 
 	// Vite設定のカスタマイズ - React Router v7の競合を回避
 	viteFinal: async (config) => {
+		// React Routerプラグインを除外（Storybookでは不要）
+		if (config.plugins) {
+			config.plugins = config.plugins.filter((plugin: any) => {
+				return !plugin?.name?.includes('react-router');
+			});
+		}
+		
 		return mergeConfig(config, {
 			plugins: [tsconfigPaths()], // パスエイリアス設定のみ
 			resolve: {
