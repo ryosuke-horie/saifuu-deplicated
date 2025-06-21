@@ -19,10 +19,10 @@ import type {
 } from "../types";
 
 /**
- * ホームページ（旧ダッシュボード）
+ * ダッシュボードページ
  *
  * 設計方針:
- * - 家計管理アプリの中心となるホームページ
+ * - 家計管理アプリの中心となるダッシュボードページ
  * - 最近の取引一覧、統計情報、クイックアクションを提供
  * - レスポンシブデザインでモバイルファーストUI
  * - 既存のコンポーネントとパターンを再利用
@@ -30,17 +30,17 @@ import type {
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "ホーム | Saifuu - 家計管理アプリ" },
+		{ title: "ダッシュボード | Saifuu - 家計管理アプリ" },
 		{
 			name: "description",
 			content:
-				"支出・収入の概要と最近の取引を確認できるホームページ。家計管理の全体像を把握しましょう。",
+				"支出・収入の概要と最近の取引を確認できるダッシュボード。家計管理の全体像を把握しましょう。",
 		},
 		// robots meta タグとviewportは root.tsx で設定済み
 	];
 };
 
-export default function Home() {
+export default function Dashboard() {
 	// 最近の取引を表示するためのデフォルトフィルター（過去7日間）
 	const recentTransactionsFilters: Partial<TransactionFilters> = {
 		from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -77,7 +77,7 @@ export default function Home() {
 		<div className="min-h-screen bg-gray-50">
 			{/* ページヘッダー */}
 			<Header
-				title="ホーム"
+				title="ダッシュボード"
 				description="家計の概要と最近の取引を確認できます"
 				actions={headerActions}
 			/>

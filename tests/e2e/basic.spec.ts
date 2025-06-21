@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
  * E2E環境が正しく動作することを確認
  */
 test.describe("基本動作確認", () => {
-	test("ホームページが正常に表示される", async ({ page }) => {
+	test("ダッシュボードページが正常に表示される", async ({ page }) => {
 		await page.goto("/");
 
 		// ページタイトルが存在することを確認
@@ -15,7 +15,7 @@ test.describe("基本動作確認", () => {
 		await expect(page.locator("body")).toBeVisible();
 	});
 
-	test("ホームページにアクセスできる", async ({ page }) => {
+	test("ダッシュボードページにアクセスできる", async ({ page }) => {
 		await page.goto("/");
 
 		// ページが読み込まれることを確認
