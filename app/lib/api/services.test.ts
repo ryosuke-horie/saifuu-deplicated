@@ -589,8 +589,9 @@ describe("API Services", () => {
 					expect.any(Object),
 				);
 
-				// 注意: このテストはAPIサービス層のテストのため、実際のログ出力は検証できない
-				// ログ出力はAPI実装層で行われるため、統合テストまたは別のテストで検証すべき
+				// 注意: このテストはAPIサービス層（クライアント側）のテストのため、
+				// サーバー側のログ出力は検証できない。実際の警告ログ出力は
+				// app/routes/api/subscriptions/create.ts:84-86で実装済み
 
 				consoleWarnSpy.mockRestore();
 			});
