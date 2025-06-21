@@ -286,7 +286,7 @@ export class ApiClient {
 	 *
 	 * 副作用:
 	 * - 対象リクエストのAbortControllerがabortされる
-	 * - activeRequestsMapから該当エントリが削除される
+	 * - activeRequestsから該当エントリが削除される
 	 * - アクティブリクエスト数が1つ減少する
 	 */
 	cancelRequestById(requestId: string): boolean {
