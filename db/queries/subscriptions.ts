@@ -23,13 +23,10 @@ export async function createSubscription(
 	db: Database,
 	subscription: InsertSubscription,
 ) {
+	// createdAt/updatedAtはデータベースのCURRENT_TIMESTAMPデフォルト値を使用
 	const [created] = await db
 		.insert(subscriptions)
-		.values({
-			...subscription,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		})
+		.values(subscription)
 		.returning();
 
 	return created;

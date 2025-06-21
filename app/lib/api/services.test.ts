@@ -746,6 +746,165 @@ describe("API Services", () => {
 	});
 
 	// ========================================
+	// 日時フィールド処理のテスト（Issue #30関連）
+	// ========================================
+
+	describe("Timestamp field handling", () => {
+		describe("createTransaction", () => {
+			it("リクエストにcreatedAt/updatedAtフィールドが含まれないこと", async () => {
+				mockApiClient.post.mockResolvedValue({
+					success: true,
+					data: {
+						...mockTransaction,
+						// データベースで自動設定される値
+						createdAt: "2024-01-01T12:00:00.000Z",
+						updatedAt: "2024-01-01T12:00:00.000Z",
+					},
+				});
+
+				const createData: CreateTransactionRequest = {
+					amount: 1000,
+					type: "expense",
+					categoryId: 1,
+					description: "日時フィールドテスト",
+					transactionDate: "2024-01-01",
+					paymentMethod: "credit",
+					tags: ["テスト"],
+					isRecurring: false,
+				};
+
+				await transactionService.createTransaction(createData);
+
+				// リクエストボディにcreatedAt/updatedAtが含まれていないことを確認
+				const requestBody = mockApiClient.post.mock.calls[0][1];
+				expect(requestBody).not.toHaveProperty("createdAt");
+				expect(requestBody).not.toHaveProperty("updatedAt");
+				expect(requestBody).toEqual(createData);
+			});
+
+			it("レスポンスのcreatedAt/updatedAtが正しく処理されること", async () => {
+				const mockResponse = {
+					success: true,
+					data: {
+						...mockTransaction,
+						createdAt: "2024-01-01T12:00:00.000Z",
+						updatedAt: "2024-01-01T12:00:00.000Z",
+					},
+				};
+
+				mockApiClient.post.mockResolvedValue(mockResponse);
+
+				const result = await transactionService.createTransaction({
+					amount: 1000,
+					type: "expense",
+					categoryId: 1,
+					description: "テスト",
+					transactionDate: "2024-01-01",
+				});
+
+				expect(result.data.createdAt).toBe("2024-01-01T12:00:00.000Z");
+				expect(result.data.updatedAt).toBe("2024-01-01T12:00:00.000Z");
+			});
+		});
+
+		describe("updateTransaction", () => {
+			it("更新時にupdatedAtが正しく更新されること", async () => {
+				const originalCreatedAt = "2024-01-01T10:00:00.000Z";
+				const updatedTime = "2024-01-01T12:00:00.000Z";
+
+				const mockResponse = {
+					success: true,
+					data: {
+						...mockTransaction,
+						description: "更新されたテスト",
+						createdAt: originalCreatedAt, // 変更されない
+						updatedAt: updatedTime, // 更新される
+					},
+				};
+
+				mockApiClient.put.mockResolvedValue(mockResponse);
+
+				const result = await transactionService.updateTransaction(1, {
+					description: "更新されたテスト",
+				});
+
+				// createdAtは変更されず、updatedAtのみ更新される
+				expect(result.data.createdAt).toBe(originalCreatedAt);
+				expect(result.data.updatedAt).toBe(updatedTime);
+				expect(result.data.updatedAt).not.toBe(result.data.createdAt);
+			});
+		});
+
+		describe("createSubscription", () => {
+			it("リクエストにcreatedAt/updatedAtフィールドが含まれないこと", async () => {
+				mockApiClient.post.mockResolvedValue({
+					success: true,
+					data: {
+						...mockSubscription,
+						createdAt: "2024-01-01T12:00:00.000Z",
+						updatedAt: "2024-01-01T12:00:00.000Z",
+					},
+				});
+
+				const createData: CreateSubscriptionRequest = {
+					name: "日時フィールドテストサブスク",
+					amount: 980,
+					categoryId: 1,
+					frequency: "monthly",
+					nextPaymentDate: "2024-02-01",
+					description: "テスト用",
+					autoGenerate: true,
+				};
+
+				await subscriptionService.createSubscription(createData);
+
+				// リクエストボディにcreatedAt/updatedAtが含まれていないことを確認
+				const requestBody = mockApiClient.post.mock.calls[0][1];
+				expect(requestBody).not.toHaveProperty("createdAt");
+				expect(requestBody).not.toHaveProperty("updatedAt");
+				expect(requestBody).toEqual(createData);
+			});
+		});
+
+		describe("timestamp format validation", () => {
+			it("ISO 8601形式の日時フィールドが正しく処理されること", async () => {
+				const isoTimestamp = "2024-01-01T12:30:45.123Z";
+
+				const mockResponse = {
+					success: true,
+					data: {
+						...mockTransaction,
+						createdAt: isoTimestamp,
+						updatedAt: isoTimestamp,
+					},
+				};
+
+				mockApiClient.post.mockResolvedValue(mockResponse);
+
+				const result = await transactionService.createTransaction({
+					amount: 1000,
+					type: "expense",
+					categoryId: 1,
+					description: "ISO形式テスト",
+					transactionDate: "2024-01-01",
+				});
+
+				// ISO 8601形式の検証
+				expect(result.data.createdAt).toMatch(
+					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+				);
+				expect(result.data.updatedAt).toMatch(
+					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+				);
+
+				// 有効な日付として解析できる
+				expect(new Date(result.data.createdAt).getTime()).not.toBeNaN();
+				expect(new Date(result.data.updatedAt).getTime()).not.toBeNaN();
+			});
+		});
+	});
+
+	// ========================================
 	// パフォーマンステスト
 	// ========================================
 
