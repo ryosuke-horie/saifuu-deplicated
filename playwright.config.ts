@@ -7,7 +7,8 @@ import { defineConfig, devices } from "@playwright/test";
  * 設計判断：
  * - ポート5173: Vite開発サーバーのデフォルトポート
  * - レトライ: CI環境でのみ有効化してローカルデバッグを効率化
- * - Trace: 失敗時のみ取得してストレージ容量を節約
+ * - レポート: シンプルなコンソール出力（dot/line）でリソース節約
+ * - アーティファクト: 失敗時のみ最小限の情報を保存
  * - クロスブラウザ: Chrome/Firefox/Safari + モバイル対応
  */
 export default defineConfig({
@@ -20,13 +21,12 @@ export default defineConfig({
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,
-	reporter: [["html"], ["junit", { outputFile: "test-results/junit.xml" }]],
+	reporter: process.env.CI ? [["dot"]] : [["line"]],
 
 	use: {
 		baseURL: "http://localhost:5173",
-		trace: "on-first-retry",
+		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
-		video: "retain-on-failure",
 	},
 
 	projects: process.env.CI
