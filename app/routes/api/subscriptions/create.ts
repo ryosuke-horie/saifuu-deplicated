@@ -78,18 +78,11 @@ export async function action({ request, context }: Route.ActionArgs) {
 				);
 			}
 
-			// サブスクリプションは基本的に支出として扱う
-			// カテゴリが収入タイプの場合は警告（サブスクリプションで収入は稀）
+			// 収入タイプのサブスクリプションは珍しいが許可（給与、定期契約収入のユースケース）
+			// 警告をログに出力して管理者が把握できるようにする
 			if (category.type === "income") {
-				return new Response(
-					JSON.stringify({
-						error: "カテゴリタイプが不適切です",
-						details: `カテゴリ「${category.name}」は収入用ですが、サブスクリプションは通常支出として扱われます`,
-					}),
-					{
-						status: 400,
-						headers: { "Content-Type": "application/json" },
-					},
+				console.warn(
+					`収入カテゴリでサブスクリプション作成: カテゴリ「${category.name}」(ID: ${category.id}), サブスクリプション「${parsedData.data.name}」`,
 				);
 			}
 		}
