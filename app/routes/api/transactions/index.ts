@@ -90,17 +90,12 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 		const url = new URL(request.url);
 		const queryParams = Object.fromEntries(url.searchParams.entries());
 
-		// デバッグログ: 受信したパラメータを確認
-		console.log("受信したクエリパラメータ:", queryParams);
-
 		const parsedParams = queryParamsSchema.safeParse(queryParams);
 		if (!parsedParams.success) {
-			console.log("バリデーションエラー:", parsedParams.error.errors);
 			return new Response(
 				JSON.stringify({
 					error: "無効なクエリパラメータです",
 					details: parsedParams.error.errors,
-					receivedParams: queryParams,
 				}),
 				{
 					status: 400,

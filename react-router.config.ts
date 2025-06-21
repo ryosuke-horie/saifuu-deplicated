@@ -2,6 +2,7 @@ import type { Config } from "@react-router/dev/config";
 
 export default {
 	ssr: true,
+	buildDirectory: "dist",
 	// unstable_viteEnvironmentApi フラグを一時的に無効化
 	// useContext エラーの原因となる可能性があるため
 	// future: {

@@ -54,6 +54,25 @@ vi.mock("../query/provider", () => {
 	};
 	return { queryKeys: mockQueryKeys };
 });
+
+vi.mock("../api/client", () => ({
+	buildQueryParams: vi.fn(
+		(params: Record<string, string | number | boolean | undefined>): string => {
+			const searchParams = new URLSearchParams();
+
+			for (const [key, value] of Object.entries(params)) {
+				if (value !== undefined && value !== null) {
+					searchParams.append(key, String(value));
+				}
+			}
+
+			const queryString = searchParams.toString();
+			return queryString ? `?${queryString}` : "";
+		},
+	),
+}));
+
+import { buildQueryParams } from "../api/client";
 // モックしたapiServicesを取得
 import { apiServices } from "../api/services";
 import { queryKeys } from "../query/provider";
@@ -884,6 +903,82 @@ describe("use-transactions hooks", () => {
 				},
 			);
 		});
+
+		it("SummaryCardsからの典型的なパラメータパターンが正しく処理される", async () => {
+			mockApiServices.transactions.getTransactions.mockResolvedValue(
+				mockTransactionsListResponse,
+			);
+
+			// SummaryCardsコンポーネントが使用する実際のパラメータパターン
+			const summaryCardsParams = {
+				limit: 1000, // MAX_TRANSACTION_LIMIT（数値として送信）
+			};
+
+			const { result } = renderHook(
+				() => useCurrentMonthTransactions(summaryCardsParams),
+				{
+					wrapper: createWrapperWithQueryClient(queryClient),
+				},
+			);
+
+			await waitFor(() => {
+				expect(result.current.isSuccess).toBe(true);
+			});
+
+			const call =
+				mockApiServices.transactions.getTransactions.mock.calls[0]?.[0];
+
+			// 数値型のlimitが正しく送信されることを確認
+			expect(call?.limit).toBe(1000);
+			expect(typeof call?.limit).toBe("number");
+
+			// 日付範囲も正しく設定されることを確認
+			const now = new Date();
+			const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+			const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+			expect(call?.filters?.from).toBe(firstDay.toISOString().split("T")[0]);
+			expect(call?.filters?.to).toBe(lastDay.toISOString().split("T")[0]);
+		});
+
+		it("CategoryBreakdownChartからの典型的なパラメータパターンが正しく処理される", async () => {
+			mockApiServices.transactions.getTransactions.mockResolvedValue(
+				mockTransactionsListResponse,
+			);
+
+			// CategoryBreakdownChartコンポーネントが使用する実際のパラメータパターン
+			const chartParams = {
+				filters: { type: "expense" as const },
+				limit: 1000, // 数値として送信
+			};
+
+			const { result } = renderHook(
+				() => useCurrentMonthTransactions(chartParams),
+				{
+					wrapper: createWrapperWithQueryClient(queryClient),
+				},
+			);
+
+			await waitFor(() => {
+				expect(result.current.isSuccess).toBe(true);
+			});
+
+			const call =
+				mockApiServices.transactions.getTransactions.mock.calls[0]?.[0];
+
+			// 数値型のパラメータが正しく送信されることを確認
+			expect(call?.limit).toBe(1000);
+			expect(typeof call?.limit).toBe("number");
+			expect(call?.filters?.type).toBe("expense");
+
+			// 日付範囲も正しく設定されることを確認
+			const now = new Date();
+			const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+			const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+			expect(call?.filters?.from).toBe(firstDay.toISOString().split("T")[0]);
+			expect(call?.filters?.to).toBe(lastDay.toISOString().split("T")[0]);
+		});
 	});
 
 	describe("useTransactionsByDateRange", () => {
@@ -1243,6 +1338,75 @@ describe("use-transactions hooks", () => {
 
 			expect(result.current.isSuccess).toBe(false);
 			expect(result.current.isError).toBe(false);
+		});
+	});
+
+	// ========================================
+	// APIクライアント関連テスト
+	// ========================================
+
+	describe("API クライアント パラメータ処理", () => {
+		// buildQueryParamsのテストを追加（APIクライアントが数値パラメータを正しく文字列に変換する）
+		it("数値パラメータが文字列に変換されてクエリパラメータになる", () => {
+			const params = {
+				page: 5,
+				limit: 100,
+				category_id: 123,
+			};
+
+			const queryString = buildQueryParams(params);
+
+			expect(queryString).toBe("?page=5&limit=100&category_id=123");
+		});
+
+		it("文字列パラメータがそのまま保持される", () => {
+			const params = {
+				from: "2024-01-01",
+				to: "2024-01-31",
+				type: "expense",
+				search: "食費",
+			};
+
+			const queryString = buildQueryParams(params);
+
+			expect(queryString).toBe(
+				"?from=2024-01-01&to=2024-01-31&type=expense&search=%E9%A3%9F%E8%B2%BB",
+			);
+		});
+
+		it("undefinedとnullの値がスキップされる", () => {
+			const params = {
+				page: 1,
+				category_id: undefined,
+				search: undefined,
+				type: "expense",
+			};
+
+			const queryString = buildQueryParams(params);
+
+			expect(queryString).toBe("?page=1&type=expense");
+		});
+
+		it("SummaryCardsとCategoryBreakdownChartの実際のパラメータパターン", () => {
+			const params = {
+				from: "2024-06-01",
+				to: "2024-06-30",
+				type: "expense",
+				limit: 1000, // 数値として送信される
+				sort_by: "transactionDate",
+				sort_order: "desc",
+				category_id: undefined, // スキップされる
+			};
+
+			const queryString = buildQueryParams(params);
+
+			expect(queryString).toContain("from=2024-06-01");
+			expect(queryString).toContain("to=2024-06-30");
+			expect(queryString).toContain("type=expense");
+			expect(queryString).toContain("limit=1000"); // 数値が文字列になる
+			expect(queryString).toContain("sort_by=transactionDate");
+			expect(queryString).toContain("sort_order=desc");
+			expect(queryString).not.toContain("category_id");
 		});
 	});
 });
