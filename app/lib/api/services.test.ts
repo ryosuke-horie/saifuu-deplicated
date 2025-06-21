@@ -869,7 +869,7 @@ describe("API Services", () => {
 		describe("timestamp format validation", () => {
 			it("ISO 8601形式の日時フィールドが正しく処理されること", async () => {
 				const isoTimestamp = "2024-01-01T12:30:45.123Z";
-				
+
 				const mockResponse = {
 					success: true,
 					data: {
@@ -890,9 +890,13 @@ describe("API Services", () => {
 				});
 
 				// ISO 8601形式の検証
-				expect(result.data.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/);
-				expect(result.data.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/);
-				
+				expect(result.data.createdAt).toMatch(
+					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+				);
+				expect(result.data.updatedAt).toMatch(
+					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
+				);
+
 				// 有効な日付として解析できる
 				expect(new Date(result.data.createdAt).getTime()).not.toBeNaN();
 				expect(new Date(result.data.updatedAt).getTime()).not.toBeNaN();
