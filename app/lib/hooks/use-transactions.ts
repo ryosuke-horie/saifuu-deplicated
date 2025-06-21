@@ -234,6 +234,11 @@ export function useUpdateTransaction(
 					data: {
 						...previousTransaction.data,
 						...optimisticData,
+						tags: Array.isArray(optimisticData.tags)
+							? optimisticData.tags
+							: typeof optimisticData.tags === "string"
+								? JSON.parse(optimisticData.tags)
+								: null,
 					},
 				};
 
