@@ -46,6 +46,8 @@ export function TrendWidget({ compact = false }: TrendWidgetProps) {
 	});
 
 	// 前月の取引データを取得（比較用）
+	// 注意: useCurrentMonthTransactions は汎用的なトランザクション取得フックとして使用
+	// filters パラメータで前月の日付範囲を指定することで前月データを取得
 	const now = new Date();
 	const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 	const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
