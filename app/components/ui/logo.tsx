@@ -42,7 +42,7 @@ export function Logo({
 	const logoElement = (
 		<img
 			src={svgPath}
-			alt="Saifuu ロゴ"
+			alt={ariaLabel}
 			width={size}
 			height={size}
 			className={`${className} ${clickable ? "cursor-pointer" : ""}`}
