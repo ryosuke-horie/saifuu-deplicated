@@ -326,6 +326,27 @@ GitHub Actions無料枠を効率的に使用するため、E2Eテストは最小
 - **実装詳細**: `.storybook/IMPLEMENTATION.md`
 - **使用方法**: `.storybook/USAGE.md`
 
+## セルフホストランナー運用ルール
+
+### 重要な制約
+- **キャッシュ無効**: セルフホストランナーのマシン性能の都合により、`cache: 'pnpm'` や Node.js キャッシュは使用しない
+- **パフォーマンス優先**: キャッシュによる遅延を避けるため、毎回クリーンインストールを実行
+- **設定例**:
+```yaml
+# ❌ 使用禁止
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '22'
+    cache: 'pnpm'  # セルフホストでは無効化
+
+# ✅ 正しい設定
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '22'  # キャッシュ設定なし
+```
+
 ## 開発の進め方
 
 1. 新機能開発時は、まず設計意図をコメントで記載
