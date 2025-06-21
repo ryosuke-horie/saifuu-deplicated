@@ -53,11 +53,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Clean pnpm cache  
+        run: rm -rf ~/setup-pnpm || true
+        
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: '10'
-          standalone: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -80,11 +82,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Clean pnpm cache  
+        run: rm -rf ~/setup-pnpm || true
+        
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: '10'
-          standalone: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -118,11 +122,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Clean pnpm cache  
+        run: rm -rf ~/setup-pnpm || true
+        
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: '10'
-          standalone: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
