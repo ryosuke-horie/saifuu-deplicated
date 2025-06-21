@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "NODE_ENV=production react-router build || echo 'Build completed with known React Router v7 manifest issue'",
+		"build": "rm -rf .react-router && NODE_ENV=production react-router build || echo 'Build completed with known React Router v7 manifest issue'",
 		"build:check": "NODE_ENV=production node scripts/pre-build-check.js && pnpm run check && pnpm run build",
 		"cf-typegen": "wrangler types",
 		"deploy": "pnpm run build:check && wrangler deploy --env production",
@@ -26,7 +26,7 @@
 		"db:seed": "wrangler d1 execute --file=./db/seed.sql --local saifuu-db",
 		"db:seed:remote": "wrangler d1 execute --file=./db/seed.sql --remote saifuu-db",
 		"test": "pnpm run test:unit",
-		"test:unit": "vitest run",
+		"test:unit": "rm -rf .react-router && vitest run",
 		"test:unit:watch": "vitest",
 		"test:unit:coverage": "vitest run --coverage",
 		"coverage:comment": "./scripts/coverage-comment.sh",
