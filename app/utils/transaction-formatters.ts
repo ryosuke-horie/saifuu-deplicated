@@ -17,7 +17,7 @@ export const formatAmount = (
 	amount: number,
 	type: "income" | "expense",
 ): string => {
-	const formattedAmount = amount.toLocaleString();
+	const formattedAmount = amount.toLocaleString("ja-JP");
 	return type === "income" ? `+¥${formattedAmount}` : `-¥${formattedAmount}`;
 };
 
@@ -82,5 +82,5 @@ export const getAmountColorClass = (type: "income" | "expense"): string => {
  */
 export const formatTotalAmount = (amount: number): string => {
 	const sign = amount >= 0 ? "+" : "";
-	return `${sign}¥${Math.abs(amount).toLocaleString()}`;
+	return `${sign}¥${Math.abs(amount).toLocaleString("ja-JP")}`;
 };
