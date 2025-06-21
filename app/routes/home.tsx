@@ -4,6 +4,7 @@ import {
 	CategoryBreakdownChart,
 	SubscriptionWidget,
 	SummaryCards,
+	TrendWidget,
 } from "../components/dashboard";
 import { TransactionList } from "../components/transactions";
 import type { TransactionFilters, TransactionSort } from "../types";
@@ -229,25 +230,7 @@ export default function Home() {
 						</div>
 
 						{/* 今月のトレンド */}
-						<div className="bg-white rounded-lg shadow-sm border p-6">
-							<h3 className="text-lg font-semibold text-gray-900 mb-4">
-								今月のトレンド
-							</h3>
-							<div className="space-y-3 text-sm">
-								<div className="flex items-center justify-between">
-									<span className="text-gray-600">先月との比較</span>
-									<span className="text-red-600 font-medium">+12.5%</span>
-								</div>
-								<div className="flex items-center justify-between">
-									<span className="text-gray-600">よく使うカテゴリ</span>
-									<span className="text-gray-900 font-medium">食費</span>
-								</div>
-								<div className="flex items-center justify-between">
-									<span className="text-gray-600">1日平均支出</span>
-									<span className="text-gray-900 font-medium">¥--,---</span>
-								</div>
-							</div>
-						</div>
+						<TrendWidget />
 					</div>
 				</div>
 
