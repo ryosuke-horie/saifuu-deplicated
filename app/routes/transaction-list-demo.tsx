@@ -54,16 +54,6 @@ export default function TransactionListDemo() {
 							>
 								新規登録
 							</button>
-							<button
-								type="button"
-								className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
-								onClick={() => {
-									// TODO: CSVエクスポート機能
-									console.log("Export to CSV");
-								}}
-							>
-								CSVエクスポート
-							</button>
 						</div>
 					</div>
 				</div>
