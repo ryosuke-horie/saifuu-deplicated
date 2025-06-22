@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createDb } from "../../../../db/connection";
 import { getActiveCategories } from "../../../../db/queries/categories";
-import type { Route } from "./+types/index";
+// import type { Route } from "./+types/index";
 
 /**
  * GET /api/categories エンドポイント
@@ -20,7 +20,7 @@ const queryParamsSchema = z.object({
 	type: z.enum(["income", "expense"]).optional(),
 });
 
-export async function loader({ request, context }: Route.LoaderArgs) {
+export async function loader({ request, context }: any) {
 	try {
 		// Cloudflare Workersの環境からDBバインディングを取得
 		const db = createDb(context.cloudflare.env.DB);

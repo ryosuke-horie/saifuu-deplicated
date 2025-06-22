@@ -8,10 +8,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
  * React Routerプラグインを除外してhome.tsx参照エラーを回避
  */
 export default defineConfig({
-	plugins: [
-		tailwindcss(),
-		tsconfigPaths(),
-	],
+	plugins: [tailwindcss(), tsconfigPaths()],
 	test: {
 		environment: "jsdom",
 		globals: true,

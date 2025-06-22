@@ -29,7 +29,7 @@ const requestSchema = z.object({
 	}),
 });
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "PUT") {

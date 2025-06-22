@@ -22,7 +22,7 @@ import type { Route } from "./+types/create";
  * - autoGenerate: boolean (オプション) - 自動取引生成フラグ（デフォルト: true）
  */
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "POST") {

@@ -84,7 +84,7 @@ api.get("/", (c) => {
 
 // React Routerのリクエストハンドラー
 const requestHandler = createRequestHandler(
-	() => import("virtual:react-router/server-build"),
+	() => import("virtual:react-router/server-build") as any,
 	import.meta.env.MODE,
 );
 

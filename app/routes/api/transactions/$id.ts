@@ -31,7 +31,7 @@ const paramsSchema = z.object({
 	}),
 });
 
-export async function loader({ params, context }: Route.LoaderArgs) {
+export async function loader({ params, context }: any) {
 	try {
 		// Cloudflare Workersの環境からDBバインディングを取得
 		const db = createDb(context.cloudflare.env.DB);

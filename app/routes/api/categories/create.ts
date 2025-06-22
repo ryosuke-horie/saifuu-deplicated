@@ -1,7 +1,7 @@
 import { createDb } from "../../../../db/connection";
 import { createCategory } from "../../../../db/queries/categories";
 import { insertCategorySchema } from "../../../../db/schema";
-import type { Route } from "./+types/create";
+// import type { Route } from "./+types/create";
 
 /**
  * POST /api/categories エンドポイント
@@ -19,7 +19,7 @@ import type { Route } from "./+types/create";
  * - displayOrder: number (オプション) - 表示順序
  */
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "POST") {

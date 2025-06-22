@@ -10,7 +10,8 @@
 		"tests/**/*",
 		"__mocks__/**/*",
 		"drizzle.config.ts",
-		"worker-configuration.d.ts"
+		"worker-configuration.d.ts",
+		"virtual-modules.d.ts"
 	],
 	"exclude": [
 		".storybook/**/*",

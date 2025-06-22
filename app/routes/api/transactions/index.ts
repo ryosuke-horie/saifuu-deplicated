@@ -81,7 +81,7 @@ const queryParamsSchema = z.object({
 	sort_order: z.enum(["asc", "desc"]).default("desc"),
 });
 
-export async function loader({ request, context }: Route.LoaderArgs) {
+export async function loader({ request, context }: any) {
 	try {
 		// Cloudflare Workersの環境からDBバインディングを取得
 		const db = createDb(context.cloudflare.env.DB);
