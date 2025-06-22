@@ -1,10 +1,11 @@
 # セルフホストランナー用CI/CDワークフロー
-# 軽量ジョブ（型チェック、リント、ユニットテスト、ビルド、Storybook）を並列実行
+# 軽量ジョブ（型チェック、リント、ユニットテスト、ビルド）を統合実行
 #
 # 設計判断：
 # - セルフホストランナーで高速実行、GitHub Actions無料枠を節約
 # - E2Eテストは別途GitHub hosted runnerで実行
-# - 並列ジョブによる実行時間最適化
+# - 統合ジョブによりセットアップ時間を削減（issue #80対応）
+# - 早期失敗により無駄なリソース使用を回避
 # - 適切なファイル変更トリガーで無駄な実行を回避
 
 name: CI Self-Hosted
@@ -44,10 +45,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  # 型チェックとリント
-  check:
+  # 統合ジョブ：型チェック、リント、ユニットテスト、ビルドを順次実行
+  # セットアップ時間を削減し、早期失敗によりリソースを効率的に使用
+  ci:
     runs-on: [self-hosted, linux]
-    timeout-minutes: 10
+    timeout-minutes: 30
     
     steps:
       - name: Checkout repository
@@ -64,35 +66,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
+      # ステップ1: 型チェックとリント（最も高速、早期フィードバック）
       - name: Run type checking and linting
         run: pnpm run check
-
-  # ユニットテスト
-  unit-tests:
-    runs-on: [self-hosted, linux]
-    timeout-minutes: 15
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
-      - name: Install pnpm manually
-        run: npm install -g pnpm@10
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
+      # ステップ2: ユニットテスト（型チェック通過後のみ実行）
       - name: Run unit tests
         run: pnpm test:unit
         env:
           CI: true
           NODE_ENV: test
+      
+      # ステップ3: アプリケーションビルド（全テスト通過後のみ実行）
+      - name: Build application
+        run: pnpm run build
+        env:
+          NODE_ENV: production
 
+      # ユニットテスト結果をPRにコメント投稿（統合ジョブの最後に実行）
       - name: Post test results to PR
         if: github.event_name == 'pull_request'
         run: ./scripts/coverage-comment.sh
@@ -100,32 +91,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_EVENT_NUMBER: ${{ github.event.number }}
-      
-
-  # アプリケーションビルド
-  build:
-    runs-on: [self-hosted, linux]
-    timeout-minutes: 15
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      
-      - name: Install pnpm manually
-        run: npm install -g pnpm@10
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Build application
-        run: pnpm run build
-        env:
-          NODE_ENV: production
       
 
   # Storybookビルド（一時的に無効化 - React Router競合対応中）
