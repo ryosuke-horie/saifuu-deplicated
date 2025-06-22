@@ -1317,12 +1317,13 @@ describe("use-subscriptions hooks", () => {
 		});
 
 		it.skip("事前設定されたエラーキャッシュが正しく動作すること", async () => {
-			// React Query v5では事前設定されたエラーキャッシュの設定が複雑なため、
-			// このテストは一時的にスキップ。実際のAPIエラーテストは上記で十分にカバーされている。
+			// React Query v5ではデータ検証が厕しく、undefinedデータでのエラーキャッシュ設定が困難。
+			// 実際のAPIエラーテストが十分にカバーされており、このテストは一時的にスキップ。
+			// TODO: React Query v5のコミュニティのベストプラクティスの発展を継続的にモニタリング。
 			const queryKey = queryKeys.subscriptions.lists();
 			const testError = new Error("Test Error");
 
-			await setQueryError(queryClient, [...queryKey] as unknown[], testError);
+			setQueryError(queryClient, [...queryKey] as unknown[], testError);
 
 			const { result } = renderHook(() => useSubscriptions(), {
 				wrapper: createWrapperWithQueryClient(queryClient),
