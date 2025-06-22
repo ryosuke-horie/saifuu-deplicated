@@ -86,7 +86,7 @@ export async function action({ request, params, context }: any) {
 		// 定期取引チェック（サブスクリプションから生成された取引の場合の警告）
 		// 注意: 定期取引として生成された取引を削除する場合、次回の自動生成には影響しない
 		// サブスクリプション自体を停止したい場合は、サブスクリプション管理画面から操作する必要がある
-		if (existingTransaction.isRecurring) {
+		if ((existingTransaction as any).isRecurring) {
 			console.warn(
 				`定期取引ID ${transactionId} を削除します。サブスクリプション設定は変更されません。`,
 			);

@@ -72,7 +72,7 @@ export async function loader({ params, context }: any) {
 
 		// タグのJSONパーシング処理
 		// データベースではJSON文字列として保存されているため、クライアントには配列として返す
-		const responseData = parseTransactionWithTags(transaction);
+		const responseData = parseTransactionWithTags(transaction as any);
 
 		return new Response(
 			JSON.stringify({

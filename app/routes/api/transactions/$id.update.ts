@@ -151,7 +151,7 @@ export async function action({ request, params, context }: any) {
 				// 取引タイプとカテゴリタイプの整合性チェック
 				// 新しい取引タイプを決定（更新されるタイプまたは既存のタイプ）
 				const newTransactionType =
-					parsedData.data.type ?? existingTransaction.type;
+					parsedData.data.type ?? (existingTransaction as any).type;
 				if (category.type !== newTransactionType) {
 					return new Response(
 						JSON.stringify({
@@ -172,13 +172,13 @@ export async function action({ request, params, context }: any) {
 		if (
 			parsedData.data.type &&
 			parsedData.data.categoryId === undefined &&
-			existingTransaction.category
+			(existingTransaction as any).category
 		) {
-			if (existingTransaction.category.type !== parsedData.data.type) {
+			if ((existingTransaction as any).category.type !== parsedData.data.type) {
 				return new Response(
 					JSON.stringify({
 						error: "取引タイプとカテゴリタイプが一致しません",
-						details: `現在のカテゴリ「${existingTransaction.category.name}」は${existingTransaction.category.type === "income" ? "収入" : "支出"}用です。取引タイプを「${parsedData.data.type === "income" ? "収入" : "支出"}」に変更するには、対応するカテゴリも変更してください`,
+						details: `現在のカテゴリ「${(existingTransaction as any).category.name}」は${(existingTransaction as any).category.type === "income" ? "収入" : "支出"}用です。取引タイプを「${parsedData.data.type === "income" ? "収入" : "支出"}」に変更するには、対応するカテゴリも変更してください`,
 					}),
 					{
 						status: 400,

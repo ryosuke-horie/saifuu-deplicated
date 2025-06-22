@@ -31,7 +31,7 @@ export function createDevDb() {
 	const db = drizzleSqlite(sqlite, { schema });
 	
 	// 開発環境用のテーブル作成とサンプルデータ挿入
-	initializeDevDatabase(sqlite); // Drizzleラッパーではなく直接better-sqlite3インスタンスを渡す
+	initializeDevDatabase(sqlite as any); // Drizzleラッパーではなく直接better-sqlite3インスタンスを渡す
 	
 	return db;
 }
@@ -40,7 +40,7 @@ export function createDevDb() {
  * 開発環境用データベースの初期化
  * テーブル作成とサンプルデータの挿入
  */
-function initializeDevDatabase(sqlite: Database) {
+function initializeDevDatabase(sqlite: any) {
 	// テーブル作成（better-sqlite3では exec または prepare().run() を使用）
 	try {
 		sqlite.exec(`

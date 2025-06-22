@@ -58,7 +58,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	}, {
 		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
 		enabled: typeof window !== 'undefined',
-	});
+	} as any);
 
 	// 前月の取引データを取得（比較用）
 	const now = new Date();
@@ -78,7 +78,7 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 	}, {
 		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
 		enabled: typeof window !== 'undefined',
-	});
+	} as any);
 
 	// サマリーデータの計算
 	const summaryData = useMemo((): SummaryData => {
