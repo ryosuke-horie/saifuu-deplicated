@@ -32,7 +32,7 @@ export class DashboardPage {
 
 	// ナビゲーション
 	async goto() {
-		await this.page.goto("/dashboard");
+		await this.page.goto("/");
 		await this.waitForLoad();
 	}
 

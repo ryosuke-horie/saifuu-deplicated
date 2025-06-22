@@ -1,5 +1,5 @@
 import { isbot } from "isbot";
-import * as React from "react";
+import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
@@ -15,7 +15,7 @@ export default async function handleRequest(
 	const userAgent = request.headers.get("user-agent");
 
 	const body = await renderToReadableStream(
-		React.createElement(ServerRouter, {
+		createElement(ServerRouter, {
 			context: routerContext,
 			url: request.url,
 		}),
