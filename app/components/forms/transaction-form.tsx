@@ -97,17 +97,17 @@ export function TransactionForm({
 						type="number"
 						id="amount"
 						placeholder="0"
-						className={`w-full px-3 py-2 border rounded-md text-right ${
+						className={`w-full px-3 py-2 border rounded-md text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800 ${
 							errors.amount
 								? "border-red-500 focus:border-red-500 focus:ring-red-500"
 								: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 						} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
 					/>
 					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-						<span className="text-gray-500 text-sm">¥</span>
+						<span className="text-gray-500 dark:text-gray-400 text-sm">¥</span>
 					</div>
 				</div>
-				{amountValue > 0 && (
+				{amountValue >= 0 && (
 					<p className="text-xs text-gray-500 text-right">
 						{formatAmount(amountValue)}円
 					</p>

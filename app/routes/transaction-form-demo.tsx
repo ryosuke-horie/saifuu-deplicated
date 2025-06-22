@@ -42,7 +42,6 @@ export default function TransactionFormDemo() {
 								type="expense"
 								onSubmit={handleSubmit}
 								defaultValues={{
-									amount: 1000,
 									description: "ランチ代",
 								}}
 							/>
@@ -56,7 +55,6 @@ export default function TransactionFormDemo() {
 								type="income"
 								onSubmit={handleSubmit}
 								defaultValues={{
-									amount: 50000,
 									description: "給与",
 								}}
 							/>
