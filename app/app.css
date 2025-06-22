@@ -39,48 +39,15 @@
   --error-border: #f5c6cb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark mode colors */
-    --header-bg: #1a1a1a;
-    --header-text: #e5e5e5;
-    --header-hover: #cc0000;
-    --footer-bg: #1a1a1a;
-    --footer-text: #e5e5e5;
-    --content-bg: #1f1f1f;
-    --content-text: #e5e5e5;
-    --border-color: #444;
-    --notice-bg: #2a2a2a;
-    --notice-border: #ff69b4;
-    --notice-accent: #ff4444;
-    --popup-bg: #2a2a2a;
-    --popup-text: #e5e5e5;
-    --popup-label: #c5c5c5;
-    --popup-button: #4a9d75;
-    --popup-button-hover: #3a7c5c;
-    --popup-cancel: #d73027;
-    --popup-cancel-hover: #b82820;
-    --timeline-bg: #2a2a2a;
-    --event-bg: #333;
-    --event-past: #2a2a2a;
-    --event-text: #c5c5c5;
-    --validation-color: #ff6b6b;
-    --success-bg: #1b4332;
-    --success-text: #c7f9cc;
-    --success-border: #2d7e3e;
-    --error-bg: #5c1b1b;
-    --error-text: #fec5c5;
-    --error-border: #7e2d2d;
-  }
-}
+/* Dark mode disabled to ensure consistent light theme across all devices */
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  /* スマホのダークモード設定に関係なく、常にライトテーマを強制 */
+  @apply bg-white;
+  color-scheme: light only;
+  background-color: #ffffff !important;
+  color: #333333 !important;
 }
 
 /* Header styles */
