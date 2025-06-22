@@ -254,7 +254,7 @@ export async function getMonthlySubscriptionTotal(db: Database) {
 		.from(subscriptions)
 		.where(eq(subscriptions.isActive, true));
 
-	return result[0]?.totalMonthly || 0;
+	return (result[0] as any)?.totalMonthly || 0;
 }
 
 /**

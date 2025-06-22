@@ -58,7 +58,7 @@ export async function createCategory(db: Database, data: InsertCategory) {
 				and(eq(categories.type, data.type), eq(categories.isActive, true)),
 			);
 
-		displayOrder = (maxOrder.maxOrder || 0) + 1;
+		displayOrder = ((maxOrder as any).maxOrder || 0) + 1;
 	}
 
 	const [created] = await db

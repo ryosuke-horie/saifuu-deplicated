@@ -320,7 +320,7 @@ export async function getTransactionsList(
 		.from(transactions)
 		.where(whereClause);
 
-	const totalCount = countResult.count;
+	const totalCount = (countResult as any).count;
 	const totalPages = Math.ceil(totalCount / limit);
 	const offset = (page - 1) * limit;
 
@@ -376,7 +376,7 @@ export async function getTransactionsList(
 		.offset(offset);
 
 	return {
-		transactions: transactionsList,
+		transactions: transactionsList as any,
 		totalCount,
 		currentPage: page,
 		totalPages,
