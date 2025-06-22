@@ -8,6 +8,15 @@
 	"compatibility_date": "2025-04-04",
 	"compatibility_flags": ["nodejs_compat"],
 	"main": "./workers/app.ts",
+	"build": {
+		"command": "pnpm run build"
+	},
+	"rules": [
+		{
+			"type": "ESModule",
+			"globs": ["**/*.js", "**/*.mjs"]
+		}
+	],
 	"vars": {
 		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
 		"NODE_ENV": "production"
@@ -79,7 +88,7 @@
 	 * Static Assets
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
 	 */
-	// "assets": { "directory": "./public/", "binding": "ASSETS" },
+	"assets": { "directory": "./dist/client/", "binding": "ASSETS" },
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
