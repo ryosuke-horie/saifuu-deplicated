@@ -28,9 +28,11 @@ export default function TransactionFormDemo() {
 				{/* ページタイトル */}
 				<div className="text-center mb-8">
 					<h1 className="text-3xl font-bold text-gray-900 mb-2">
-						Transaction Form Demo
+						支出・収入登録
 					</h1>
-					<p className="text-gray-600">支出/収入登録フォームの動作確認</p>
+					<p className="text-gray-600">
+						支出や収入を記録して家計を管理しましょう
+					</p>
 				</div>
 
 				{/* フォーム表示エリア */}
@@ -62,15 +64,20 @@ export default function TransactionFormDemo() {
 					</div>
 				</div>
 
-				{/* 使用方法の説明 */}
+				{/* 入力ガイド */}
 				<div className="mt-8 bg-blue-50 rounded-lg p-6">
-					<h2 className="text-lg font-semibold text-blue-900 mb-3">使用方法</h2>
+					<h2 className="text-lg font-semibold text-blue-900 mb-3">
+						入力ガイド
+					</h2>
 					<ul className="text-sm text-blue-800 space-y-2">
-						<li>• 左側は支出フォーム、右側は収入フォーム</li>
-						<li>• 金額は3桁カンマで表示されます</li>
-						<li>• カテゴリはタイプに応じて絞り込まれます</li>
-						<li>• リアルタイムバリデーションが動作します</li>
-						<li>• フォーム送信時はアラートで内容を確認できます</li>
+						<li>• 支出と収入の種類に応じて適切なフォームを選択してください</li>
+						<li>• 金額は数値のみ入力可能で、自動的に3桁区切りで表示されます</li>
+						<li>• カテゴリは収入・支出に応じて適切な選択肢が表示されます</li>
+						<li>
+							•
+							すべての項目は入力チェックが行われ、エラーがある場合は案内が表示されます
+						</li>
+						<li>• 登録内容は確認画面で最終確認できます</li>
 					</ul>
 				</div>
 			</div>
