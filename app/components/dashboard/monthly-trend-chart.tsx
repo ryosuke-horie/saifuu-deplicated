@@ -96,7 +96,10 @@ export function MonthlyTrendChart({
 		error,
 	} = useTransactionsByDateRange(dateRange.startDate, dateRange.endDate, {
 		limit: 10000, // 全データを取得
-	});
+	}, {
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== 'undefined',
+	} as any);
 
 	// チャート用データの生成
 	const chartData = useMemo((): MonthlyTrendData[] => {
