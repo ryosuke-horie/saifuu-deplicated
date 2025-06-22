@@ -53,17 +53,6 @@ export function TransactionList({
 		enabled: typeof window !== 'undefined',
 	} as any);
 
-	// デバッグログ（開発環境のみ）
-	if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-		console.log('TransactionList Debug:', {
-			isLoading,
-			error: error?.message || error,
-			transactionCount: transactionsResponse?.data?.length || 0,
-			filters,
-			sort,
-			page,
-		});
-	}
 
 	// フィルター変更ハンドラー
 	const handleFiltersChange = (newFilters: Partial<TransactionFilters>) => {

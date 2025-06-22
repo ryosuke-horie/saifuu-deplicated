@@ -118,29 +118,10 @@ export function CategoryBreakdownChart({
 		enabled: typeof window !== 'undefined',
 	} as any);
 
-	// デバッグログ（開発環境のみ）
-	if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-		console.log('CategoryBreakdownChart Debug:', {
-			selectedType,
-			isLoadingTransactions,
-			isLoadingCategories,
-			transactionsError,
-			categoriesError,
-			transactionsCount: transactionsResponse?.data?.length || 0,
-			categoriesCount: categoriesResponse?.data?.length || 0,
-			chartDataLength: chartData.length,
-		});
-	}
 
 	// チャートデータの生成
 	const chartData = useMemo(() => {
 		if (!transactionsResponse?.data || !categoriesResponse?.data) {
-			if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-				console.log('CategoryBreakdownChart: Missing data', {
-					hasTransactions: !!transactionsResponse?.data,
-					hasCategories: !!categoriesResponse?.data,
-				});
-			}
 			return [];
 		}
 
