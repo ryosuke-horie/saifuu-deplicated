@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { cloudflare } from "@cloudflare/vite-plugin";
+// import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
@@ -7,7 +7,11 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
 	plugins: [
-		cloudflare({ viteEnvironment: { name: "ssr" } }),
+		// Cloudflareプラグインを一時的に無効化してMiniflareエラーを回避
+		// cloudflare({
+		// 	viteEnvironment: { name: "ssr" },
+		// 	persist: false
+		// }),
 		tailwindcss(),
 		reactRouter(),
 		tsconfigPaths(),
