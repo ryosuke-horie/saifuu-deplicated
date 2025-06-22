@@ -85,15 +85,15 @@ function EnvDebug() {
 				type="button"
 				onClick={() => setIsVisible(!isVisible)}
 				className="mb-2 rounded-full bg-blue-500 px-3 py-1 text-xs text-white hover:bg-blue-600"
-				title="Environment Debug Info"
+				title="環境情報を表示"
 			>
-				🔧 Debug
+				🔧 ツール
 			</button>
 
 			{/* デバッグ情報パネル */}
 			{isVisible && (
 				<div className="rounded-lg bg-black/90 p-4 text-xs text-white shadow-lg backdrop-blur">
-					<div className="mb-2 font-bold text-blue-400">Environment Debug</div>
+					<div className="mb-2 font-bold text-blue-400">環境情報</div>
 
 					<div className="space-y-1">
 						<div>
@@ -112,13 +112,13 @@ function EnvDebug() {
 						</div>
 
 						<div>
-							<span className="text-gray-400">Browser:</span>{" "}
+							<span className="text-gray-400">ブラウザ:</span>{" "}
 							<span
 								className={
 									envInfo.isBrowser ? "text-green-400" : "text-red-400"
 								}
 							>
-								{envInfo.isBrowser ? "Yes" : "No"}
+								{envInfo.isBrowser ? "はい" : "いいえ"}
 							</span>
 						</div>
 
@@ -138,20 +138,21 @@ function EnvDebug() {
 						</div>
 
 						<div className="border-t border-gray-600 pt-2 text-gray-500">
-							Build: {new Date(envInfo.buildTime).toLocaleTimeString("ja-JP")}
+							ビルド時刻:{" "}
+							{new Date(envInfo.buildTime).toLocaleTimeString("ja-JP")}
 						</div>
 					</div>
 
 					{/* 警告表示 */}
 					{envInfo.mswStatus === "enabled" && envInfo.isDevelopment && (
 						<div className="mt-2 rounded bg-yellow-500/20 px-2 py-1 text-yellow-300">
-							⚠️ MSW is active (development only)
+							⚠️ MSWが有効です（開発環境のみ）
 						</div>
 					)}
 
 					{envInfo.mswStatus === "enabled" && !envInfo.isDevelopment && (
 						<div className="mt-2 rounded bg-red-500/20 px-2 py-1 text-red-300">
-							🚨 MSW in non-development environment!
+							🚨 開発環境以外でMSWが有効になっています！
 						</div>
 					)}
 				</div>
