@@ -172,15 +172,38 @@ export function setQueryData<T>(
 
 /**
  * エラー状態のクエリを事前設定するヘルパー
+ * React Query v5対応の改善版実装
  */
 export function setQueryError(
 	queryClient: QueryClient,
 	queryKey: unknown[],
 	error: Error,
 ) {
-	// React Query v5では直接的なエラー状態設定は異なるアプローチを使用
-	queryClient.setQueryData(queryKey, undefined);
-	// エラー状態の設定は、実際のクエリが失敗した場合にライブラリが自動的に行う
+	// React Query v5でエラー状態を設定する方法:
+	// QueryCacheから直接クエリを取得または作成し、エラー状態を設定
+	const query = queryClient.getQueryCache().find({ queryKey });
+
+	if (query) {
+		// 既存のクエリがある場合、エラー状態を直接設定
+		query.setState({
+			data: undefined,
+			error,
+			status: "error",
+			fetchStatus: "idle",
+		});
+	} else {
+		// クエリが存在しない場合、事前にエラー状態でクエリを作成
+		queryClient.setQueryData(queryKey, undefined);
+		const newQuery = queryClient.getQueryCache().find({ queryKey });
+		if (newQuery) {
+			newQuery.setState({
+				data: undefined,
+				error,
+				status: "error",
+				fetchStatus: "idle",
+			});
+		}
+	}
 }
 
 // ========================================
