@@ -152,31 +152,6 @@ export default function TransactionListDemo() {
 						</code>
 					</div>
 				</div>
-
-				{/* 今後の機能拡張予定 */}
-				<div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-					<h2 className="text-lg font-semibold text-yellow-900 mb-3">
-						🔮 今後の機能拡張予定
-					</h2>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-yellow-800">
-						<div>
-							<h3 className="font-medium mb-2">一括操作</h3>
-							<ul className="space-y-1">
-								<li>• 複数選択・一括削除</li>
-								<li>• 一括カテゴリ変更</li>
-								<li>• 一括編集機能</li>
-							</ul>
-						</div>
-						<div>
-							<h3 className="font-medium mb-2">高度な機能</h3>
-							<ul className="space-y-1">
-								<li>• 無限スクロール</li>
-								<li>• 統計グラフ表示</li>
-								<li>• フィルター保存</li>
-							</ul>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	);
