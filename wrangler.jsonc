@@ -9,7 +9,9 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"main": "./workers/app.ts",
 	"build": {
-		"command": "pnpm run build"
+		"command": "pnpm run build",
+		"cwd": ".",
+		"watch_dir": ["workers", "dist/server"]
 	},
 	"rules": [
 		{

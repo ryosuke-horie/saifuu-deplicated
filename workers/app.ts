@@ -83,10 +83,11 @@ api.get("/", (c) => {
 });
 
 // React Routerのリクエストハンドラー
-// Cloudflare Workers環境でのサーバーバンドル参照
+// Cloudflare Workers向けのサーバーバンドル参照
+// virtual: moduleはWranglerビルド時に解決されないため、実際のパスを使用
 const requestHandler = createRequestHandler(
-	// @ts-ignore - Cloudflare Workers向けの virtual module
-	() => import("virtual:react-router/server-build"),
+	// @ts-ignore - 実際のサーバービルドファイルを参照
+	() => import("../dist/server/index.js"),
 	"production",
 );
 
