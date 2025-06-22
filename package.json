@@ -26,11 +26,11 @@
 		"db:seed": "wrangler d1 execute --file=./db/seed.sql --local saifuu-db",
 		"db:seed:remote": "wrangler d1 execute --file=./db/seed.sql --remote saifuu-db",
 		"test": "pnpm run test:unit",
-		"test:unit": "rm -rf .react-router && vitest run",
+		"test:unit": "rm -rf .react-router node_modules/.cache && vitest run",
 		"test:unit:watch": "vitest",
 		"test:unit:coverage": "vitest run --coverage",
 		"coverage:comment": "./scripts/coverage-comment.sh",
-		"test:e2e": "playwright test",
+		"test:e2e": "rm -rf .react-router node_modules/.cache && playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:report": "playwright show-report"
