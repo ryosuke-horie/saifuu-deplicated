@@ -7,8 +7,8 @@ import { expect, test } from "@playwright/test";
  */
 test.describe("基本ページロード", () => {
 	test("ダッシュボードページが正常にロードされる", async ({ page }) => {
-		// ダッシュボードページに直接アクセス
-		await page.goto("/dashboard");
+		// ダッシュボードページ（ホーム）に直接アクセス
+		await page.goto("/");
 
 		// ページがロードされるまで待機
 		await page.waitForLoadState("networkidle");

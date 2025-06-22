@@ -43,12 +43,18 @@ export function TransactionList({
 		isLoading,
 		error,
 		refetch,
-	} = useTransactions({
-		filters,
-		sort,
-		page,
-		limit: 20,
-	});
+	} = useTransactions(
+		{
+			filters,
+			sort,
+			page,
+			limit: 20,
+		},
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// フィルター変更ハンドラー
 	const handleFiltersChange = (newFilters: Partial<TransactionFilters>) => {

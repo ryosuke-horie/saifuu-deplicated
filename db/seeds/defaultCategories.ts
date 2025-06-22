@@ -144,11 +144,11 @@ async function categoryExists(
 	name: string,
 	type: "income" | "expense",
 ): Promise<boolean> {
-	const existing = await db
+	const existing = (await (db as any)
 		.select()
 		.from(categories)
 		.where(and(eq(categories.name, name), eq(categories.type, type)))
-		.limit(1);
+		.limit(1)) as any;
 
 	return existing.length > 0;
 }
@@ -165,13 +165,13 @@ async function insertCategoriesIfNotExists(
 	categoryList: Omit<InsertCategory, "id" | "createdAt" | "updatedAt">[],
 ): Promise<number> {
 	// 既存カテゴリを一括取得（N+1問題の解決）
-	const existingCategories = await db
+	const existingCategories = await (db as any)
 		.select({ name: categories.name, type: categories.type })
 		.from(categories);
 
 	// 既存カテゴリのセットを作成（高速な重複チェック用）
 	const existingSet = new Set(
-		existingCategories.map((cat) => `${cat.name}-${cat.type}`),
+		existingCategories.map((cat: any) => `${cat.name}-${cat.type}`),
 	);
 
 	// 新規カテゴリをフィルタリング

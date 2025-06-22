@@ -4,9 +4,8 @@ export default {
 	appDirectory: "app",
 	ssr: true,
 	buildDirectory: "dist",
-	// unstable_viteEnvironmentApi フラグを一時的に無効化
-	// useContext エラーの原因となる可能性があるため
-	// future: {
-	// 	unstable_viteEnvironmentApi: true,
-	// },
+	// React 19との互換性を最大化
+	future: {
+		unstable_viteEnvironmentApi: false,
+	},
 } satisfies Config;

@@ -83,8 +83,9 @@ const queryParamsSchema = z.object({
 
 export async function loader({ request, context }: any) {
 	try {
-		// Cloudflare Workersの環境からDBバインディングを取得
-		const db = createDb(context.cloudflare.env.DB);
+		// 開発環境とプロダクション環境に対応したDB接続
+		const d1 = context?.cloudflare?.env?.DB;
+		const db = createDb(d1);
 
 		// クエリパラメータを解析・バリデーション
 		const url = new URL(request.url);

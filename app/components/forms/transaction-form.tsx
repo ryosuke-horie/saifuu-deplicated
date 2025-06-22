@@ -50,7 +50,10 @@ export function TransactionForm({
 
 	// カテゴリデータを取得
 	const { data: categoriesResponse, isLoading: categoriesLoading } =
-		useCategoriesByType(type);
+		useCategoriesByType(type, {
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any);
 
 	// 金額フィールドの監視（3桁カンマ表示用）
 	const amountValue = watch("amount");

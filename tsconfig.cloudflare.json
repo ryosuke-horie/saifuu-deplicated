@@ -18,7 +18,9 @@
 		"app/**/*.stories.tsx",
 		"stories/**/*",
 		"storybook-static/**/*",
-		"node_modules/**/*"
+		"node_modules/**/*",
+		"dist/**/*",
+		"build/**/*"
 	],
 	"compilerOptions": {
 		"composite": true,

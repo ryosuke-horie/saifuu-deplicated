@@ -57,14 +57,20 @@ export function SubscriptionWidget({
 		data: activeSubscriptionsResponse,
 		isLoading: isActiveLoading,
 		error: activeError,
-	} = useActiveSubscriptions();
+	} = useActiveSubscriptions({
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== "undefined",
+	} as any);
 
 	// 停止中のサブスクリプション取得
 	const {
 		data: inactiveSubscriptionsResponse,
 		isLoading: isInactiveLoading,
 		error: inactiveError,
-	} = useInactiveSubscriptions();
+	} = useInactiveSubscriptions({
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== "undefined",
+	} as any);
 
 	// 合計コスト取得
 	const { monthlyTotal, yearlyTotal } = useSubscriptionsTotalCost();

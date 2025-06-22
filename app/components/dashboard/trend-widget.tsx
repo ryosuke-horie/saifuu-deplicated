@@ -41,9 +41,15 @@ export function TrendWidget({ compact = false }: TrendWidgetProps) {
 		data: currentMonthData,
 		isLoading: isCurrentLoading,
 		error: currentError,
-	} = useCurrentMonthTransactions({
-		limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
-	});
+	} = useCurrentMonthTransactions(
+		{
+			limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
+		},
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// 前月の取引データを取得（比較用）
 	// 注意: useCurrentMonthTransactions は汎用的なトランザクション取得フックとして使用
@@ -56,20 +62,29 @@ export function TrendWidget({ compact = false }: TrendWidgetProps) {
 		data: lastMonthData,
 		isLoading: isLastLoading,
 		error: lastError,
-	} = useCurrentMonthTransactions({
-		filters: {
-			from: firstDayLastMonth.toISOString().split("T")[0],
-			to: lastDayLastMonth.toISOString().split("T")[0],
+	} = useCurrentMonthTransactions(
+		{
+			filters: {
+				from: firstDayLastMonth.toISOString().split("T")[0],
+				to: lastDayLastMonth.toISOString().split("T")[0],
+			},
+			limit: MAX_TRANSACTION_LIMIT,
 		},
-		limit: MAX_TRANSACTION_LIMIT,
-	});
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// カテゴリマスタデータを取得（カテゴリ名解決のため）
 	const {
 		data: categoriesResponse,
 		isLoading: isCategoriesLoading,
 		error: categoriesError,
-	} = useCategories();
+	} = useCategories({
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== "undefined",
+	} as any);
 
 	// トレンドデータの計算
 	const trendData = useMemo((): TrendData => {

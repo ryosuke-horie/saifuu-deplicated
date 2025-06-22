@@ -80,7 +80,7 @@ export async function action({ request, context }: any) {
 		}
 
 		// 既にアクティブの場合は警告メッセージを返す
-		if (existingSubscription.isActive) {
+		if ((existingSubscription as any).isActive) {
 			return new Response(
 				JSON.stringify({
 					success: true,

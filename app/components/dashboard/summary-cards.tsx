@@ -53,9 +53,15 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 		data: currentMonthData,
 		isLoading: isCurrentLoading,
 		error: currentError,
-	} = useCurrentMonthTransactions({
-		limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
-	});
+	} = useCurrentMonthTransactions(
+		{
+			limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
+		},
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// 前月の取引データを取得（比較用）
 	const now = new Date();
@@ -66,13 +72,19 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 		data: lastMonthData,
 		isLoading: isLastLoading,
 		error: lastError,
-	} = useCurrentMonthTransactions({
-		filters: {
-			from: firstDayLastMonth.toISOString().split("T")[0],
-			to: lastDayLastMonth.toISOString().split("T")[0],
+	} = useCurrentMonthTransactions(
+		{
+			filters: {
+				from: firstDayLastMonth.toISOString().split("T")[0],
+				to: lastDayLastMonth.toISOString().split("T")[0],
+			},
+			limit: MAX_TRANSACTION_LIMIT,
 		},
-		limit: MAX_TRANSACTION_LIMIT,
-	});
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// サマリーデータの計算
 	const summaryData = useMemo((): SummaryData => {
