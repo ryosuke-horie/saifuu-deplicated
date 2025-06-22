@@ -103,18 +103,44 @@ export function CategoryBreakdownChart({
 	} = useCurrentMonthTransactions({
 		filters: { type: selectedType },
 		limit: 1000, // 大きな値を設定して全件取得を試行
-	});
+	}, {
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== 'undefined',
+	} as any);
 
 	// カテゴリマスタデータを取得
 	const {
 		data: categoriesResponse,
 		isLoading: isLoadingCategories,
 		error: categoriesError,
-	} = useCategories();
+	} = useCategories({
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== 'undefined',
+	} as any);
+
+	// デバッグログ（開発環境のみ）
+	if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+		console.log('CategoryBreakdownChart Debug:', {
+			selectedType,
+			isLoadingTransactions,
+			isLoadingCategories,
+			transactionsError,
+			categoriesError,
+			transactionsCount: transactionsResponse?.data?.length || 0,
+			categoriesCount: categoriesResponse?.data?.length || 0,
+			chartDataLength: chartData.length,
+		});
+	}
 
 	// チャートデータの生成
 	const chartData = useMemo(() => {
 		if (!transactionsResponse?.data || !categoriesResponse?.data) {
+			if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+				console.log('CategoryBreakdownChart: Missing data', {
+					hasTransactions: !!transactionsResponse?.data,
+					hasCategories: !!categoriesResponse?.data,
+				});
+			}
 			return [];
 		}
 
