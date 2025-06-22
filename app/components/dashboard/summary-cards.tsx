@@ -55,6 +55,9 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 		error: currentError,
 	} = useCurrentMonthTransactions({
 		limit: MAX_TRANSACTION_LIMIT, // 全データを取得するため大きな値を設定
+	}, {
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== 'undefined',
 	});
 
 	// 前月の取引データを取得（比較用）
@@ -72,6 +75,9 @@ export function SummaryCards({ compact = false }: SummaryCardsProps) {
 			to: lastDayLastMonth.toISOString().split("T")[0],
 		},
 		limit: MAX_TRANSACTION_LIMIT,
+	}, {
+		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+		enabled: typeof window !== 'undefined',
 	});
 
 	// サマリーデータの計算
