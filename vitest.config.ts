@@ -1,21 +1,14 @@
 /// <reference types="vitest" />
-import { cloudflare } from "@cloudflare/vite-plugin";
-import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+/**
+ * Vitest専用設定
+ * React Routerプラグインを除外してhome.tsx参照エラーを回避
+ */
 export default defineConfig({
-	plugins: [
-		cloudflare({ viteEnvironment: { name: "ssr" } }),
-		tailwindcss(),
-		reactRouter(),
-		tsconfigPaths(),
-	],
-	esbuild: {
-		jsx: "automatic",
-		jsxDev: true,
-	},
+	plugins: [tailwindcss(), tsconfigPaths()],
 	test: {
 		environment: "jsdom",
 		globals: true,

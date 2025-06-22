@@ -9,7 +9,8 @@
 	"compatibility_flags": ["nodejs_compat"],
 	"main": "./workers/app.ts",
 	"vars": {
-		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
+		"NODE_ENV": "production"
 	},
 	"observability": {
 		"enabled": true
@@ -25,7 +26,35 @@
 			"database_id": "98f133e5-2824-486e-877f-ea1f3c0210b8",
 			"migrations_dir": "./db/migrations"
 		}
-	]
+	],
+	/**
+	 * 環境固有設定
+	 * 開発環境とプロダクション環境の分離
+	 */
+	"env": {
+		"development": {
+			"vars": {
+				"NODE_ENV": "development",
+				"DEBUG": "true",
+				"LOG_LEVEL": "debug"
+			}
+		},
+		"test": {
+			"vars": {
+				"NODE_ENV": "test",
+				"DEBUG": "true",
+				"LOG_LEVEL": "debug"
+			}
+		},
+		"production": {
+			"vars": {
+				"NODE_ENV": "production",
+				"DEBUG": "false",
+				"LOG_LEVEL": "warn",
+				"DISABLE_MSW": "true"
+			}
+		}
+	}
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

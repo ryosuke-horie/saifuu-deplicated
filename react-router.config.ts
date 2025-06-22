@@ -1,6 +1,7 @@
 import type { Config } from "@react-router/dev/config";
 
 export default {
+	appDirectory: "app",
 	ssr: true,
 	buildDirectory: "dist",
 	// unstable_viteEnvironmentApi フラグを一時的に無効化

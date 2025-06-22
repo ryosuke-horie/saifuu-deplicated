@@ -5,7 +5,7 @@ import {
 	updateCategory,
 } from "../../../../db/queries/categories";
 import { insertCategorySchema } from "../../../../db/schema";
-import type { Route } from "./+types/$id.update";
+// // import type { Route } from "./+types/$id.update";
 
 /**
  * PUT /api/categories/:id エンドポイント
@@ -42,7 +42,7 @@ const paramsSchema = z.object({
 	}),
 });
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "PUT") {

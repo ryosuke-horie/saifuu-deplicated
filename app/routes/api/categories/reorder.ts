@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createDb } from "../../../../db/connection";
 import { reorderCategories } from "../../../../db/queries/categories";
-import type { Route } from "./+types/reorder";
+// import type { Route } from "./+types/reorder";
 
 /**
  * PUT /api/categories/reorder エンドポイント
@@ -32,7 +32,7 @@ const reorderRequestSchema = z.object({
 		.min(1, "最低1つのカテゴリを指定してください"),
 });
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "PUT") {

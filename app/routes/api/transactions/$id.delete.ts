@@ -34,7 +34,7 @@ const paramsSchema = z.object({
 	}),
 });
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "DELETE") {

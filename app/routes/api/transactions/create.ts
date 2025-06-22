@@ -22,7 +22,7 @@ import type { Route } from "./+types/create";
  * - receiptUrl: string (オプション) - レシート画像のURL
  */
 
-export async function action({ request, context }: Route.ActionArgs) {
+export async function action({ request, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "POST") {

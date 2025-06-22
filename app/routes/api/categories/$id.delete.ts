@@ -5,7 +5,7 @@ import {
 	getCategoryById,
 	isCategoryInUse,
 } from "../../../../db/queries/categories";
-import type { Route } from "./+types/$id.delete";
+// // import type { Route } from "./+types/$id.delete";
 
 /**
  * DELETE /api/categories/:id エンドポイント
@@ -34,7 +34,7 @@ const paramsSchema = z.object({
 	}),
 });
 
-export async function action({ request, params, context }: Route.ActionArgs) {
+export async function action({ request, params, context }: any) {
 	try {
 		// HTTPメソッドのチェック
 		if (request.method !== "DELETE") {

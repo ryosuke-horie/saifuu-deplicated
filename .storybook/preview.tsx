@@ -14,12 +14,44 @@ import { handlers } from "./mocks/server";
  * - 実際のAPIエンドポイントと同じレスポンス形式を返す
  * - ストーリーごとに異なるハンドラーを適用可能
  * - エラーケースや異なるデータパターンのテストを支援
+ *
+ * 安全性制約:
+ * - 本番環境では絶対に初期化されない
+ * - ブラウザ環境でのみ動作する
+ * - NODE_ENVが'production'でない場合のみ実行
  */
-initialize({
-	onUnhandledRequest: "bypass", // 未処理のリクエストはそのまま通す
-	// デフォルトハンドラーを設定（各ストーリーで上書き可能）
-	handlers,
-});
+
+// 環境変数による安全性チェック
+const currentEnv = process.env.NODE_ENV as string;
+const isProduction = currentEnv === "production";
+const isBrowser = typeof window !== "undefined";
+const shouldInitializeMSW = !isProduction && isBrowser;
+
+if (shouldInitializeMSW) {
+	initialize({
+		onUnhandledRequest: "bypass", // 未処理のリクエストはそのまま通す
+		// デフォルトハンドラーを設定（各ストーリーで上書き可能）
+		handlers,
+	});
+
+	// 開発環境でのデバッグ情報表示
+	if (currentEnv === "development") {
+		console.log("📖 Storybook: MSW initialized for development environment");
+		console.log("🔍 Debug: Available handlers count:", handlers.length);
+	}
+} else {
+	// 本番環境または非ブラウザ環境での警告
+	if (isProduction) {
+		console.warn(
+			"⚠️  MSW initialization skipped: Production environment detected",
+		);
+	}
+	if (!isBrowser) {
+		console.warn(
+			"⚠️  MSW initialization skipped: Non-browser environment detected",
+		);
+	}
+}
 
 /**
  * React Query用のクライアントを作成
