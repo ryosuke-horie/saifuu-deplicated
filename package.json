@@ -26,7 +26,7 @@
 		"db:seed": "wrangler d1 execute --file=./db/seed.sql --local saifuu-db",
 		"db:seed:remote": "wrangler d1 execute --file=./db/seed.sql --remote saifuu-db",
 		"test": "pnpm run test:unit",
-		"test:unit": "rm -rf .react-router node_modules/.cache && vitest run",
+		"test:unit": "rm -rf .react-router node_modules/.cache && vitest run --config vitest.config.ts",
 		"test:unit:watch": "vitest",
 		"test:unit:coverage": "vitest run --coverage",
 		"coverage:comment": "./scripts/coverage-comment.sh",
