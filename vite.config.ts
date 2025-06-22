@@ -12,12 +12,19 @@ export default defineConfig({
 		reactRouter(),
 		tsconfigPaths(),
 	],
+	// React 19 + React Router v7の互換性修正
+	define: {
+		__DEV__: "false",
+	},
 	esbuild: {
 		jsx: "automatic",
-		// jsxDev無効化: React 19とReact Router v7の互換性問題を回避
+		// jsxDev完全無効化: React 19とReact Router v7の互換性問題を回避
 		jsxDev: false,
-		// React 19との互換性向上のための追加設定
 		jsxImportSource: "react",
+	},
+	// SSR環境での設定調整
+	ssr: {
+		noExternal: ["react", "react-dom", "react-router"],
 	},
 	test: {
 		environment: "jsdom",
