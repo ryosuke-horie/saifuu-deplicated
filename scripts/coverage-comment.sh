@@ -17,7 +17,7 @@ if [ -d "coverage" ] && [ -f "coverage/index.html" ]; then
   TEST_STATUS="✅ 全テスト通過"
   TEST_OUTPUT="テストは統合CIジョブで実行済み"
 else
-  TEST_STATUS="❌ テスト実行に問題がある可能性があります"
+  TEST_STATUS="❌ カバレッジレポートが見つかりません（テスト実行に問題がある可能性があります）"
   TEST_OUTPUT="カバレッジレポートが見つかりません"
 fi
 
