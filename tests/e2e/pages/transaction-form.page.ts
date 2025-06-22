@@ -150,8 +150,8 @@ export class TransactionFormPage {
 	async expectSubmitSuccess() {
 		// 成功時のリダイレクトまたは成功メッセージを確認
 		await Promise.race([
-			// ダッシュボードへのリダイレクト
-			this.page.waitForURL("**/dashboard", { timeout: 5000 }),
+			// ホームページ（ダッシュボード）へのリダイレクト
+			this.page.waitForURL("**/", { timeout: 5000 }),
 			// 成功メッセージの表示
 			expect(this.page.locator(this.selectors.successMessage)).toBeVisible(),
 		]);

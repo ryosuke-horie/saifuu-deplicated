@@ -128,7 +128,7 @@ test.describe("Final Verification - React 19 + React Router v7 Compatibility", (
 		// 5. スクリーンショットを撮影
 		console.log("5. Taking screenshot...");
 		await page.screenshot({
-			path: "/Users/r-horie/private/saifuu/saifuu-main/tests/e2e/screenshots/verification-success.png",
+			path: "tests/e2e/screenshots/verification-success.png",
 			fullPage: true,
 		});
 
