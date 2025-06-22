@@ -8,7 +8,7 @@
 		"cf-typegen": "wrangler types",
 		"deploy": "pnpm run build:check && wrangler deploy --env production",
 		"deploy:dev": "pnpm run build && wrangler deploy --env development",
-		"dev": "react-router dev",
+		"dev": "DEBUG=react-router:* react-router dev",
 		"postinstall": "pnpm run cf-typegen",
 		"preview": "pnpm run build && vite preview",
 		"typecheck": "pnpm run cf-typegen && tsc -b",

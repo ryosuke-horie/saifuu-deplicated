@@ -19,6 +19,19 @@ export default defineConfig({
 	// React 19 + React Router v7の互換性修正
 	define: {
 		__DEV__: "false",
+		// CommonJS互換性のための定義
+		"process.env.NODE_ENV": JSON.stringify(
+			process.env.NODE_ENV || "development",
+		),
+	},
+	// ESモジュールフォーマットを明示的に指定
+	build: {
+		target: "es2022",
+		rollupOptions: {
+			output: {
+				format: "es",
+			},
+		},
 	},
 	esbuild: {
 		jsx: "automatic",
@@ -29,6 +42,8 @@ export default defineConfig({
 	// SSR環境での設定調整
 	ssr: {
 		noExternal: ["react", "react-dom", "react-router"],
+		// CommonJS互換性のためのモジュール設定
+		target: "node",
 	},
 	test: {
 		environment: "jsdom",
