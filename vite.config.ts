@@ -12,6 +12,10 @@ export default defineConfig({
 		reactRouter(),
 		tsconfigPaths(),
 	],
+	esbuild: {
+		jsx: "automatic",
+		jsxDev: true,
+	},
 	test: {
 		environment: "jsdom",
 		globals: true,
