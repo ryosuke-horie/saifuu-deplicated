@@ -39,10 +39,11 @@ export default defineConfig({
 		jsxDev: false,
 		jsxImportSource: "react",
 	},
-	// SSR環境での設定調整
+	// SSR環境での設定調整 - React 19のmodule問題を回避
 	ssr: {
-		noExternal: ["react", "react-dom", "react-router"],
-		// CommonJS互換性のためのモジュール設定
+		// React関連を外部化してCommonJS/ESM問題を回避
+		external: ["react", "react-dom"],
+		noExternal: ["react-router"],
 		target: "node",
 	},
 	test: {
