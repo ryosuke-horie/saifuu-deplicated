@@ -36,7 +36,7 @@ export async function createSubscription(
  * IDでサブスクリプションを取得（カテゴリ情報含む）
  */
 export async function getSubscriptionById(db: Database, id: number) {
-	const [subscription] = await db
+	const [subscription] = (await (db as any)
 		.select({
 			id: subscriptions.id,
 			name: subscriptions.name,
@@ -59,7 +59,7 @@ export async function getSubscriptionById(db: Database, id: number) {
 		.from(subscriptions)
 		.leftJoin(categories, eq(subscriptions.categoryId, categories.id))
 		.where(eq(subscriptions.id, id))
-		.limit(1);
+		.limit(1)) as any;
 
 	return subscription;
 }
@@ -75,7 +75,7 @@ export async function getSubscriptionsList(
 ) {
 	const { isActive } = options;
 
-	const query = db
+	const query = (db as any)
 		.select({
 			id: subscriptions.id,
 			name: subscriptions.name,
@@ -103,14 +103,14 @@ export async function getSubscriptionsList(
 		query.where(eq(subscriptions.isActive, isActive));
 	}
 
-	return await query.orderBy(desc(subscriptions.createdAt));
+	return await (query as any).orderBy(desc(subscriptions.createdAt));
 }
 
 /**
  * アクティブなサブスクリプション一覧を取得
  */
 export async function getActiveSubscriptions(db: Database) {
-	return await db
+	return (await (db as any)
 		.select({
 			id: subscriptions.id,
 			name: subscriptions.name,
@@ -129,7 +129,7 @@ export async function getActiveSubscriptions(db: Database) {
 		.from(subscriptions)
 		.leftJoin(categories, eq(subscriptions.categoryId, categories.id))
 		.where(eq(subscriptions.isActive, true))
-		.orderBy(subscriptions.nextPaymentDate);
+		.orderBy(subscriptions.nextPaymentDate)) as any;
 }
 
 /**
@@ -138,7 +138,7 @@ export async function getActiveSubscriptions(db: Database) {
 export async function getSubscriptionsDueToday(db: Database) {
 	const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD形式
 
-	return await db
+	return (await (db as any)
 		.select({
 			id: subscriptions.id,
 			name: subscriptions.name,
@@ -160,7 +160,7 @@ export async function getSubscriptionsDueToday(db: Database) {
 				eq(subscriptions.isActive, true),
 				lte(subscriptions.nextPaymentDate, today),
 			),
-		);
+		)) as any;
 }
 
 /**
@@ -237,7 +237,7 @@ export async function deleteSubscription(db: Database, id: number) {
 export async function getMonthlySubscriptionTotal(db: Database) {
 	// 各周期を月次に換算した金額を計算
 	// daily: 30倍, weekly: 4.33倍, monthly: 1倍, yearly: 1/12倍
-	const result = await db
+	const result = (await (db as any)
 		.select({
 			totalMonthly: sql<number>`
         SUM(
@@ -252,7 +252,7 @@ export async function getMonthlySubscriptionTotal(db: Database) {
       `.as("totalMonthly"),
 		})
 		.from(subscriptions)
-		.where(eq(subscriptions.isActive, true));
+		.where(eq(subscriptions.isActive, true))) as any;
 
 	return (result[0] as any)?.totalMonthly || 0;
 }

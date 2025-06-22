@@ -100,13 +100,16 @@ export function CategoryBreakdownChart({
 		data: transactionsResponse,
 		isLoading: isLoadingTransactions,
 		error: transactionsError,
-	} = useCurrentMonthTransactions({
-		filters: { type: selectedType },
-		limit: 1000, // 大きな値を設定して全件取得を試行
-	}, {
-		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-		enabled: typeof window !== 'undefined',
-	} as any);
+	} = useCurrentMonthTransactions(
+		{
+			filters: { type: selectedType },
+			limit: 1000, // 大きな値を設定して全件取得を試行
+		},
+		{
+			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
+			enabled: typeof window !== "undefined",
+		} as any,
+	);
 
 	// カテゴリマスタデータを取得
 	const {
@@ -115,9 +118,8 @@ export function CategoryBreakdownChart({
 		error: categoriesError,
 	} = useCategories({
 		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-		enabled: typeof window !== 'undefined',
+		enabled: typeof window !== "undefined",
 	} as any);
-
 
 	// チャートデータの生成
 	const chartData = useMemo(() => {

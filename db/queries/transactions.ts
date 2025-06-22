@@ -44,7 +44,7 @@ export async function createTransaction(
  * IDでトランザクションを取得（カテゴリ情報含む）
  */
 export async function getTransactionById(db: Database, id: number) {
-	const [transaction] = await db
+	const [transaction] = (await (db as any)
 		.select({
 			id: transactions.id,
 			amount: transactions.amount,
@@ -67,7 +67,7 @@ export async function getTransactionById(db: Database, id: number) {
 		.from(transactions)
 		.leftJoin(categories, eq(transactions.categoryId, categories.id))
 		.where(eq(transactions.id, id))
-		.limit(1);
+		.limit(1)) as any;
 
 	return transaction;
 }
@@ -81,7 +81,7 @@ export async function getTransactionsByDateRange(
 	endDate: string,
 	type?: "income" | "expense",
 ) {
-	const query = db
+	const query = (db as any)
 		.select({
 			id: transactions.id,
 			amount: transactions.amount,
@@ -108,7 +108,7 @@ export async function getTransactionsByDateRange(
 		)
 		.orderBy(desc(transactions.transactionDate), desc(transactions.id));
 
-	return await query;
+	return await (query as any);
 }
 
 /**
@@ -122,7 +122,7 @@ export async function getMonthlyTransactionSummary(
 	const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
 	const endDate = `${year}-${month.toString().padStart(2, "0")}-31`;
 
-	const summary = await db
+	const summary = (await (db as any)
 		.select({
 			type: transactions.type,
 			categoryId: transactions.categoryId,
@@ -144,7 +144,7 @@ export async function getMonthlyTransactionSummary(
 			transactions.categoryId,
 			categories.name,
 			categories.color,
-		);
+		)) as any;
 
 	return summary;
 }
@@ -192,7 +192,7 @@ export async function deleteTransaction(db: Database, id: number) {
  * 最近のトランザクションを取得（ホーム画面用）
  */
 export async function getRecentTransactions(db: Database, limit = 10) {
-	return await db
+	return await (db as any)
 		.select({
 			id: transactions.id,
 			amount: transactions.amount,
@@ -208,7 +208,7 @@ export async function getRecentTransactions(db: Database, limit = 10) {
 		.from(transactions)
 		.leftJoin(categories, eq(transactions.categoryId, categories.id))
 		.orderBy(desc(transactions.createdAt))
-		.limit(limit);
+		.limit(limit as any);
 }
 
 /**
@@ -315,10 +315,10 @@ export async function getTransactionsList(
 		whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
 	// 全体件数を取得（ページネーション用）
-	const [countResult] = await db
+	const [countResult] = (await (db as any)
 		.select({ count: sql<number>`COUNT(*)`.as("count") })
 		.from(transactions)
-		.where(whereClause);
+		.where(whereClause)) as any;
 
 	const totalCount = (countResult as any).count;
 	const totalPages = Math.ceil(totalCount / limit);
@@ -348,7 +348,7 @@ export async function getTransactionsList(
 	}
 
 	// トランザクション一覧を取得
-	const transactionsList = await db
+	const transactionsList = await (db as any)
 		.select({
 			id: transactions.id,
 			amount: transactions.amount,
@@ -372,8 +372,8 @@ export async function getTransactionsList(
 		.leftJoin(categories, eq(transactions.categoryId, categories.id))
 		.where(whereClause)
 		.orderBy(orderByClause)
-		.limit(limit)
-		.offset(offset);
+		.limit(limit as any)
+		.offset(offset as any);
 
 	return {
 		transactions: transactionsList as any,

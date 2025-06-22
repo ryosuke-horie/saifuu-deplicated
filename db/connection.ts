@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/d1";
-import Database from "better-sqlite3";
+import BetterSqlite3Database from "better-sqlite3";
 import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./schema";
 
 /**
@@ -27,12 +27,12 @@ export type DbConnection = ReturnType<typeof createDb>;
  */
 export function createDevDb() {
 	// 開発環境用のメモリ内SQLiteデータベース
-	const sqlite = new Database(":memory:");
+	const sqlite = new BetterSqlite3Database(":memory:");
 	const db = drizzleSqlite(sqlite, { schema });
-	
+
 	// 開発環境用のテーブル作成とサンプルデータ挿入
 	initializeDevDatabase(sqlite as any); // Drizzleラッパーではなく直接better-sqlite3インスタンスを渡す
-	
+
 	return db;
 }
 
@@ -122,7 +122,7 @@ function initializeDevDatabase(sqlite: any) {
 			(2, 'Spotify', 980, 1, 'monthly', '2025-07-05');
 		`);
 	} catch (error) {
-		console.error('開発データベース初期化エラー:', error);
+		console.error("開発データベース初期化エラー:", error);
 	}
 }
 

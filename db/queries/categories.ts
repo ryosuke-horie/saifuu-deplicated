@@ -49,14 +49,14 @@ export async function createCategory(db: Database, data: InsertCategory) {
 	// displayOrderが指定されていない場合、同タイプ内での最大値+1を設定
 	let displayOrder = data.displayOrder;
 	if (displayOrder === undefined) {
-		const [maxOrder] = await db
+		const [maxOrder] = (await (db as any)
 			.select({
 				maxOrder: sql<number>`COALESCE(MAX(${categories.displayOrder}), 0)`,
 			})
 			.from(categories)
 			.where(
 				and(eq(categories.type, data.type), eq(categories.isActive, true)),
-			);
+			)) as any;
 
 		displayOrder = ((maxOrder as any).maxOrder || 0) + 1;
 	}

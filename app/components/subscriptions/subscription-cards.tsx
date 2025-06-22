@@ -89,9 +89,13 @@ export function SubscriptionCards({
 	const [displayPeriod, setDisplayPeriod] = useState<DisplayPeriod>("monthly");
 
 	// サブスクリプションデータを取得
-	const { data: subscriptionsResponse, isLoading, error } = useSubscriptions({
+	const {
+		data: subscriptionsResponse,
+		isLoading,
+		error,
+	} = useSubscriptions({
 		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-		enabled: typeof window !== 'undefined',
+		enabled: typeof window !== "undefined",
 	} as any);
 
 	// フィルタリングされたサブスクリプションデータ

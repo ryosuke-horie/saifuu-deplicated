@@ -52,7 +52,7 @@ export function TransactionForm({
 	const { data: categoriesResponse, isLoading: categoriesLoading } =
 		useCategoriesByType(type, {
 			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-			enabled: typeof window !== 'undefined',
+			enabled: typeof window !== "undefined",
 		} as any);
 
 	// 金額フィールドの監視（3桁カンマ表示用）

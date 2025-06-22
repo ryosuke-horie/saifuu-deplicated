@@ -36,7 +36,7 @@ export function FilterPanel({
 	// カテゴリデータ取得
 	const { data: categoriesResponse } = useCategories({
 		// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-		enabled: typeof window !== 'undefined',
+		enabled: typeof window !== "undefined",
 	} as any);
 
 	// フィルター値の更新
