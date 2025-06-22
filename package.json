@@ -11,7 +11,7 @@
 		"dev": "DEBUG=react-router:* react-router dev",
 		"postinstall": "pnpm run cf-typegen",
 		"preview": "pnpm run build && vite preview",
-		"typecheck": "pnpm run cf-typegen && tsc -b",
+		"typecheck": "pnpm run cf-typegen && rm -rf dist && tsc -b",
 		"check": "pnpm run typecheck && pnpm exec biome check",
 		"check:fix": "pnpm run typecheck && pnpm exec biome check --write",
 		"storybook": "storybook dev -p 6006",
