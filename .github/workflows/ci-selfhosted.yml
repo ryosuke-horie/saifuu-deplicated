@@ -49,7 +49,7 @@ jobs:
   # セットアップ時間を削減し、早期失敗によりリソースを効率的に使用
   ci:
     runs-on: [self-hosted, linux]
-    timeout-minutes: 30
+    timeout-minutes: 10
     
     steps:
       - name: Checkout repository
