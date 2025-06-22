@@ -14,7 +14,8 @@ export default defineConfig({
 	],
 	esbuild: {
 		jsx: "automatic",
-		jsxDev: true,
+		// jsxDev無効化: React 19とReact Router v7の互換性問題を回避
+		jsxDev: false,
 	},
 	test: {
 		environment: "jsdom",

@@ -4,8 +4,7 @@ export default {
 	appDirectory: "app",
 	ssr: true,
 	buildDirectory: "dist",
-	// unstable_viteEnvironmentApi フラグを一時的に無効化
-	// useContext エラーの原因となる可能性があるため
+	// React Router v7での開発サーバー安定性向上のため無効化
 	// future: {
 	// 	unstable_viteEnvironmentApi: true,
 	// },
