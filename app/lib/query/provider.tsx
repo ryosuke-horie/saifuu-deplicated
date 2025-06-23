@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
+import { ReactQueryDevtools } from "./devtools";
 
 /**
  * TanStack Query プロバイダーの設定
@@ -90,10 +90,8 @@ export function QueryProvider({ children }: QueryProviderProps) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			{children}
-			{/* 開発環境でのみReact Query Devtoolsを表示 */}
-			{process.env.NODE_ENV === "development" && (
-				<ReactQueryDevtools initialIsOpen={false} position="bottom" />
-			)}
+			{/* SSR対応のReact Query Devtools */}
+			<ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
 		</QueryClientProvider>
 	);
 }
