@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { createDb } from "../../../../db/connection";
 import { getSubscriptionsList } from "../../../../db/queries/subscriptions";
+import {
+	createErrorResponse,
+	createSuccessResponse,
+} from "../../../utils/api-errors";
 import type { Route } from "./+types/index";
 
 /**
@@ -33,9 +37,11 @@ const queryParamsSchema = z.object({
 });
 
 export async function loader({ request, context }: any) {
+	// D1バインディングを早期に取得してエラー診断に使用
+	const d1 = context?.cloudflare?.env?.DB;
+
 	try {
-		// 開発環境とプロダクション環境に対応したDB接続
-		const d1 = context?.cloudflare?.env?.DB;
+		// データベース接続の作成（ここでD1バインディングのエラーが発生する可能性）
 		const db = createDb(d1);
 
 		// クエリパラメータを解析・バリデーション
@@ -63,33 +69,35 @@ export async function loader({ request, context }: any) {
 			isActive: active,
 		});
 
-		// 既存のAPIパターンに合わせたレスポンス構造
-		return new Response(
-			JSON.stringify({
-				success: true,
-				data: subscriptions,
-				count: subscriptions.length,
-				filters: {
-					active,
+		// 成功レスポンスを統一フォーマットで返す
+		return createSuccessResponse(subscriptions, {
+			count: subscriptions.length,
+			filters: {
+				active,
+			},
+			// デバッグ情報（開発環境のみ）
+			...(process.env.NODE_ENV !== "production" && {
+				debugInfo: {
+					requestUrl: request.url,
+					appliedFilters: { active },
+					databaseConnection: d1 ? "D1" : "SQLite (fallback)",
+					subscriptionSummary: {
+						total: subscriptions.length,
+						activeCount: subscriptions.filter((sub: any) => sub.isActive)
+							.length,
+						inactiveCount: subscriptions.filter((sub: any) => !sub.isActive)
+							.length,
+					},
 				},
 			}),
-			{
-				status: 200,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		});
 	} catch (error) {
-		console.error("サブスクリプション一覧取得エラー:", error);
-
-		return new Response(
-			JSON.stringify({
-				error: "サブスクリプション一覧の取得中にエラーが発生しました",
-				details: error instanceof Error ? error.message : "不明なエラー",
-			}),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			},
+		// 詳細なエラー診断と適切なレスポンス生成
+		return await createErrorResponse(
+			error,
+			"サブスクリプション一覧の取得中にエラーが発生しました",
+			d1,
+			true, // データベース健全性チェックを含める
 		);
 	}
 }

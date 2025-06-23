@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { createDb } from "../../../../db/connection";
 import { getTransactionsList } from "../../../../db/queries/transactions";
+import {
+	createErrorResponse,
+	createSuccessResponse,
+} from "../../../utils/api-errors";
 import { parseTransactionsWithTags } from "../../../utils/tags";
 import type { Route } from "./+types/index";
 
@@ -82,9 +86,11 @@ const queryParamsSchema = z.object({
 });
 
 export async function loader({ request, context }: any) {
+	// D1バインディングを早期に取得してエラー診断に使用
+	const d1 = context?.cloudflare?.env?.DB;
+
 	try {
-		// 開発環境とプロダクション環境に対応したDB接続
-		const d1 = context?.cloudflare?.env?.DB;
+		// データベース接続の作成（ここでD1バインディングのエラーが発生する可能性）
 		const db = createDb(d1);
 
 		// クエリパラメータを解析・バリデーション
@@ -118,6 +124,7 @@ export async function loader({ request, context }: any) {
 		} = parsedParams.data;
 
 		// 取引一覧を取得（高度なフィルタリング・ページネーション・ソート対応）
+		// 複雑なクエリのため、データベースエラーが発生しやすい
 		const result = await getTransactionsList(db, {
 			startDate: from,
 			endDate: to,
@@ -136,50 +143,50 @@ export async function loader({ request, context }: any) {
 			result.transactions,
 		);
 
-		// カテゴリAPIの形式に合わせたレスポンス構造
-		// 追加でページネーション情報も含める
-		return new Response(
-			JSON.stringify({
-				success: true,
-				data: transactionsWithParsedTags,
-				count: transactionsWithParsedTags.length,
-				pagination: {
-					currentPage: result.currentPage,
-					totalPages: result.totalPages,
-					totalCount: result.totalCount,
-					hasNextPage: result.hasNextPage,
-					hasPrevPage: result.hasPrevPage,
-					limit,
-				},
-				filters: {
-					from,
-					to,
-					type,
-					category_id,
-					search,
-				},
-				sort: {
-					sort_by,
-					sort_order,
+		// 成功レスポンスを統一フォーマットで返す
+		return createSuccessResponse(transactionsWithParsedTags, {
+			count: transactionsWithParsedTags.length,
+			pagination: {
+				currentPage: result.currentPage,
+				totalPages: result.totalPages,
+				totalCount: result.totalCount,
+				hasNextPage: result.hasNextPage,
+				hasPrevPage: result.hasPrevPage,
+				limit,
+			},
+			filters: {
+				from,
+				to,
+				type,
+				category_id,
+				search,
+			},
+			sort: {
+				sort_by,
+				sort_order,
+			},
+			// デバッグ情報（開発環境のみ）
+			...(process.env.NODE_ENV !== "production" && {
+				debugInfo: {
+					requestUrl: request.url,
+					appliedFilters: parsedParams.data,
+					queryExecutionTime: Date.now(), // 簡易パフォーマンス測定
+					databaseConnection: d1 ? "D1" : "SQLite (fallback)",
+					recordsProcessed: {
+						fetched: result.transactions.length,
+						afterTagParsing: transactionsWithParsedTags.length,
+					},
 				},
 			}),
-			{
-				status: 200,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		});
 	} catch (error) {
-		console.error("取引一覧取得エラー:", error);
-
-		return new Response(
-			JSON.stringify({
-				error: "取引一覧の取得中にエラーが発生しました",
-				details: error instanceof Error ? error.message : "不明なエラー",
-			}),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			},
+		// 詳細なエラー診断と適切なレスポンス生成
+		// 取引データは複雑な関連データを含むため、より詳細な診断を実行
+		return await createErrorResponse(
+			error,
+			"取引一覧の取得中にエラーが発生しました",
+			d1,
+			true, // データベース健全性チェックを含める
 		);
 	}
 }
