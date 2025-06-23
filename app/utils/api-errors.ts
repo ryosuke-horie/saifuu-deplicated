@@ -269,7 +269,10 @@ export function diagnoseError(
 		],
 		technicalDetails: {
 			originalError: errorMessage,
-			errorStack: errorStack?.split("\n").slice(0, 3), // スタックトレースの最初の3行のみ
+			errorStack:
+				process.env.NODE_ENV === "development"
+					? errorStack?.split("\n").slice(0, 5)
+					: undefined, // 開発環境でのみスタックトレース表示
 			timestamp: new Date().toISOString(),
 		},
 		healthStatus: "unhealthy",

@@ -82,7 +82,10 @@ async function initializeDevDatabase(
 ): Promise<void> {
 	try {
 		// Drizzleマイグレーションの適用
+		// 注意: migrate()は同期関数です（Drizzle ORM better-sqlite3 migrator）
+		// GitHub Copilotの提案でawaitを使う必要はありません
 		migrate(db, { migrationsFolder: "./db/migrations" });
+		console.log("📋 データベース: マイグレーション適用完了");
 
 		// サンプルデータが既に存在するかチェック
 		const existingCategories = sqlite
@@ -123,8 +126,16 @@ async function initializeDevDatabase(
 				('Spotify', 980, 8, 'monthly', '2025-07-05');
 			`);
 		}
+		console.log("✅ データベース: サンプルデータ挿入完了");
 	} catch (error) {
-		console.error("開発データベース初期化エラー:", error);
+		console.error("🚨 開発データベース初期化エラー:", error);
+		console.error("エラー詳細:", {
+			message: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			timestamp: new Date().toISOString(),
+		});
+		// 初期化失敗時はエラーを上位に伝播
+		throw error;
 	}
 }
 
