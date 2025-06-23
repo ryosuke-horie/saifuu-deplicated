@@ -48,7 +48,7 @@ jobs:
       - name: Setup database
         run: |
           pnpm run db:migrate:local
-          wrangler d1 migrations apply --local saifuu-db
+          pnpm wrangler d1 migrations apply --local saifuu-db
           pnpm run db:seed
       
       - name: Install Playwright browsers
