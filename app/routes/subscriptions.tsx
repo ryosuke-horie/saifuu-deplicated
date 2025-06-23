@@ -1,4 +1,5 @@
 import type { MetaFunction } from "react-router";
+import { Header } from "../components/layout/header";
 import {
 	SubscriptionCards,
 	SubscriptionForm,
@@ -58,64 +59,59 @@ export default function SubscriptionsPage() {
 		);
 	};
 
+	// ヘッダーアクション
+	const headerActions = (
+		<div className="flex flex-wrap gap-3">
+			<button
+				type="button"
+				onClick={handleCreateNew}
+				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center"
+			>
+				<svg
+					className="w-4 h-4 mr-2"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M12 4v16m8-8H4"
+					/>
+				</svg>
+				新規サブスクリプション
+			</button>
+			<button
+				type="button"
+				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium flex items-center"
+			>
+				<svg
+					className="w-4 h-4 mr-2"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"
+					/>
+				</svg>
+				年間コスト分析
+			</button>
+		</div>
+	);
+
 	return (
 		<div className="min-h-screen bg-gray-50">
-			{/* ヘッダー */}
-			<div className="bg-white border-b border-gray-200">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-						<div>
-							<h1 className="text-3xl font-bold text-gray-900">
-								サブスクリプション管理
-							</h1>
-							<p className="text-gray-600 mt-2">
-								定期支払いサービスを一元管理し、支出を最適化しましょう
-							</p>
-						</div>
-						<div className="mt-4 lg:mt-0 flex flex-wrap gap-3">
-							<button
-								type="button"
-								onClick={handleCreateNew}
-								className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center"
-							>
-								<svg
-									className="w-4 h-4 mr-2"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M12 4v16m8-8H4"
-									/>
-								</svg>
-								新規サブスクリプション
-							</button>
-							<button
-								type="button"
-								className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium flex items-center"
-							>
-								<svg
-									className="w-4 h-4 mr-2"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										strokeWidth={2}
-										d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 00-2 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"
-									/>
-								</svg>
-								年間コスト分析
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
+			{/* 統一されたヘッダーコンポーネントを使用 */}
+			<Header
+				title="サブスクリプション管理"
+				description="定期支払いサービスを一元管理し、支出を最適化しましょう"
+				actions={headerActions}
+			/>
 
 			{/* メインコンテンツ */}
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
