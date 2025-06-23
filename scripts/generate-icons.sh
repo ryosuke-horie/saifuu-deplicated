@@ -35,6 +35,12 @@ convert_svg_to_png() {
     # SVGを一時的に1024x1024のPNGに変換してからリサイズ
     local temp_png="/tmp/logo_temp.png"
     
+    # qlmanageの存在確認
+    if ! command -v qlmanage &> /dev/null; then
+        echo -e "${RED}❌ Error: qlmanage コマンドが見つかりません。macOS環境で実行してください。${NC}"
+        return 1
+    fi
+    
     # macOS qlmanage を使用してSVGをPNGに変換
     qlmanage -t -s 1024 -o /tmp "$SVG_SOURCE" > /dev/null 2>&1
     mv "/tmp/logo.svg.png" "$temp_png" 2>/dev/null || {
