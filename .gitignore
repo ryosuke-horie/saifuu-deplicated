@@ -20,3 +20,4 @@
 /data/dev.db
 /data/dev.db-*
 
+coverage/
