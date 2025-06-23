@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router";
 import { useUIActions, useUIState } from "../../contexts/app-context";
 
@@ -57,7 +57,7 @@ export function MobileDrawer({ className = "" }: MobileDrawerProps) {
 
 		const drawer = drawerRef.current;
 		const focusableElements = drawer.querySelectorAll(
-			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+			'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
 		);
 		const firstElement = focusableElements[0] as HTMLElement;
 		const lastElement = focusableElements[
@@ -83,40 +83,53 @@ export function MobileDrawer({ className = "" }: MobileDrawerProps) {
 		};
 
 		drawer.addEventListener("keydown", handleTabKey);
-		// 初期フォーカスを最初の要素に設定
-		firstElement?.focus();
+		// 初期フォーカスを最初の要素に設定（安全性のためsetTimeoutで遅延）
+		setTimeout(() => {
+			firstElement?.focus();
+		}, 0);
 
 		return () => {
-			drawer.removeEventListener("keydown", handleTabKey);
+			if (drawer) {
+				drawer.removeEventListener("keydown", handleTabKey);
+			}
 		};
 	}, [isSidebarOpen]);
 
 	// オーバーレイクリックでドロワーを閉じる
-	const handleOverlayClick = (event: React.MouseEvent) => {
-		if (event.target === overlayRef.current) {
-			setSidebarOpen(false);
-		}
-	};
+	const handleOverlayClick = useCallback(
+		(event: React.MouseEvent) => {
+			if (event.target === overlayRef.current) {
+				setSidebarOpen(false);
+			}
+		},
+		[setSidebarOpen],
+	);
 
 	// アクティブなリンクかどうかを判定
-	const isActiveLink = (path: string) => {
-		if (path === "/") {
-			return location.pathname === "/";
-		}
-		return location.pathname.startsWith(path);
-	};
+	const isActiveLink = useCallback(
+		(path: string) => {
+			if (path === "/") {
+				return location.pathname === "/";
+			}
+			return location.pathname.startsWith(path);
+		},
+		[location.pathname],
+	);
 
 	// ナビゲーション項目の共通スタイル
-	const getLinkClassName = (path: string) => {
-		const baseClassName =
-			"flex items-center px-4 py-3 text-sm font-medium transition-colors rounded-md";
-		const activeClassName =
-			"bg-blue-100 text-blue-700 border-r-2 border-blue-600";
-		const inactiveClassName =
-			"text-gray-700 hover:bg-gray-100 hover:text-blue-600";
+	const getLinkClassName = useCallback(
+		(path: string) => {
+			const baseClassName =
+				"flex items-center px-4 py-3 text-sm font-medium transition-colors rounded-md";
+			const activeClassName =
+				"bg-blue-100 text-blue-700 border-r-2 border-blue-600";
+			const inactiveClassName =
+				"text-gray-700 hover:bg-gray-100 hover:text-blue-600";
 
-		return `${baseClassName} ${isActiveLink(path) ? activeClassName : inactiveClassName}`;
-	};
+			return `${baseClassName} ${isActiveLink(path) ? activeClassName : inactiveClassName}`;
+		},
+		[isActiveLink],
+	);
 
 	if (!isSidebarOpen) {
 		return null;
@@ -130,16 +143,11 @@ export function MobileDrawer({ className = "" }: MobileDrawerProps) {
 			aria-labelledby="mobile-drawer-title"
 		>
 			{/* オーバーレイ背景 */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: オーバーレイは背景要素でありキーボードフォーカスは不要 */}
 			<div
 				ref={overlayRef}
 				className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
 				onClick={handleOverlayClick}
-				onKeyDown={(event) => {
-					if (event.key === "Enter" || event.key === " ") {
-						setSidebarOpen(false);
-					}
-				}}
-				tabIndex={-1}
 				aria-hidden="true"
 			/>
 
