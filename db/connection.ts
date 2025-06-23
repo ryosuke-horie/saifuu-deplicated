@@ -23,14 +23,28 @@ import * as schema from "./schema";
 export type DbConnection = ReturnType<typeof createDb>;
 
 /**
+ * 開発環境用データベースインスタンスのシングルトン管理
+ * 複数のAPI呼び出しで同じデータベースインスタンスを共有するため
+ */
+let devDbSingleton: ReturnType<typeof drizzleSqlite> | null = null;
+
+/**
  * テスト環境用のSQLiteデータベース接続を作成する（フォールバック用）
  * WranglerバインディングがD1インスタンスを提供できない場合のみ使用される
+ * シングルトンパターンを使用してレースコンディションを防ぐ
  * @returns Drizzle ORMのデータベースインスタンス
  */
 export function createDevDb() {
+	// シングルトンインスタンスが既に存在する場合は再利用
+	if (devDbSingleton) {
+		console.log("🔄 開発データベース: 既存インスタンスを再利用中");
+		return devDbSingleton;
+	}
+
 	console.warn(
 		"⚠️  フォールバック: Wranglerバインディングが利用できません。テスト用SQLiteを使用中。",
 	);
+	console.log("🔧 開発データベース: 新しいシングルトンインスタンスを作成中");
 
 	// テスト環境用のメモリ内データベース（フォールバック用）
 	const sqlite = new BetterSqlite3Database(":memory:");
@@ -39,20 +53,39 @@ export function createDevDb() {
 	// テスト用の最小限の初期化
 	initializeDevDatabase(db, sqlite);
 
+	// シングルトンインスタンスとして保存
+	devDbSingleton = db;
+
+	console.log("✅ 開発データベース: シングルトンインスタンス作成完了");
 	return db;
+}
+
+/**
+ * 開発環境用データベースシングルトンをリセットする
+ * テスト環境やクリーンアップ時に使用される
+ * @internal テスト目的でのみ使用すること
+ */
+export function resetDevDbSingleton(): void {
+	if (devDbSingleton) {
+		console.log("🔄 開発データベース: シングルトンインスタンスをリセット中");
+		devDbSingleton = null;
+	}
 }
 
 /**
  * 開発環境用データベースの初期化
  * Drizzleマイグレーションとサンプルデータの適用
  */
-function initializeDevDatabase(
+async function initializeDevDatabase(
 	db: ReturnType<typeof drizzleSqlite>,
 	sqlite: InstanceType<typeof BetterSqlite3Database>,
-) {
+): Promise<void> {
 	try {
 		// Drizzleマイグレーションの適用
+		// 注意: migrate()は同期関数です（Drizzle ORM better-sqlite3 migrator）
+		// GitHub Copilotの提案でawaitを使う必要はありません
 		migrate(db, { migrationsFolder: "./db/migrations" });
+		console.log("📋 データベース: マイグレーション適用完了");
 
 		// サンプルデータが既に存在するかチェック
 		const existingCategories = sqlite
@@ -93,8 +126,16 @@ function initializeDevDatabase(
 				('Spotify', 980, 8, 'monthly', '2025-07-05');
 			`);
 		}
+		console.log("✅ データベース: サンプルデータ挿入完了");
 	} catch (error) {
-		console.error("開発データベース初期化エラー:", error);
+		console.error("🚨 開発データベース初期化エラー:", error);
+		console.error("エラー詳細:", {
+			message: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			timestamp: new Date().toISOString(),
+		});
+		// 初期化失敗時はエラーを上位に伝播
+		throw error;
 	}
 }
 
