@@ -233,4 +233,11 @@ vi.mock("react-router", () => ({
 	Link: vi.fn(),
 	NavLink: vi.fn(),
 	Outlet: vi.fn(),
+	redirect: vi.fn(
+		(url: string) =>
+			new Response(null, {
+				status: 302,
+				headers: { Location: url },
+			}),
+	),
 }));
