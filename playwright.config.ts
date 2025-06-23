@@ -27,6 +27,8 @@ export default defineConfig({
 		baseURL: "http://localhost:5173",
 		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
+		headless: !!process.env.CI,
+		video: process.env.CI ? "off" : "retain-on-failure",
 	},
 
 	projects: process.env.CI
@@ -55,6 +57,10 @@ export default defineConfig({
 		command: "pnpm run dev",
 		port: 5173,
 		reuseExistingServer: !process.env.CI,
-		timeout: 120 * 1000,
+		timeout: 180 * 1000,
+		env: {
+			...process.env,
+			NODE_ENV: "test"
+		}
 	},
 });
