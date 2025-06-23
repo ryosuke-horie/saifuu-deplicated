@@ -55,7 +55,7 @@ export function Header({
 								ホーム
 							</Link>
 							<Link
-								to="/transactions"
+								to="/transaction-list-demo"
 								className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
 							>
 								取引一覧
@@ -67,7 +67,7 @@ export function Header({
 								サブスク管理
 							</Link>
 							<Link
-								to="/transactions/new"
+								to="/transaction-form-demo"
 								className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 							>
 								取引登録

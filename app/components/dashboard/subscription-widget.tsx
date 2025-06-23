@@ -224,7 +224,7 @@ export function SubscriptionWidget({
 						サブスクリプション
 					</h3>
 					<Link
-						to="/dashboard"
+						to="/subscriptions"
 						className="text-sm text-blue-600 hover:text-blue-800 font-medium"
 					>
 						管理 →
@@ -353,7 +353,7 @@ export function SubscriptionWidget({
 						</p>
 						<div className="mt-4">
 							<Link
-								to="/dashboard"
+								to="/subscriptions"
 								className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
 							>
 								<svg
@@ -379,7 +379,7 @@ export function SubscriptionWidget({
 				{(activeItems.length > 0 || inactiveItems.length > 0) && (
 					<div className="pt-4 border-t border-gray-200">
 						<Link
-							to="/dashboard"
+							to="/subscriptions"
 							className="w-full flex items-center justify-center px-4 py-2 text-sm text-blue-600 hover:text-blue-800 font-medium hover:bg-blue-50 rounded-md transition-colors"
 						>
 							<svg

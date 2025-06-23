@@ -61,13 +61,13 @@ export default function Dashboard() {
 	const headerActions = (
 		<div className="flex flex-wrap gap-3">
 			<Link
-				to="/transactions/new"
+				to="/transaction-form-demo"
 				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 			>
 				取引を登録
 			</Link>
 			<Link
-				to="/transactions"
+				to="/transaction-list-demo"
 				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
 			>
 				全ての取引を見る
@@ -117,7 +117,7 @@ export default function Dashboard() {
 										最近の取引
 									</h2>
 									<Link
-										to="/transactions"
+										to="/transaction-list-demo"
 										className="text-sm text-blue-600 hover:text-blue-800 font-medium"
 									>
 										すべて見る →
@@ -147,7 +147,7 @@ export default function Dashboard() {
 							</h3>
 							<div className="space-y-3">
 								<Link
-									to="/transactions/new"
+									to="/transaction-form-demo"
 									className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
 								>
 									<svg
@@ -166,7 +166,7 @@ export default function Dashboard() {
 									支出を登録
 								</Link>
 								<Link
-									to="/transactions/new"
+									to="/transaction-form-demo"
 									className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
 								>
 									<svg
