@@ -71,8 +71,8 @@ test.describe("Final Verification - React 19 + React Router v7 Compatibility", (
 		// ページが完全に読み込まれるまで少し待つ
 		await page.waitForTimeout(2000);
 
-		// bodyが表示されていることを確認
-		await expect(page.locator("body")).toBeVisible();
+		// 固定ヘッダーが表示されていることを確認
+		await expect(page.locator("header")).toBeVisible({ timeout: 15000 });
 
 		// ダッシュボードの主要コンテンツを確認
 		const dashboardHeading = page.locator("text=ダッシュボード");

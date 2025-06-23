@@ -6,6 +6,7 @@ import type {
 } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import { TransactionForm } from "../../components/forms/transaction-form";
+import { PageHeader } from "../../components/layout/page-header";
 import type {
 	ApiTransaction,
 	TransactionDetailResponse,
@@ -84,13 +85,11 @@ export default function TransactionDetailPage() {
 
 	if (isEditing) {
 		return (
-			<div className="min-h-screen bg-gray-50">
-				<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-					<div className="mb-6 flex items-center justify-between">
-						<div>
-							<h1 className="text-3xl font-bold text-gray-900">取引編集</h1>
-							<p className="mt-2 text-sm text-gray-600">取引情報を編集します</p>
-						</div>
+			<>
+				<PageHeader
+					title="取引編集"
+					description="取引情報を編集します"
+					actions={
 						<button
 							type="button"
 							onClick={() => setIsEditing(false)}
@@ -98,8 +97,10 @@ export default function TransactionDetailPage() {
 						>
 							キャンセル
 						</button>
-					</div>
+					}
+				/>
 
+				<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
 					<div className="bg-white shadow-sm rounded-lg">
 						<TransactionForm
 							type={transaction.type as TransactionType}
@@ -136,37 +137,35 @@ export default function TransactionDetailPage() {
 						/>
 					</div>
 				</div>
-			</div>
+			</>
 		);
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-				<div className="mb-6">
-					<Link
-						to="/transactions"
-						className="text-sm font-medium text-indigo-600 hover:text-indigo-500 mb-4 inline-block"
-					>
-						← 取引一覧に戻る
-					</Link>
-					<div className="flex items-center justify-between">
-						<div>
-							<h1 className="text-3xl font-bold text-gray-900">取引詳細</h1>
-							<p className="mt-2 text-sm text-gray-600">取引の詳細情報</p>
-						</div>
-						<div className="flex space-x-3">
-							<button
-								type="button"
-								onClick={() => setIsEditing(true)}
-								className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
-							>
-								編集
-							</button>
-						</div>
+		<>
+			<PageHeader
+				title="取引詳細"
+				description="取引の詳細情報"
+				actions={
+					<div className="flex space-x-3">
+						<Link
+							to="/transactions"
+							className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+						>
+							← 一覧に戻る
+						</Link>
+						<button
+							type="button"
+							onClick={() => setIsEditing(true)}
+							className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
+						>
+							編集
+						</button>
 					</div>
-				</div>
+				}
+			/>
 
+			<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
 				<div className="bg-white shadow-sm rounded-lg">
 					<div className="px-6 py-8">
 						<dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -234,6 +233,6 @@ export default function TransactionDetailPage() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

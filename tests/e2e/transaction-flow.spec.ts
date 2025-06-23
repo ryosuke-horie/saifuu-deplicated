@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 /**
  * 基本的なページロードテスト
  * CI効率化のため最小限のテストのみ実行
- * 新しいUI構造対応のため、最も基本的な要素のみをテスト
+ * 固定ヘッダー対応のため、headerタグを基準にテスト
  */
 test.describe("基本ページロード", () => {
 	test("ダッシュボードページが正常にロードされる", async ({ page }) => {
@@ -13,8 +13,8 @@ test.describe("基本ページロード", () => {
 		// ページがロードされるまで待機
 		await page.waitForLoadState("networkidle");
 
-		// 最低限の確認：bodyタグが存在し、ページが基本的にロードされていること
-		await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
+		// 固定ヘッダーの存在を確認
+		await expect(page.locator("header")).toBeVisible({ timeout: 15000 });
 
 		// ページタイトルが設定されていることを確認
 		await expect(page).toHaveTitle(/.*/, { timeout: 10000 });
@@ -27,8 +27,8 @@ test.describe("基本ページロード", () => {
 		// ページがロードされるまで待機
 		await page.waitForLoadState("networkidle");
 
-		// 最低限の確認：bodyタグが存在し、ページが基本的にロードされていること
-		await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
+		// 固定ヘッダーの存在を確認
+		await expect(page.locator("header")).toBeVisible({ timeout: 15000 });
 
 		// ページタイトルが設定されていることを確認
 		await expect(page).toHaveTitle(/.*/, { timeout: 10000 });
@@ -41,8 +41,8 @@ test.describe("基本ページロード", () => {
 		// ページがロードされるまで待機
 		await page.waitForLoadState("networkidle");
 
-		// 最低限の確認：bodyタグが存在し、ページが基本的にロードされていること
-		await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
+		// 固定ヘッダーの存在を確認
+		await expect(page.locator("header")).toBeVisible({ timeout: 15000 });
 
 		// ページタイトルが設定されていることを確認
 		await expect(page).toHaveTitle(/.*/, { timeout: 10000 });

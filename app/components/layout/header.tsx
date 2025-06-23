@@ -14,26 +14,15 @@ import { HeaderLogo } from "../ui/logo";
  */
 
 export interface HeaderProps {
-	/** ヘッダーのタイトル */
-	title?: string;
-	/** 説明文 */
-	description?: string;
-	/** 追加のアクション要素 */
-	actions?: React.ReactNode;
 	/** ナビゲーションを表示するかどうか */
 	showNavigation?: boolean;
 }
 
-export function Header({
-	title,
-	description,
-	actions,
-	showNavigation = true,
-}: HeaderProps) {
+export function Header({ showNavigation = true }: HeaderProps) {
 	const { toggleSidebar } = useUIActions();
 	return (
 		<>
-			<header className="bg-white border-b border-gray-200">
+			<header className="bg-white border-b border-gray-200 shadow-sm">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					{/* ロゴとナビゲーション */}
 					{showNavigation && (
@@ -99,25 +88,6 @@ export function Header({
 									/>
 								</svg>
 							</button>
-						</div>
-					)}
-
-					{/* ページタイトルエリア */}
-					{(title || description || actions) && (
-						<div className="py-6 border-t border-gray-100">
-							<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-								<div>
-									{title && (
-										<h1 className="text-3xl font-bold text-gray-900">
-											{title}
-										</h1>
-									)}
-									{description && (
-										<p className="text-gray-600 mt-2">{description}</p>
-									)}
-								</div>
-								{actions && <div className="mt-4 lg:mt-0">{actions}</div>}
-							</div>
 						</div>
 					)}
 				</div>

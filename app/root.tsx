@@ -1,6 +1,7 @@
 import type { MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
+import { Header } from "./components/layout/header";
 import { AppProvider } from "./contexts/app-context";
 import { QueryProvider } from "./lib/query/provider";
 
@@ -43,7 +44,16 @@ export default function App() {
 	return (
 		<QueryProvider>
 			<AppProvider>
-				<Outlet />
+				<div className="min-h-screen bg-gray-50">
+					{/* 固定ヘッダー */}
+					<div className="sticky top-0 z-40">
+						<Header showNavigation={true} />
+					</div>
+					{/* メインコンテンツエリア */}
+					<main>
+						<Outlet />
+					</main>
+				</div>
 			</AppProvider>
 		</QueryProvider>
 	);
