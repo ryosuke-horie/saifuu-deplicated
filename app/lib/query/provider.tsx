@@ -91,7 +91,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 		<QueryClientProvider client={queryClient}>
 			{children}
 			{/* SSR対応のReact Query Devtools */}
-			<ReactQueryDevtools />
+			<ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
 		</QueryClientProvider>
 	);
 }
