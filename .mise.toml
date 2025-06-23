@@ -1,0 +1,14 @@
+# mise configuration for saifuu project
+# Node.js version management for consistent development environment
+
+[tools]
+# Node.js version fixed to 22 (LTS)
+# This ensures all developers use the same Node.js version
+node = "22"
+
+# pnpm package manager
+pnpm = "10"
+
+[env]
+# Development environment variables
+NODE_ENV = "development"
