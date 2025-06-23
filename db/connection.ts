@@ -24,10 +24,13 @@ import * as schema from "./schema";
 export type DbConnection = ReturnType<typeof createDb>;
 
 /**
- * 開発環境用のSQLiteデータベース接続を作成する
+ * 開発環境用のSQLiteデータベース接続を作成する（フォールバック用）
+ * 通常は使用されない（WranglerのローカルD1を使用するため）
  * @returns Drizzle ORMのデータベースインスタンス
  */
 export function createDevDb() {
+	console.warn("⚠️  フォールバック: ローカルSQLiteを使用中。本来はWranglerのローカルD1が使用されるべきです。");
+	
 	// 環境変数でメモリ内DBを強制する場合
 	const forceMemory = process.env.USE_MEMORY_DB === "true";
 
