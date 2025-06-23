@@ -23,7 +23,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: process.env.CI ? [["dot"]] : [["line"]],
 	// CI環境ではE2Eテストを一時的にスキップ
-	testIgnore: process.env.CI ? ['**/*.spec.ts'] : [],
+	testIgnore: process.env.CI ? ["**/*.spec.ts"] : [],
 
 	use: {
 		baseURL: "http://localhost:5173",
@@ -34,21 +34,23 @@ export default defineConfig({
 	},
 
 	projects: [
-			{
-				name: "chromium",
-				use: { ...devices["Desktop Chrome"] },
-			},
-			...(process.env.CI ? [] : [
-				{
-					name: "firefox",
-					use: { ...devices["Desktop Firefox"] },
-				},
-				{
-					name: "webkit",
-					use: { ...devices["Desktop Safari"] },
-				},
-			]),
-		],
+		{
+			name: "chromium",
+			use: { ...devices["Desktop Chrome"] },
+		},
+		...(process.env.CI
+			? []
+			: [
+					{
+						name: "firefox",
+						use: { ...devices["Desktop Firefox"] },
+					},
+					{
+						name: "webkit",
+						use: { ...devices["Desktop Safari"] },
+					},
+				]),
+	],
 
 	webServer: {
 		command: "pnpm run dev",
@@ -56,6 +58,6 @@ export default defineConfig({
 		reuseExistingServer: !process.env.CI,
 		timeout: 300 * 1000,
 		stderr: "pipe",
-		stdout: "pipe"
+		stdout: "pipe",
 	},
 });
