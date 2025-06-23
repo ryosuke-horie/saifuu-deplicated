@@ -1,6 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useCategoriesByType } from "../../lib/hooks/use-categories";
+import {
+	FIXED_EXPENSE_CATEGORIES,
+	FIXED_INCOME_CATEGORIES,
+} from "../../constants/fixed-categories";
 import { createTransactionRequestSchema } from "../../lib/schemas/api-responses";
 import type { CreateTransactionRequest, TransactionType } from "../../types";
 
@@ -48,12 +51,14 @@ export function TransactionForm({
 		},
 	});
 
-	// カテゴリデータを取得
-	const { data: categoriesResponse, isLoading: categoriesLoading } =
-		useCategoriesByType(type, {
-			// クライアント側でのみ実行されるようにする（SSR時の問題を回避）
-			enabled: typeof window !== "undefined",
-		} as any);
+	// 固定カテゴリリストを使用（Issue #120対応）
+	// APIへの依存を解消し、即座に表示可能
+	const fixedCategories =
+		type === "expense" ? FIXED_EXPENSE_CATEGORIES : FIXED_INCOME_CATEGORIES;
+	const categoriesResponse = {
+		data: fixedCategories,
+	};
+	const categoriesLoading = false;
 
 	// 金額フィールドの監視（3桁カンマ表示用）
 	const amountValue = watch("amount");
