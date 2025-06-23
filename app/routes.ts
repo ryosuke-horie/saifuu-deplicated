@@ -3,6 +3,9 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
 	index("routes/_index.tsx"),
 	route("subscriptions", "routes/subscriptions.tsx"),
+	route("transactions", "routes/transactions.tsx"),
+	route("transactions/new", "routes/transactions/new.tsx"),
+	route("transactions/:id", "routes/transactions/$id.tsx"),
 	route("transaction-form-demo", "routes/transaction-form-demo.tsx"),
 	route("transaction-list-demo", "routes/transaction-list-demo.tsx"),
 
