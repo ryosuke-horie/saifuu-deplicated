@@ -19,5 +19,7 @@
 # Database
 /data/dev.db
 /data/dev.db-*
+local-dev.db
+local-dev.db-*
 
 coverage/
