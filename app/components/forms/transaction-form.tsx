@@ -149,7 +149,6 @@ export function TransactionForm({
 					<option value="">カテゴリを選択してください</option>
 					{categoriesResponse?.data.map((category) => (
 						<option key={category.id} value={category.id}>
-							{category.icon && `${category.icon} `}
 							{category.name}
 						</option>
 					))}
