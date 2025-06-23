@@ -40,7 +40,7 @@ INSERT INTO transactions (amount, type, category_id, description, transaction_da
 (2500, 'expense', 5, '病院受診', '2025-06-05', '定期検診'),
 (1200, 'expense', 5, '薬代', '2025-06-05', '処方薬'),
 (8000, 'expense', 5, 'ジム会費', '2025-06-01', '6月分'),
-(3500, 'expense', 5, 'マッサージ', '2025-06-15', ''),
+(3500, 'expense', 5, 'マッサージ', '2025-06-15', '');
 
 -- 収入データ（様々なカテゴリ）
 INSERT INTO transactions (amount, type, category_id, description, transaction_date, note) VALUES

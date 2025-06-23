@@ -292,8 +292,14 @@ export function CategoryBreakdownChart({
 								<div>対象月: {debugInfo.currentMonth}</div>
 								{debugInfo.sampleTransaction && (
 									<div className="mt-1">
-										サンプル: {debugInfo.sampleTransaction.description} (
-										{debugInfo.sampleTransaction.transactionDate})
+										サンプル:{" "}
+										{debugInfo.sampleTransaction.description || "未設定"}
+										{debugInfo.sampleTransaction.transactionDate && (
+											<span>
+												{" "}
+												({debugInfo.sampleTransaction.transactionDate})
+											</span>
+										)}
 									</div>
 								)}
 							</div>
