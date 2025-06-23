@@ -1,7 +1,0 @@
- WARN  Unsupported engine: wanted: {"node":"^22.0.0"} (current: {"node":"v23.11.0","pnpm":"10.12.1"})
-
-> saifuu@ dev /Users/r-horie/private/saifuu/saifuu-main
-> DEBUG=react-router:* react-router dev
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: use --host to expose

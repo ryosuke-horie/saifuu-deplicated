@@ -20,7 +20,7 @@ import type {
 } from "../types";
 
 /**
- * ホームページ（ダッシュボード）
+ * ダッシュボードページ
  *
  * 設計方針:
  * - 家計管理アプリの中心となるダッシュボードページ
@@ -42,7 +42,7 @@ export const meta: MetaFunction = () => {
 	];
 };
 
-export default function Home() {
+export default function Dashboard() {
 	// 最近の取引を表示するためのデフォルトフィルター（過去7日間）
 	const recentTransactionsFilters: Partial<TransactionFilters> = {
 		from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)

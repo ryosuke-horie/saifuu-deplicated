@@ -36,7 +36,7 @@ export function Header({
 					<div className="flex items-center justify-between py-4">
 						{/* ロゴ */}
 						<Link
-							to="/home"
+							to="/"
 							className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
 						>
 							<HeaderLogo />
@@ -49,7 +49,7 @@ export function Header({
 						{/* ナビゲーションメニュー */}
 						<nav className="hidden md:flex items-center space-x-6">
 							<Link
-								to="/home"
+								to="/"
 								className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
 							>
 								ホーム
@@ -126,7 +126,7 @@ export function SimpleHeader() {
 		<header className="bg-white border-b border-gray-200">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 				<Link
-					to="/home"
+					to="/"
 					className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
 				>
 					<HeaderLogo />
