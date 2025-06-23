@@ -72,7 +72,7 @@ jobs:
       
       # ステップ2: ユニットテスト（型チェック通過後のみ実行）
       - name: Run unit tests
-        run: pnpm test:unit
+        run: pnpm test:unit:coverage
         env:
           CI: true
           NODE_ENV: test
@@ -82,6 +82,15 @@ jobs:
         run: pnpm run build
         env:
           NODE_ENV: production
+
+      # カバレッジレポートをアーティファクトとして保存
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
 
       # ユニットテスト結果をPRにコメント投稿（統合ジョブの最後に実行）
       - name: Post test results to PR
