@@ -6,7 +6,11 @@ import type {
 } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import { TransactionForm } from "../../components/forms/transaction-form";
-import type { ApiTransaction } from "../../lib/schemas/api-responses";
+import type {
+	ApiTransaction,
+	TransactionDetailResponse,
+} from "../../lib/schemas/api-responses";
+import type { TransactionType } from "../../types";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const transaction = data?.transaction;
@@ -38,7 +42,7 @@ export async function loader({
 			throw new Response("取引が見つかりません", { status: 404 });
 		}
 
-		const data = await response.json();
+		const data = (await response.json()) as TransactionDetailResponse;
 		return {
 			transaction: data.data, // APIレスポンスのdataフィールドから取引データを取得
 		};
@@ -98,14 +102,14 @@ export default function TransactionDetailPage() {
 
 					<div className="bg-white shadow-sm rounded-lg">
 						<TransactionForm
-							type={transaction.type}
+							type={transaction.type as TransactionType}
 							defaultValues={{
 								amount: transaction.amount,
 								categoryId: transaction.categoryId,
 								description: transaction.description,
 								transactionDate: transaction.transactionDate,
 								paymentMethod: transaction.paymentMethod,
-								type: transaction.type,
+								type: transaction.type as "income" | "expense",
 							}}
 							onSubmit={async (data) => {
 								try {
@@ -199,14 +203,13 @@ export default function TransactionDetailPage() {
 									)}
 								</dd>
 							</div>
-							{transaction.category && (
+							{transaction.categoryId && (
 								<div className="sm:col-span-2">
 									<dt className="text-sm font-medium text-gray-500">
-										カテゴリ
+										カテゴリID
 									</dt>
-									<dd className="mt-1 text-lg text-gray-900 flex items-center">
-										<span className="mr-2">{transaction.category.icon}</span>
-										{transaction.category.name}
+									<dd className="mt-1 text-lg text-gray-900">
+										{transaction.categoryId}
 									</dd>
 								</div>
 							)}
