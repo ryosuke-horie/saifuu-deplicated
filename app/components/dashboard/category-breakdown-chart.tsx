@@ -231,6 +231,16 @@ export function CategoryBreakdownChart({
 
 	// データが空の場合
 	if (chartData.length === 0) {
+		const debugInfo =
+			process.env.NODE_ENV !== "production"
+				? {
+						transactionCount: transactionsResponse?.data?.length || 0,
+						selectedType,
+						currentMonth: new Date().toISOString().slice(0, 7),
+						sampleTransaction: transactionsResponse?.data?.[0],
+					}
+				: null;
+
 		return (
 			<div className="bg-white rounded-lg shadow-sm border">
 				<div className="px-6 py-4 border-b border-gray-200">
@@ -274,6 +284,26 @@ export function CategoryBreakdownChart({
 							今月の{selectedType === "expense" ? "支出" : "収入"}
 							データがありません
 						</div>
+						{debugInfo && (
+							<div className="mt-4 p-3 bg-gray-50 rounded text-xs text-left max-w-md">
+								<div className="font-semibold mb-2">デバッグ情報:</div>
+								<div>取引件数: {debugInfo.transactionCount}</div>
+								<div>選択タイプ: {debugInfo.selectedType}</div>
+								<div>対象月: {debugInfo.currentMonth}</div>
+								{debugInfo.sampleTransaction && (
+									<div className="mt-1">
+										サンプル:{" "}
+										{debugInfo.sampleTransaction.description || "未設定"}
+										{debugInfo.sampleTransaction.transactionDate && (
+											<span>
+												{" "}
+												({debugInfo.sampleTransaction.transactionDate})
+											</span>
+										)}
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
