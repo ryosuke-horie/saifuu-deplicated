@@ -42,7 +42,7 @@ export function TransactionForm({
 		resolver: zodResolver(createTransactionRequestSchema),
 		defaultValues: {
 			type,
-			amount: 0,
+			amount: undefined,
 			categoryId: undefined,
 			description: "",
 			transactionDate: new Date().toISOString().split("T")[0],
@@ -241,9 +241,9 @@ export function TransactionForm({
 			<div className="pt-4">
 				<button
 					type="submit"
-					disabled={isSubmitting || (!isDirty && !isValid)}
+					disabled={isSubmitting || !isValid}
 					className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-						isSubmitting || (!isDirty && !isValid)
+						isSubmitting || !isValid
 							? "bg-gray-300 text-gray-500 cursor-not-allowed"
 							: type === "expense"
 								? "bg-red-600 hover:bg-red-700 text-white"
