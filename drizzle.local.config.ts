@@ -2,21 +2,15 @@ import { defineConfig } from "drizzle-kit";
 
 /**
  * ローカル開発専用のDrizzle Kit設定ファイル
- * better-sqlite3を使用してローカルSQLiteファイルでマイグレーションを実行
+ * Drizzle Studioでのローカルデータベース操作用
  *
- * 使用目的:
- * - ローカル開発でのマイグレーション実行
- * - Drizzle Studioでのローカルデータベース操作
- * - テスト環境でのマイグレーション適用
+ * 注意: マイグレーション実行はアプリケーション起動時に自動実行されるため、
+ * この設定ファイルは主にDrizzle Studioでの使用を想定
  */
 export default defineConfig({
 	dialect: "sqlite",
 	schema: "./db/schema/*",
 	out: "./db/migrations",
-	driver: "better-sqlite3",
-	dbCredentials: {
-		url: "./local-dev.db",
-	},
 	verbose: true,
 	strict: true,
 });

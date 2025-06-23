@@ -21,5 +21,7 @@
 /data/dev.db-*
 local-dev.db
 local-dev.db-*
+test-e2e.db
+test-e2e.db-*
 
 coverage/

@@ -43,7 +43,15 @@ export function createDevDb() {
 
 	// 環境変数で使用するデータベースパスを決定
 	const isTestEnv = process.env.NODE_ENV === "test";
-	const dbPath = isTestEnv ? ":memory:" : "./local-dev.db";
+	const isE2EEnv = process.env.TEST_TYPE === "e2e";
+
+	// E2Eテスト用には永続化されたファイルを使用（CIでのテスト並列実行のため）
+	const dbPath =
+		isTestEnv && !isE2EEnv
+			? ":memory:"
+			: isE2EEnv
+				? "./test-e2e.db"
+				: "./local-dev.db";
 
 	console.log(
 		`🔧 ${isTestEnv ? "テスト" : "開発"}データベース: 新しいインスタンスを作成中 (${dbPath})`,
