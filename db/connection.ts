@@ -29,9 +29,9 @@ export type DbConnection = ReturnType<typeof createDb>;
 let devDbSingleton: ReturnType<typeof drizzleSqlite> | null = null;
 
 /**
- * テスト環境用のSQLiteデータベース接続を作成する（フォールバック用）
- * WranglerバインディングがD1インスタンスを提供できない場合のみ使用される
- * シングルトンパターンを使用してレースコンディションを防ぐ
+ * 環境に応じたローカルデータベース接続を作成する
+ * - 開発環境: 永続化されたローカルSQLiteファイル（./local-dev.db）
+ * - テスト環境: メモリ内データベース（:memory:）
  * @returns Drizzle ORMのデータベースインスタンス
  */
 export function createDevDb() {
@@ -41,22 +41,35 @@ export function createDevDb() {
 		return devDbSingleton;
 	}
 
-	console.warn(
-		"⚠️  フォールバック: Wranglerバインディングが利用できません。テスト用SQLiteを使用中。",
-	);
-	console.log("🔧 開発データベース: 新しいシングルトンインスタンスを作成中");
+	// 環境変数で使用するデータベースパスを決定
+	const isTestEnv = process.env.NODE_ENV === "test";
+	const isE2EEnv = process.env.TEST_TYPE === "e2e";
 
-	// テスト環境用のメモリ内データベース（フォールバック用）
-	const sqlite = new BetterSqlite3Database(":memory:");
+	// E2Eテスト用には永続化されたファイルを使用（CIでのテスト並列実行のため）
+	const dbPath =
+		isTestEnv && !isE2EEnv
+			? ":memory:"
+			: isE2EEnv
+				? "./test-e2e.db"
+				: "./local-dev.db";
+
+	console.log(
+		`🔧 ${isTestEnv ? "テスト" : "開発"}データベース: 新しいインスタンスを作成中 (${dbPath})`,
+	);
+
+	// 環境に応じたSQLiteデータベースを作成
+	const sqlite = new BetterSqlite3Database(dbPath);
 	const db = drizzleSqlite(sqlite, { schema });
 
-	// テスト用の最小限の初期化
+	// データベースの初期化
 	initializeDevDatabase(db, sqlite);
 
 	// シングルトンインスタンスとして保存
 	devDbSingleton = db;
 
-	console.log("✅ 開発データベース: シングルトンインスタンス作成完了");
+	console.log(
+		`✅ ${isTestEnv ? "テスト" : "開発"}データベース: インスタンス作成完了`,
+	);
 	return db;
 }
 
@@ -141,16 +154,22 @@ async function initializeDevDatabase(
 
 /**
  * データベース接続を作成する
+ * 環境に応じてローカルSQLiteまたはCloudflare D1を使用
  * @param d1 - Cloudflare WorkersのD1バインディング（オプション）
  * @returns Drizzle ORMのデータベースインスタンス
  */
 export function createDb(d1?: D1Database) {
-	// 開発環境の場合（d1がundefinedの場合）
-	if (!d1) {
-		return createDevDb();
+	const isProduction = process.env.NODE_ENV === "production";
+
+	// プロダクション環境かつD1バインディングが利用可能な場合
+	if (isProduction && d1) {
+		console.log("🚀 プロダクションデータベース: Cloudflare D1を使用中");
+		return drizzle(d1, { schema });
 	}
-	// プロダクション環境の場合
-	return drizzle(d1, { schema });
+
+	// 開発・テスト環境、またはD1バインディングが利用できない場合
+	console.log("🔧 ローカルデータベース: SQLiteを使用中");
+	return createDevDb();
 }
 
 /**

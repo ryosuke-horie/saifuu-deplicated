@@ -48,6 +48,7 @@ jobs:
       - name: Setup database
         run: |
           pnpm run db:migrate:local
+          pnpm wrangler d1 migrations apply --local saifuu-db
           pnpm run db:seed
       
       - name: Install Playwright browsers
@@ -62,6 +63,7 @@ jobs:
       - name: Run E2E tests
         run: pnpm exec playwright test --project=${{ matrix.browser }}
         env:
-          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          NODE_ENV: test
+          TEST_TYPE: e2e
           CI: true
       
