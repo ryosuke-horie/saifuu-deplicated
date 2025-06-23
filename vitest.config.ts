@@ -5,7 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 /**
  * Vitest専用設定
- * React Routerプラグインを除外してhome.tsx参照エラーを回避
+ * React Routerプラグインを除外してテスト環境での問題を回避
  */
 export default defineConfig({
 	plugins: [tailwindcss(), tsconfigPaths()],
