@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { redirect, useSearchParams } from "react-router";
 import { TransactionForm } from "../../components/forms/transaction-form";
+import { PageHeader } from "../../components/layout/page-header";
 import type { TransactionType } from "../../types";
 
 export const meta: MetaFunction = () => {
@@ -25,15 +26,11 @@ export default function NewTransactionPage() {
 	const type = (searchParams.get("type") as TransactionType) || "expense";
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
-				<div className="mb-6">
-					<h1 className="text-3xl font-bold text-gray-900">取引登録</h1>
-					<p className="mt-2 text-sm text-gray-600">
-						新しい収入・支出を登録します
-					</p>
-				</div>
+		<>
+			{/* ページヘッダー */}
+			<PageHeader title="取引登録" description="新しい収入・支出を登録します" />
 
+			<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
 				{/* TransactionFormコンポーネントを使用 */}
 				<div className="bg-white shadow-sm rounded-lg">
 					<TransactionForm
@@ -59,6 +56,6 @@ export default function NewTransactionPage() {
 					/>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

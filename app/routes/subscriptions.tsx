@@ -1,5 +1,5 @@
 import type { MetaFunction } from "react-router";
-import { Header } from "../components/layout/header";
+import { PageHeader } from "../components/layout/page-header";
 import {
 	SubscriptionCards,
 	SubscriptionForm,
@@ -105,9 +105,9 @@ export default function SubscriptionsPage() {
 	);
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			{/* 統一されたヘッダーコンポーネントを使用 */}
-			<Header
+		<>
+			{/* ページヘッダー */}
+			<PageHeader
 				title="サブスクリプション管理"
 				description="定期支払いサービスを一元管理し、支出を最適化しましょう"
 				actions={headerActions}
@@ -120,6 +120,6 @@ export default function SubscriptionsPage() {
 					<SubscriptionCards onEdit={handleEdit} />
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link } from "react-router";
-import { Header } from "../components/layout/header";
+import { PageHeader } from "../components/layout/page-header";
 import { TransactionList } from "../components/transactions/transaction-list";
 
 export const meta: MetaFunction = () => {
@@ -48,9 +48,9 @@ export default function TransactionsPage() {
 	);
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			{/* 統一されたヘッダーコンポーネントを使用 */}
-			<Header
+		<>
+			{/* ページヘッダー */}
+			<PageHeader
 				title="取引一覧"
 				description="収入・支出の取引履歴を管理できます"
 				actions={headerActions}
@@ -61,6 +61,6 @@ export default function TransactionsPage() {
 				{/* TransactionListコンポーネントを使用 */}
 				<TransactionList />
 			</div>
-		</div>
+		</>
 	);
 }

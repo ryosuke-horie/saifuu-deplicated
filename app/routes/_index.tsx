@@ -9,7 +9,7 @@ import {
 	SummaryCards,
 	TrendWidget,
 } from "../components/dashboard";
-import { Header } from "../components/layout/header";
+import { PageHeader } from "../components/layout/page-header";
 import { TransactionList } from "../components/transactions";
 import { useCategories } from "../lib/hooks/use-categories";
 import { useCurrentMonthTransactions } from "../lib/hooks/use-transactions";
@@ -76,9 +76,9 @@ export default function Dashboard() {
 	);
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<>
 			{/* ページヘッダー */}
-			<Header
+			<PageHeader
 				title="ダッシュボード"
 				description="家計の概要と最近の取引を確認できます"
 				actions={headerActions}
@@ -203,6 +203,6 @@ export default function Dashboard() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }
