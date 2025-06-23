@@ -56,7 +56,7 @@ TEST_DETAILS=$(echo "$CLEAN_TEST_OUTPUT" | grep "Tests.*passed" | grep -v "Test 
 SKIPPED_INFO=""
 if echo "$TEST_DETAILS" | grep -q "skipped"; then
   SKIPPED_COUNT=$(echo "$TEST_DETAILS" | sed -n 's/.*| \([0-9]*\) skipped.*/\1/p')
-  if [ "$SKIPPED_COUNT" -gt 0 ]; then
+  if [ -n "$SKIPPED_COUNT" ] && [ "$SKIPPED_COUNT" -gt 0 ]; then
     SKIPPED_INFO="
 ### ⏭️ スキップされたテスト
 ${SKIPPED_COUNT}件のテストがスキップされました。
