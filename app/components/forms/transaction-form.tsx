@@ -65,6 +65,8 @@ export function TransactionForm({
 
 	// 金額入力の3桁カンマ表示処理
 	const formatAmount = (value: number) => {
+		// 数値でない場合や0以下の場合は空文字を返す
+		if (!value || value <= 0) return "";
 		return value.toLocaleString("ja-JP");
 	};
 
@@ -115,7 +117,7 @@ export function TransactionForm({
 						<span className="text-gray-500 text-sm">¥</span>
 					</div>
 				</div>
-				{amountValue >= 0 && (
+				{amountValue > 0 && (
 					<p className="text-xs text-gray-500 text-right">
 						{formatAmount(amountValue)}円
 					</p>
