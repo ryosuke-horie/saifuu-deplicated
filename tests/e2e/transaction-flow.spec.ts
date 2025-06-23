@@ -36,7 +36,7 @@ test.describe("基本ページロード", () => {
 
 	test("取引一覧ページが正常にロードされる", async ({ page }) => {
 		// 取引一覧ページにアクセス
-		await page.goto("/transaction-list-demo");
+		await page.goto("/transactions");
 
 		// ページがロードされるまで待機
 		await page.waitForLoadState("networkidle");

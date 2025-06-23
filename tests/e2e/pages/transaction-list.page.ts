@@ -44,7 +44,7 @@ export class TransactionListPage {
 
 	// ナビゲーション
 	async goto() {
-		await this.page.goto("/transaction-list-demo");
+		await this.page.goto("/transactions");
 		await this.waitForLoad();
 	}
 

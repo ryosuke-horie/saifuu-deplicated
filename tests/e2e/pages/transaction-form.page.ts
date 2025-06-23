@@ -37,7 +37,7 @@ export class TransactionFormPage {
 
 	// ナビゲーション
 	async goto(type: "income" | "expense" = "expense") {
-		await this.page.goto(`/transaction-form-demo?type=${type}`);
+		await this.page.goto(`/transactions/new?type=${type}`);
 		await this.waitForLoad();
 	}
 
