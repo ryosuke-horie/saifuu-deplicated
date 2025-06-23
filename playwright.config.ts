@@ -22,6 +22,8 @@ export default defineConfig({
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,
 	reporter: process.env.CI ? [["dot"]] : [["line"]],
+	// CI環境ではE2Eテストを一時的にスキップ
+	testIgnore: process.env.CI ? ['**/*.spec.ts'] : [],
 
 	use: {
 		baseURL: "http://localhost:5173",
@@ -31,13 +33,12 @@ export default defineConfig({
 		video: process.env.CI ? "off" : "retain-on-failure",
 	},
 
-	projects: process.env.CI
-		? [] // CI環境では一時的にE2Eテストを無効化
-		: [
-				{
-					name: "chromium",
-					use: { ...devices["Desktop Chrome"] },
-				},
+	projects: [
+			{
+				name: "chromium",
+				use: { ...devices["Desktop Chrome"] },
+			},
+			...(process.env.CI ? [] : [
 				{
 					name: "firefox",
 					use: { ...devices["Desktop Firefox"] },
@@ -46,7 +47,8 @@ export default defineConfig({
 					name: "webkit",
 					use: { ...devices["Desktop Safari"] },
 				},
-			],
+			]),
+		],
 
 	webServer: {
 		command: "pnpm run dev",
