@@ -16,3 +16,7 @@
 /playwright-report/
 /test-results/
 
+# Database
+/data/dev.db
+/data/dev.db-*
+

@@ -56,6 +56,9 @@ jobs:
       - name: Run type check and linting
         run: pnpm run check
       
+      - name: Build application
+        run: pnpm run build
+      
       - name: Run E2E tests
         run: pnpm exec playwright test --project=${{ matrix.browser }}
         env:
