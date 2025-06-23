@@ -84,6 +84,30 @@ git config user.name "ryosuke-horie"
 git config user.email "あなたのメールアドレス"
 ```
 
+## 開発環境セットアップ
+
+### 1. 前提条件
+- **mise** - Node.jsバージョン管理ツール
+- プロジェクトルートに `.mise.toml` でNode.js 22を固定
+
+### 2. 初回セットアップ
+```bash
+# mise経由でNode.js 22とpnpm 10をインストール
+mise install
+
+# 依存関係のインストール
+pnpm install
+```
+
+### 3. 開発環境の確認
+```bash
+# Node.jsバージョンの確認（22系であることを確認）
+node --version
+
+# pnpmバージョンの確認
+pnpm --version
+```
+
 ## スクリプト
 
 ```bash
