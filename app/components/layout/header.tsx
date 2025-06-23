@@ -55,7 +55,7 @@ export function Header({
 								ホーム
 							</Link>
 							<Link
-								to="/transaction-list-demo"
+								to="/transactions"
 								className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
 							>
 								取引一覧

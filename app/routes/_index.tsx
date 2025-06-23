@@ -67,7 +67,7 @@ export default function Dashboard() {
 				取引を登録
 			</Link>
 			<Link
-				to="/transaction-list-demo"
+				to="/transactions"
 				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"
 			>
 				全ての取引を見る
@@ -117,7 +117,7 @@ export default function Dashboard() {
 										最近の取引
 									</h2>
 									<Link
-										to="/transaction-list-demo"
+										to="/transactions"
 										className="text-sm text-blue-600 hover:text-blue-800 font-medium"
 									>
 										すべて見る →
