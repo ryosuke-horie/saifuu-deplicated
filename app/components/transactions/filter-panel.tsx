@@ -215,7 +215,6 @@ export function FilterPanel({
 								<option value="">すべて</option>
 								{categoriesResponse?.data.map((category) => (
 									<option key={category.id} value={category.id}>
-										{category.icon && `${category.icon} `}
 										{category.name}
 									</option>
 								))}
