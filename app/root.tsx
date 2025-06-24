@@ -2,7 +2,8 @@ import type { MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts } from "react-router";
 import "./app.css";
 import { Header } from "./components/layout/header";
-import { AppProvider } from "./contexts/app-context";
+import { Modal } from "./components/ui/modal";
+import { AppProvider, useUIActions, useUIState } from "./contexts/app-context";
 import { QueryProvider } from "./lib/query/provider";
 
 // グローバルメタタグ設定
@@ -40,20 +41,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	);
 }
 
+function AppContent() {
+	const { isModalOpen, modalContent } = useUIState();
+	const { closeModal } = useUIActions();
+
+	return (
+		<div className="min-h-screen bg-gray-50">
+			{/* 固定ヘッダー */}
+			<div className="sticky top-0 z-40">
+				<Header showNavigation={true} />
+			</div>
+			{/* メインコンテンツエリア */}
+			<main>
+				<Outlet />
+			</main>
+			{/* グローバルモーダル */}
+			<Modal isOpen={isModalOpen} onClose={closeModal}>
+				{modalContent}
+			</Modal>
+		</div>
+	);
+}
+
 export default function App() {
 	return (
 		<QueryProvider>
 			<AppProvider>
-				<div className="min-h-screen bg-gray-50">
-					{/* 固定ヘッダー */}
-					<div className="sticky top-0 z-40">
-						<Header showNavigation={true} />
-					</div>
-					{/* メインコンテンツエリア */}
-					<main>
-						<Outlet />
-					</main>
-				</div>
+				<AppContent />
 			</AppProvider>
 		</QueryProvider>
 	);
