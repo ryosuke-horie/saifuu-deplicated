@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { useCategories } from "../../lib/hooks/use-categories";
 import type { TransactionFilters, TransactionSort } from "../../types";
 import { formatTotalAmount } from "../../utils/transaction-formatters";
@@ -20,6 +21,7 @@ export interface FilterPanelProps {
 	onSortChange: (sort: Partial<TransactionSort>) => void;
 	totalAmount: number;
 	isLoading?: boolean;
+	useUrlState?: boolean; // URL状態管理を使用するかどうか
 }
 
 export function FilterPanel({
@@ -29,9 +31,13 @@ export function FilterPanel({
 	onSortChange,
 	totalAmount,
 	isLoading = false,
+	useUrlState = false,
 }: FilterPanelProps) {
 	// パネルの展開状態
 	const [isExpanded, setIsExpanded] = useState(true);
+
+	// URL状態管理用
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	// カテゴリデータ取得
 	const { data: categoriesResponse } = useCategories({
@@ -44,15 +50,29 @@ export function FilterPanel({
 		key: keyof TransactionFilters,
 		value: string | number | undefined,
 	) => {
-		const newFilters = { ...filters };
+		if (useUrlState) {
+			// URLパラメータを直接更新
+			const newParams = new URLSearchParams(searchParams);
 
-		if (value === "" || value === undefined) {
-			delete newFilters[key];
+			if (value === "" || value === undefined) {
+				newParams.delete(key);
+			} else {
+				newParams.set(key, String(value));
+			}
+
+			setSearchParams(newParams, { replace: true });
 		} else {
-			(newFilters as any)[key] = value;
-		}
+			// 既存のロジックを使用
+			const newFilters = { ...filters };
 
-		onFiltersChange(newFilters);
+			if (value === "" || value === undefined) {
+				delete newFilters[key];
+			} else {
+				(newFilters as any)[key] = value;
+			}
+
+			onFiltersChange(newFilters);
+		}
 	};
 
 	// ソート値の更新
@@ -60,13 +80,31 @@ export function FilterPanel({
 		key: K,
 		value: TransactionSort[K],
 	) => {
-		onSortChange({ ...sort, [key]: value });
+		if (useUrlState) {
+			// URLパラメータを直接更新
+			const newParams = new URLSearchParams(searchParams);
+			newParams.set(key, String(value));
+			setSearchParams(newParams, { replace: true });
+		} else {
+			// 既存のロジックを使用
+			onSortChange({ ...sort, [key]: value });
+		}
 	};
 
 	// フィルターのクリア
 	const clearFilters = () => {
-		onFiltersChange({});
-		onSortChange({ sort_by: "transactionDate", sort_order: "desc" });
+		if (useUrlState) {
+			// URLパラメータをクリア
+			const newParams = new URLSearchParams();
+			// デフォルトソートを設定
+			newParams.set("sort_by", "transactionDate");
+			newParams.set("sort_order", "desc");
+			setSearchParams(newParams, { replace: true });
+		} else {
+			// 既存のロジックを使用
+			onFiltersChange({});
+			onSortChange({ sort_by: "transactionDate", sort_order: "desc" });
+		}
 	};
 
 	// アクティブなフィルター数を計算

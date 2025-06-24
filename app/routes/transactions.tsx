@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { PageHeader } from "../components/layout/page-header";
 import { TransactionList } from "../components/transactions/transaction-list";
+import type { TransactionFilters, TransactionSort } from "../types";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -14,16 +15,39 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-	// クエリパラメータを取得してTransactionListコンポーネントに渡す
+	// URLパラメータからフィルターとソートを抽出
 	const url = new URL(request.url);
-	const searchParams = Object.fromEntries(url.searchParams.entries());
+	const searchParams = url.searchParams;
+
+	// フィルター情報を構築
+	const filters: Partial<TransactionFilters> = {};
+	if (searchParams.get("from")) filters.from = searchParams.get("from")!;
+	if (searchParams.get("to")) filters.to = searchParams.get("to")!;
+	if (searchParams.get("type"))
+		filters.type = searchParams.get("type") as "income" | "expense";
+	if (searchParams.get("category_id"))
+		filters.category_id = Number(searchParams.get("category_id"));
+	if (searchParams.get("search")) filters.search = searchParams.get("search")!;
+
+	// ソート情報を構築
+	const sort: Partial<TransactionSort> = {
+		sort_by:
+			(searchParams.get("sort_by") as TransactionSort["sort_by"]) ||
+			"transactionDate",
+		sort_order:
+			(searchParams.get("sort_order") as TransactionSort["sort_order"]) ||
+			"desc",
+	};
 
 	return {
-		searchParams,
+		filters,
+		sort,
 	};
 }
 
 export default function TransactionsPage() {
+	const { filters, sort } = useLoaderData<typeof loader>();
+
 	// ヘッダーアクション
 	const headerActions = (
 		<Link
@@ -58,8 +82,12 @@ export default function TransactionsPage() {
 
 			{/* メインコンテンツ */}
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-				{/* TransactionListコンポーネントを使用 */}
-				<TransactionList />
+				{/* TransactionListコンポーネントにURL由来の初期値を渡す */}
+				<TransactionList
+					initialFilters={filters}
+					initialSort={sort}
+					useUrlState={true}
+				/>
 			</div>
 		</>
 	);
