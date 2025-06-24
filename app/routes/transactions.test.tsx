@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
  *
  * 目的:
  * - メタデータ設定の検証
- * - ローダー関数のクエリパラメータ処理テスト
+ * - ローダー関数のフィルター・ソートパラメータ処理テスト
  * - React Router v7統合の基本動作確認
  */
 
@@ -34,34 +34,47 @@ describe("取引一覧ページルート", () => {
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {},
-			});
-		});
-
-		it("単一のクエリパラメータを正常に処理すること", async () => {
-			const request = new Request("http://localhost:5173/transactions?page=2");
-
-			const result = await loader({ request } as any);
-
-			expect(result).toEqual({
-				searchParams: {
-					page: "2",
+				filters: {},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
 				},
 			});
 		});
 
-		it("複数のクエリパラメータを正常に処理すること", async () => {
+		it("from フィルターパラメータを正常に処理すること", async () => {
 			const request = new Request(
-				"http://localhost:5173/transactions?page=2&type=expense&search=食費",
+				"http://localhost:5173/transactions?from=2024-01-01",
 			);
 
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
-					page: "2",
+				filters: {
+					from: "2024-01-01",
+				},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
+				},
+			});
+		});
+
+		it("複数のフィルターパラメータを正常に処理すること", async () => {
+			const request = new Request(
+				"http://localhost:5173/transactions?type=expense&search=食費",
+			);
+
+			const result = await loader({ request } as any);
+
+			expect(result).toEqual({
+				filters: {
 					type: "expense",
 					search: "食費",
+				},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
 				},
 			});
 		});
@@ -74,37 +87,46 @@ describe("取引一覧ページルート", () => {
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
+				filters: {
 					search: "食費",
 				},
-			});
-		});
-
-		it("同名パラメータの最後の値を使用すること", async () => {
-			const request = new Request(
-				"http://localhost:5173/transactions?page=1&page=2",
-			);
-
-			const result = await loader({ request } as any);
-
-			expect(result).toEqual({
-				searchParams: {
-					page: "2",
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
 				},
 			});
 		});
 
-		it("空値のパラメータを正常に処理すること", async () => {
+		it("カスタムソートパラメータを正常に処理すること", async () => {
 			const request = new Request(
-				"http://localhost:5173/transactions?search=&page=1",
+				"http://localhost:5173/transactions?sort_by=amount&sort_order=asc",
 			);
 
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
-					search: "",
-					page: "1",
+				filters: {},
+				sort: {
+					sort_by: "amount",
+					sort_order: "asc",
+				},
+			});
+		});
+
+		it("category_idを数値に変換すること", async () => {
+			const request = new Request(
+				"http://localhost:5173/transactions?category_id=123",
+			);
+
+			const result = await loader({ request } as any);
+
+			expect(result).toEqual({
+				filters: {
+					category_id: 123,
+				},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
 				},
 			});
 		});
@@ -119,26 +141,29 @@ describe("取引一覧ページルート", () => {
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
+				filters: {
 					type: "expense",
-					category_id: "1",
+					category_id: 1,
 					from: "2024-01-01",
 					to: "2024-01-31",
+				},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
 				},
 			});
 		});
 
-		it("ページネーションとソートのパラメータ", async () => {
+		it("ソートパラメータの組み合わせ", async () => {
 			const request = new Request(
-				"http://localhost:5173/transactions?page=3&limit=50&sort_by=amount&sort_order=desc",
+				"http://localhost:5173/transactions?sort_by=amount&sort_order=desc",
 			);
 
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
-					page: "3",
-					limit: "50",
+				filters: {},
+				sort: {
 					sort_by: "amount",
 					sort_order: "desc",
 				},
@@ -153,9 +178,32 @@ describe("取引一覧ページルート", () => {
 			const result = await loader({ request } as any);
 
 			expect(result).toEqual({
-				searchParams: {
+				filters: {
 					search: "コンビニ",
 					type: "expense",
+				},
+				sort: {
+					sort_by: "transactionDate",
+					sort_order: "desc",
+				},
+			});
+		});
+
+		it("フィルターとソートの組み合わせ", async () => {
+			const request = new Request(
+				"http://localhost:5173/transactions?type=income&from=2024-01-01&sort_by=amount&sort_order=asc",
+			);
+
+			const result = await loader({ request } as any);
+
+			expect(result).toEqual({
+				filters: {
+					type: "income",
+					from: "2024-01-01",
+				},
+				sort: {
+					sort_by: "amount",
+					sort_order: "asc",
 				},
 			});
 		});
