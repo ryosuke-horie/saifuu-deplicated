@@ -4,9 +4,16 @@ import type {
 	LoaderFunctionArgs,
 	MetaFunction,
 } from "react-router";
-import { Link, redirect, useLoaderData } from "react-router";
-import { TransactionForm } from "../../components/forms/transaction-form";
+import {
+	Link,
+	data,
+	redirect,
+	useLoaderData,
+	useSearchParams,
+} from "react-router";
+import { TransactionFormNative } from "../../components/forms/transaction-form-native";
 import { PageHeader } from "../../components/layout/page-header";
+import { createTransactionRequestSchema } from "../../lib/schemas/api-responses";
 import type {
 	ApiTransaction,
 	TransactionDetailResponse,
@@ -73,15 +80,67 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		} catch (error) {
 			// エラーハンドリング
 		}
+	} else {
+		// 編集処理（React Router v7 Native Forms）
+		const rawData = {
+			type: formData.get("type") as "income" | "expense",
+			amount: Number(formData.get("amount")),
+			categoryId: Number(formData.get("categoryId")),
+			transactionDate: formData.get("transactionDate") as string,
+			description: formData.get("description") as string,
+			paymentMethod: formData.get("paymentMethod") as string,
+		};
+
+		// Zodスキーマでバリデーション
+		const result = createTransactionRequestSchema.safeParse(rawData);
+
+		if (!result.success) {
+			// バリデーションエラーの場合、エラー情報を返す
+			return data(
+				{ errors: result.error.flatten().fieldErrors },
+				{ status: 400 },
+			);
+		}
+
+		try {
+			// 取引更新API呼び出し
+			const response = await fetch(
+				new URL(`/api/transactions/${id}`, request.url),
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(result.data),
+				},
+			);
+
+			if (!response.ok) {
+				return data(
+					{ errors: { general: ["取引の更新に失敗しました"] } },
+					{ status: response.status },
+				);
+			}
+
+			// 成功時は詳細ページに戻る（編集モードを解除）
+			return redirect(`/transactions/${id}`);
+		} catch (error) {
+			console.error("取引更新エラー:", error);
+			return data(
+				{ errors: { general: ["ネットワークエラーが発生しました"] } },
+				{ status: 500 },
+			);
+		}
 	}
 
-	// 編集の場合は更新後に詳細ページに戻る
+	// フォールバック
 	return redirect(`/transactions/${id}`);
 }
 
 export default function TransactionDetailPage() {
 	const { transaction } = useLoaderData<typeof loader>();
-	const [isEditing, setIsEditing] = useState(false);
+	const [searchParams] = useSearchParams();
+	const isEditing = searchParams.get("edit") === "true";
 
 	if (isEditing) {
 		return (
@@ -90,49 +149,25 @@ export default function TransactionDetailPage() {
 					title="取引編集"
 					description="取引情報を編集します"
 					actions={
-						<button
-							type="button"
-							onClick={() => setIsEditing(false)}
+						<Link
+							to={`/transactions/${transaction.id}`}
 							className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
 						>
 							キャンセル
-						</button>
+						</Link>
 					}
 				/>
 
 				<div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8">
 					<div className="bg-white shadow-sm rounded-lg">
-						<TransactionForm
+						<TransactionFormNative
 							type={transaction.type as TransactionType}
 							defaultValues={{
 								amount: transaction.amount,
-								categoryId: transaction.categoryId,
-								description: transaction.description,
+								categoryId: transaction.categoryId ?? undefined,
+								description: transaction.description || undefined,
 								transactionDate: transaction.transactionDate,
-								paymentMethod: transaction.paymentMethod,
-								type: transaction.type as "income" | "expense",
-							}}
-							onSubmit={async (data) => {
-								try {
-									// 取引更新API呼び出し
-									const response = await fetch(
-										`/api/transactions/${transaction.id}`,
-										{
-											method: "PUT",
-											headers: {
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify(data),
-										},
-									);
-									if (response.ok) {
-										setIsEditing(false);
-										// ページをリロードして最新データを表示
-										window.location.reload();
-									}
-								} catch (error) {
-									console.error("更新エラー:", error);
-								}
+								paymentMethod: transaction.paymentMethod || undefined,
 							}}
 						/>
 					</div>
@@ -154,13 +189,12 @@ export default function TransactionDetailPage() {
 						>
 							← 一覧に戻る
 						</Link>
-						<button
-							type="button"
-							onClick={() => setIsEditing(true)}
+						<Link
+							to={`/transactions/${transaction.id}?edit=true`}
 							className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
 						>
 							編集
-						</button>
+						</Link>
 					</div>
 				}
 			/>
