@@ -1,10 +1,7 @@
 import type { MetaFunction } from "react-router";
+import { Link } from "react-router";
 import { PageHeader } from "../components/layout/page-header";
-import {
-	SubscriptionCards,
-	SubscriptionForm,
-} from "../components/subscriptions";
-import { useAppContext } from "../contexts/app-context";
+import { SubscriptionCards } from "../components/subscriptions";
 import type { SelectSubscription } from "../types";
 
 /**
@@ -32,39 +29,19 @@ export const meta: MetaFunction = () => {
 };
 
 export default function SubscriptionsPage() {
-	const { openModal, closeModal } = useAppContext();
-
-	// 新規サブスクリプション登録モーダルを開く
-	const handleCreateNew = () => {
-		openModal(
-			<SubscriptionForm
-				onSuccess={() => {
-					closeModal();
-				}}
-				onCancel={closeModal}
-			/>,
-		);
-	};
-
-	// サブスクリプション編集モーダルを開く
+	// サブスクリプション編集時のナビゲーション
 	const handleEdit = (subscription?: SelectSubscription) => {
-		openModal(
-			<SubscriptionForm
-				subscription={subscription}
-				onSuccess={() => {
-					closeModal();
-				}}
-				onCancel={closeModal}
-			/>,
-		);
+		if (subscription) {
+			// React Router v7のナビゲーションを使用
+			window.location.href = `/subscriptions/${subscription.id}/update`;
+		}
 	};
 
 	// ヘッダーアクション
 	const headerActions = (
 		<div className="flex flex-wrap gap-3">
-			<button
-				type="button"
-				onClick={handleCreateNew}
+			<Link
+				to="/subscriptions/new"
 				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center"
 			>
 				<svg
@@ -81,7 +58,7 @@ export default function SubscriptionsPage() {
 					/>
 				</svg>
 				新規サブスクリプション
-			</button>
+			</Link>
 			<button
 				type="button"
 				className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm font-medium flex items-center"
