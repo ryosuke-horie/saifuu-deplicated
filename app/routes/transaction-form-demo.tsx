@@ -29,7 +29,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData();
 
 	// FormDataから値を取得
-	const rawData = {
+	const transactionInput = {
 		type: formData.get("type") as "income" | "expense",
 		amount: Number(formData.get("amount")),
 		categoryId: Number(formData.get("categoryId")),
@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	};
 
 	// Zodスキーマでバリデーション
-	const result = createTransactionRequestSchema.safeParse(rawData);
+	const result = createTransactionRequestSchema.safeParse(transactionInput);
 
 	if (!result.success) {
 		// バリデーションエラーの場合、エラー情報を返す
