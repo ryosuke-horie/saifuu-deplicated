@@ -26,7 +26,7 @@ export function Header({ showNavigation = true }: HeaderProps) {
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					{/* ロゴとナビゲーション */}
 					{showNavigation && (
-						<div className="flex items-center justify-between py-4">
+						<div className="flex items-center justify-between py-3 lg:py-2">
 							{/* ロゴ */}
 							<Link
 								to="/"
@@ -34,8 +34,12 @@ export function Header({ showNavigation = true }: HeaderProps) {
 							>
 								<HeaderLogo />
 								<div className="hidden sm:block">
-									<h1 className="text-xl font-bold text-gray-900">Saifuu</h1>
-									<p className="text-sm text-gray-600">家計管理アプリ</p>
+									<h1 className="text-lg lg:text-xl font-bold text-gray-900">
+										Saifuu
+									</h1>
+									<p className="text-xs lg:text-sm text-gray-600">
+										家計管理アプリ
+									</p>
 								</div>
 							</Link>
 
@@ -105,7 +109,7 @@ export function Header({ showNavigation = true }: HeaderProps) {
 export function SimpleHeader() {
 	return (
 		<header className="bg-white border-b border-gray-200">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-2">
 				<Link
 					to="/"
 					className="flex items-center space-x-3 hover:opacity-80 transition-opacity"

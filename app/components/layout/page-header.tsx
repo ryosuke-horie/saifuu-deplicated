@@ -31,11 +31,13 @@ export function PageHeader({
 
 	return (
 		<div className={withBackground ? "bg-white border-b border-gray-200" : ""}>
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-3">
 				<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
 					<div>
 						{title && (
-							<h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+							<h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+								{title}
+							</h1>
 						)}
 						{description && <p className="text-gray-600 mt-2">{description}</p>}
 					</div>
