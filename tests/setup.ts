@@ -240,4 +240,9 @@ vi.mock("react-router", () => ({
 				headers: { Location: url },
 			}),
 	),
+	// React Router v7 Native Forms用の data 関数を追加
+	data: vi.fn((responseData: any, options?: { status?: number }) => ({
+		...responseData,
+		status: options?.status || 200,
+	})),
 }));
