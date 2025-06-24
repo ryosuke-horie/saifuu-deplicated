@@ -243,9 +243,9 @@ export function TransactionForm({
 			<div className="pt-4">
 				<button
 					type="submit"
-					disabled={isSubmitting || !isValid}
+					disabled={isSubmitting || !isDirty}
 					className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-						isSubmitting || !isValid
+						isSubmitting || !isDirty
 							? "bg-gray-300 text-gray-500 cursor-not-allowed"
 							: type === "expense"
 								? "bg-red-600 hover:bg-red-700 text-white"
