@@ -1,8 +1,24 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import type { SelectSubscription } from "../../../types";
 
-export interface ActionArgs extends ActionFunctionArgs {}
-export interface LoaderArgs extends LoaderFunctionArgs {}
+export interface ActionArgs extends ActionFunctionArgs {
+	context: {
+		cloudflare: {
+			env: {
+				DB: D1Database;
+			};
+		};
+	};
+}
+export interface LoaderArgs extends LoaderFunctionArgs {
+	context: {
+		cloudflare: {
+			env: {
+				DB: D1Database;
+			};
+		};
+	};
+}
 
 export interface ComponentProps {
 	loaderData?: {

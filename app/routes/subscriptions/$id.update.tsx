@@ -1,5 +1,10 @@
 import { data, redirect } from "react-router";
 import { z } from "zod";
+import { createDb } from "../../../db/connection";
+import {
+	getSubscriptionById,
+	updateSubscription,
+} from "../../../db/queries/subscriptions";
 import { insertSubscriptionSchema } from "../../../db/schema";
 import { SubscriptionFormNative } from "../../components/subscriptions/subscription-form-native";
 import type { SelectSubscription } from "../../types";
@@ -29,7 +34,7 @@ const subscriptionFormSchema = insertSubscriptionSchema.extend({
 		),
 });
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params, context }: Route.LoaderArgs) {
 	const subscriptionId = Number(params.id);
 
 	if (Number.isNaN(subscriptionId)) {
@@ -37,30 +42,25 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 	}
 
 	try {
-		// サブスクリプション詳細を取得
-		const url = new URL(request.url);
-		const response = await fetch(
-			`${url.origin}/api/subscriptions/${subscriptionId}`,
-		);
+		// 直接DB操作でサブスクリプション詳細を取得
+		const db = createDb(context.cloudflare.env.DB);
+		const subscription = await getSubscriptionById(db, subscriptionId);
 
-		if (!response.ok) {
-			if (response.status === 404) {
-				throw new Response("Subscription not found", { status: 404 });
-			}
-			throw new Error("Failed to load subscription");
+		if (!subscription) {
+			throw new Response("Subscription not found", { status: 404 });
 		}
 
-		const subscriptionData = (await response.json()) as {
-			data: SelectSubscription;
-		};
-		return { subscription: subscriptionData.data };
+		return { subscription };
 	} catch (error) {
 		console.error("Failed to load subscription:", error);
+		if (error instanceof Response) {
+			throw error;
+		}
 		throw new Response("Failed to load subscription", { status: 500 });
 	}
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request, params, context }: Route.ActionArgs) {
 	const subscriptionId = Number(params.id);
 
 	if (Number.isNaN(subscriptionId)) {
@@ -92,37 +92,73 @@ export async function action({ request, params }: Route.ActionArgs) {
 	}
 
 	try {
-		// API呼び出し
-		const url = new URL(request.url);
-		const response = await fetch(
-			`${url.origin}/api/subscriptions/${subscriptionId}/update`,
-			{
-				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(result.data),
-			},
-		);
-
-		if (!response.ok) {
-			const errorData = (await response.json()) as { error?: string };
-			throw new Error(
-				errorData.error || "サブスクリプションの更新に失敗しました",
-			);
-		}
+		// 直接DB操作でサブスクリプション更新
+		const db = createDb(context.cloudflare.env.DB);
+		await updateSubscription(db, subscriptionId, result.data);
 
 		// 成功時はサブスクリプション一覧にリダイレクト
 		return redirect("/subscriptions");
 	} catch (error) {
 		console.error("Subscription update error:", error);
+
+		// データベース制約エラーの詳細ハンドリング
+		if (error instanceof Error) {
+			// 外部キー制約エラー（カテゴリIDが無効）
+			if (error.message.includes("FOREIGN KEY constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["指定されたカテゴリIDが無効です"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+
+			// NOT NULL制約エラー
+			if (error.message.includes("NOT NULL constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["必須項目が不足しています"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+
+			// CHECK制約エラー（金額が負の値など）
+			if (error.message.includes("CHECK constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["金額は正の整数で入力してください"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+
+			// レコードが見つからない場合
+			if (error.message.includes("not found")) {
+				return data(
+					{
+						errors: {
+							_form: ["更新対象のサブスクリプションが見つかりません"],
+						},
+					},
+					{ status: 404 },
+				);
+			}
+		}
+
 		return data(
 			{
 				errors: {
 					_form: [
 						error instanceof Error
 							? error.message
-							: "予期しないエラーが発生しました",
+							: "サブスクリプションの更新中にエラーが発生しました",
 					],
 				},
 			},

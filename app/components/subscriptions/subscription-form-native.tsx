@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
 import type { SelectSubscription } from "../../types";
 
@@ -57,6 +57,21 @@ export function SubscriptionFormNative({
 		subscription?.frequency || "monthly",
 	);
 
+	// ハンドラー関数の最適化
+	const handleAmountChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setAmount(e.target.value);
+		},
+		[],
+	);
+
+	const handleFrequencyChange = useCallback(
+		(e: React.ChangeEvent<HTMLSelectElement>) => {
+			setFrequency(e.target.value);
+		},
+		[],
+	);
+
 	// 年間コストの計算（リアルタイム表示用）
 	const annualCost = useMemo(() => {
 		const numAmount = Number(amount);
@@ -67,10 +82,15 @@ export function SubscriptionFormNative({
 			weekly: 52,
 			monthly: 12,
 			yearly: 1,
-		};
+		} as const;
 
 		return numAmount * multipliers[frequency as keyof typeof multipliers];
 	}, [amount, frequency]);
+
+	// 月平均コストの計算
+	const monthlyAverage = useMemo(() => {
+		return annualCost > 0 ? Math.round(annualCost / 12) : 0;
+	}, [annualCost]);
 
 	return (
 		<Form method="post" className="space-y-6">
@@ -154,7 +174,7 @@ export function SubscriptionFormNative({
 							name="amount"
 							id="amount"
 							value={amount}
-							onChange={(e) => setAmount(e.target.value)}
+							onChange={handleAmountChange}
 							min="1"
 							max="1000000"
 							step="1"
@@ -185,7 +205,7 @@ export function SubscriptionFormNative({
 						name="frequency"
 						id="frequency"
 						value={frequency}
-						onChange={(e) => setFrequency(e.target.value)}
+						onChange={handleFrequencyChange}
 						required
 						className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 sm:text-sm ${
 							actionData?.errors?.frequency
@@ -283,7 +303,7 @@ export function SubscriptionFormNative({
 								{annualCost.toLocaleString()}
 							</p>
 							<p className="text-xs text-blue-700 mt-1">
-								月平均: ¥{Math.round(annualCost / 12).toLocaleString()}
+								月平均: ¥{monthlyAverage.toLocaleString()}
 							</p>
 						</div>
 					</div>

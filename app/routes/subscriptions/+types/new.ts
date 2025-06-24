@@ -1,6 +1,14 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 
-export interface ActionArgs extends ActionFunctionArgs {}
+export interface ActionArgs extends ActionFunctionArgs {
+	context: {
+		cloudflare: {
+			env: {
+				DB: D1Database;
+			};
+		};
+	};
+}
 export interface LoaderArgs extends LoaderFunctionArgs {}
 
 export interface ComponentProps {

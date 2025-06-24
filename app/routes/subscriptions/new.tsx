@@ -1,5 +1,7 @@
 import { data, redirect } from "react-router";
 import { z } from "zod";
+import { createDb } from "../../../db/connection";
+import { createSubscription } from "../../../db/queries/subscriptions";
 import { insertSubscriptionSchema } from "../../../db/schema";
 import { SubscriptionFormNative } from "../../components/subscriptions/subscription-form-native";
 import type { Route } from "./+types/new";
@@ -28,7 +30,7 @@ const subscriptionFormSchema = insertSubscriptionSchema.extend({
 		),
 });
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ request, context }: Route.ActionArgs) {
 	const formData = await request.formData();
 
 	// FormDataから値を抽出
@@ -51,34 +53,61 @@ export async function action({ request }: Route.ActionArgs) {
 	}
 
 	try {
-		// API呼び出し
-		const url = new URL(request.url);
-		const response = await fetch(`${url.origin}/api/subscriptions/create`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(result.data),
-		});
-
-		if (!response.ok) {
-			const errorData = (await response.json()) as { error?: string };
-			throw new Error(
-				errorData.error || "サブスクリプションの作成に失敗しました",
-			);
-		}
+		// 直接DB操作でサブスクリプション作成
+		const db = createDb(context.cloudflare.env.DB);
+		await createSubscription(db, result.data);
 
 		// 成功時はサブスクリプション一覧にリダイレクト
 		return redirect("/subscriptions");
 	} catch (error) {
 		console.error("Subscription creation error:", error);
+
+		// データベース制約エラーの詳細ハンドリング
+		if (error instanceof Error) {
+			// 外部キー制約エラー（カテゴリIDが無効）
+			if (error.message.includes("FOREIGN KEY constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["指定されたカテゴリIDが無効です"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+
+			// NOT NULL制約エラー
+			if (error.message.includes("NOT NULL constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["必須項目が不足しています"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+
+			// CHECK制約エラー（金額が負の値など）
+			if (error.message.includes("CHECK constraint failed")) {
+				return data(
+					{
+						errors: {
+							_form: ["金額は正の整数で入力してください"],
+						},
+					},
+					{ status: 400 },
+				);
+			}
+		}
+
 		return data(
 			{
 				errors: {
 					_form: [
 						error instanceof Error
 							? error.message
-							: "予期しないエラーが発生しました",
+							: "サブスクリプションの作成中にエラーが発生しました",
 					],
 				},
 			},
