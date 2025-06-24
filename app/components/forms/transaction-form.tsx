@@ -1,98 +1,84 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { Form, useActionData, useNavigation } from "react-router";
 import {
 	FIXED_EXPENSE_CATEGORIES,
 	FIXED_INCOME_CATEGORIES,
 } from "../../constants/fixed-categories";
-import { createTransactionRequestSchema } from "../../lib/schemas/api-responses";
 import type { CreateTransactionRequest, TransactionType } from "../../types";
 
 /**
  * 支出/収入登録フォームコンポーネント
  *
  * 設計方針:
- * - React Hook Form + Zodで型安全なフォーム実装
+ * - React Router v7のネイティブフォーム実装
+ * - サーバーサイドバリデーションとクライアントサイドUX
  * - モバイルファーストのレスポンシブデザイン
- * - リアルタイムバリデーション
+ * - リアルタイムフィードバック
  * - 金額入力は3桁カンマ表示対応
- * - カテゴリ選択はAPI連携
+ * - 固定カテゴリによる即座な表示
  */
 
 interface TransactionFormProps {
 	type: TransactionType;
-	onSubmit: (data: CreateTransactionRequest) => void | Promise<void>;
 	defaultValues?: Partial<CreateTransactionRequest>;
-	isSubmitting?: boolean;
 }
 
-export function TransactionForm({
-	type,
-	onSubmit,
-	defaultValues,
-	isSubmitting = false,
-}: TransactionFormProps) {
-	// React Hook Formの設定
-	const {
-		register,
-		handleSubmit,
-		formState: { errors, isDirty, isValid },
-		watch,
-		setValue,
-	} = useForm<CreateTransactionRequest>({
-		resolver: zodResolver(createTransactionRequestSchema),
-		mode: "onChange", // リアルタイムバリデーション
-		defaultValues: {
-			type,
-			amount: undefined,
-			categoryId: undefined,
-			description: "",
-			transactionDate: new Date().toISOString().split("T")[0],
-			paymentMethod: "",
-			...defaultValues,
-		},
-	});
+export function TransactionForm({ type, defaultValues }: TransactionFormProps) {
+	// React Router v7のネイティブフォーム用の状態管理
+	const [amount, setAmount] = useState<string>(
+		defaultValues?.amount?.toString() || "",
+	);
+	const [selectedCategoryId, setSelectedCategoryId] = useState<string>(
+		defaultValues?.categoryId?.toString() || "",
+	);
+	const [transactionDate, setTransactionDate] = useState<string>(
+		defaultValues?.transactionDate || new Date().toISOString().split("T")[0],
+	);
+	const [description, setDescription] = useState<string>(
+		defaultValues?.description || "",
+	);
+	const [paymentMethod, setPaymentMethod] = useState<string>(
+		defaultValues?.paymentMethod || "",
+	);
 
-	// フィールド値を監視
-	const watchedAmount = watch("amount");
-	const watchedCategoryId = watch("categoryId");
+	// React Router v7のフック
+	const actionData = useActionData<{
+		errors?: {
+			amount?: string[];
+			categoryId?: string[];
+			transactionDate?: string[];
+			description?: string[];
+			paymentMethod?: string[];
+			general?: string[];
+		};
+	}>();
+	const navigation = useNavigation();
+	const isSubmitting = navigation.state === "submitting";
 
-	// 実用的なボタン活性化条件
-	// 金額が入力されているかどうかで判断（最低限の条件）
-	const isFormReady = watchedAmount && watchedAmount > 0;
+	// ボタン活性化条件（必須項目のチェック）
+	const isFormReady =
+		amount &&
+		Number.parseFloat(amount) > 0 &&
+		selectedCategoryId &&
+		transactionDate;
 
 	// 固定カテゴリリストを使用（Issue #120対応）
 	// APIへの依存を解消し、即座に表示可能
 	const fixedCategories =
 		type === "expense" ? FIXED_EXPENSE_CATEGORIES : FIXED_INCOME_CATEGORIES;
-	const categoriesResponse = {
-		data: fixedCategories,
-	};
-	const categoriesLoading = false;
-
-	// 金額フィールドの監視（3桁カンマ表示用）
-	const amountValue = watch("amount");
 
 	// 金額入力の3桁カンマ表示処理
-	const formatAmount = (value: number) => {
+	const formatAmount = (value: string) => {
+		const numValue = Number.parseFloat(value);
 		// 数値でない場合や0以下の場合は空文字を返す
-		if (!value || value <= 0) return "";
-		return value.toLocaleString("ja-JP");
-	};
-
-	// フォーム送信処理
-	const onFormSubmit = async (data: CreateTransactionRequest) => {
-		try {
-			await onSubmit(data);
-		} catch (error) {
-			console.error("Form submission error:", error);
-		}
+		if (!numValue || numValue <= 0) return "";
+		return numValue.toLocaleString("ja-JP");
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit(onFormSubmit)}
-			className="space-y-6 max-w-md mx-auto p-4"
-		>
+		<Form method="post" className="space-y-6 max-w-md mx-auto p-4">
+			{/* 取引種別を隠しフィールドで送信 */}
+			<input type="hidden" name="type" value={type} />
 			{/* フォームタイトル */}
 			<div className="text-center">
 				<h2 className="text-2xl font-bold text-gray-900">
@@ -110,14 +96,14 @@ export function TransactionForm({
 				</label>
 				<div className="relative">
 					<input
-						{...register("amount", {
-							valueAsNumber: true,
-						})}
 						type="number"
 						id="amount"
+						name="amount"
+						value={amount}
+						onChange={(e) => setAmount(e.target.value)}
 						placeholder="0"
 						className={`w-full px-3 py-2 border rounded-md text-right text-gray-900 bg-white ${
-							errors.amount
+							actionData?.errors?.amount
 								? "border-red-500 focus:border-red-500 focus:ring-red-500"
 								: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 						} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
@@ -126,13 +112,13 @@ export function TransactionForm({
 						<span className="text-gray-500 text-sm">¥</span>
 					</div>
 				</div>
-				{amountValue > 0 && (
+				{amount && Number.parseFloat(amount) > 0 && (
 					<p className="text-xs text-gray-500 text-right">
-						{formatAmount(amountValue)}円
+						{formatAmount(amount)}円
 					</p>
 				)}
-				{errors.amount && (
-					<p className="text-sm text-red-600">{errors.amount.message}</p>
+				{actionData?.errors?.amount && (
+					<p className="text-sm text-red-600">{actionData.errors.amount[0]}</p>
 				)}
 			</div>
 
@@ -145,27 +131,27 @@ export function TransactionForm({
 					カテゴリ <span className="text-red-500">*</span>
 				</label>
 				<select
-					{...register("categoryId", {
-						valueAsNumber: true,
-						setValueAs: (value) => (value === "" ? undefined : value),
-					})}
 					id="categoryId"
-					disabled={categoriesLoading}
+					name="categoryId"
+					value={selectedCategoryId}
+					onChange={(e) => setSelectedCategoryId(e.target.value)}
 					className={`w-full px-3 py-2 border rounded-md ${
-						errors.categoryId
+						actionData?.errors?.categoryId
 							? "border-red-500 focus:border-red-500 focus:ring-red-500"
 							: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 					} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
 				>
 					<option value="">カテゴリを選択してください</option>
-					{categoriesResponse?.data.map((category) => (
+					{fixedCategories.map((category) => (
 						<option key={category.id} value={category.id}>
 							{category.name}
 						</option>
 					))}
 				</select>
-				{errors.categoryId && (
-					<p className="text-sm text-red-600">{errors.categoryId.message}</p>
+				{actionData?.errors?.categoryId && (
+					<p className="text-sm text-red-600">
+						{actionData.errors.categoryId[0]}
+					</p>
 				)}
 			</div>
 
@@ -178,18 +164,20 @@ export function TransactionForm({
 					取引日 <span className="text-red-500">*</span>
 				</label>
 				<input
-					{...register("transactionDate")}
 					type="date"
 					id="transactionDate"
+					name="transactionDate"
+					value={transactionDate}
+					onChange={(e) => setTransactionDate(e.target.value)}
 					className={`w-full px-3 py-2 border rounded-md ${
-						errors.transactionDate
+						actionData?.errors?.transactionDate
 							? "border-red-500 focus:border-red-500 focus:ring-red-500"
 							: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 					} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
 				/>
-				{errors.transactionDate && (
+				{actionData?.errors?.transactionDate && (
 					<p className="text-sm text-red-600">
-						{errors.transactionDate.message}
+						{actionData.errors.transactionDate[0]}
 					</p>
 				)}
 			</div>
@@ -203,18 +191,22 @@ export function TransactionForm({
 					説明・メモ
 				</label>
 				<textarea
-					{...register("description")}
 					id="description"
+					name="description"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
 					rows={3}
 					placeholder="取引の詳細を入力してください（任意）"
 					className={`w-full px-3 py-2 border rounded-md resize-none ${
-						errors.description
+						actionData?.errors?.description
 							? "border-red-500 focus:border-red-500 focus:ring-red-500"
 							: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 					} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
 				/>
-				{errors.description && (
-					<p className="text-sm text-red-600">{errors.description.message}</p>
+				{actionData?.errors?.description && (
+					<p className="text-sm text-red-600">
+						{actionData.errors.description[0]}
+					</p>
 				)}
 			</div>
 
@@ -227,10 +219,12 @@ export function TransactionForm({
 					支払い方法
 				</label>
 				<select
-					{...register("paymentMethod")}
 					id="paymentMethod"
+					name="paymentMethod"
+					value={paymentMethod}
+					onChange={(e) => setPaymentMethod(e.target.value)}
 					className={`w-full px-3 py-2 border rounded-md ${
-						errors.paymentMethod
+						actionData?.errors?.paymentMethod
 							? "border-red-500 focus:border-red-500 focus:ring-red-500"
 							: "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 					} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
@@ -243,10 +237,19 @@ export function TransactionForm({
 					<option value="electronic_money">電子マネー</option>
 					<option value="other">その他</option>
 				</select>
-				{errors.paymentMethod && (
-					<p className="text-sm text-red-600">{errors.paymentMethod.message}</p>
+				{actionData?.errors?.paymentMethod && (
+					<p className="text-sm text-red-600">
+						{actionData.errors.paymentMethod[0]}
+					</p>
 				)}
 			</div>
+
+			{/* 一般的なエラーメッセージ */}
+			{actionData?.errors?.general && (
+				<div className="bg-red-50 border border-red-200 rounded-md p-3">
+					<p className="text-sm text-red-600">{actionData.errors.general[0]}</p>
+				</div>
+			)}
 
 			{/* 送信ボタン */}
 			<div className="pt-4">
@@ -276,6 +279,6 @@ export function TransactionForm({
 				<p>💡 ショートカット</p>
 				<p>Tab: 次の項目へ移動 | Enter: フォーム送信</p>
 			</div>
-		</form>
+		</Form>
 	);
 }

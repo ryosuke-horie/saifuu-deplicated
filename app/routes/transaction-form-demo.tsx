@@ -1,5 +1,4 @@
 import { TransactionForm } from "../components/forms";
-import type { CreateTransactionRequest } from "../types";
 import { redirectIfProduction } from "../utils/environment";
 
 /**
@@ -8,19 +7,13 @@ import { redirectIfProduction } from "../utils/environment";
  * 設計方針:
  * - フォームコンポーネントの動作確認用
  * - 支出と収入の両方のフォームを表示
- * - 実際のAPI連携なしでUIを確認
+ * - React Router v7のnative form機能を使用
+ * - デモ用なのでaction関数は未実装（実際のルートでは適切なactionが必要）
  */
 
 export default function TransactionFormDemo() {
 	// 本番環境では404リダイレクト
 	redirectIfProduction();
-	// フォーム送信処理のモック
-	const handleSubmit = async (data: CreateTransactionRequest) => {
-		console.log("Form submitted:", data);
-		alert(
-			`${data.type === "expense" ? "支出" : "収入"}を登録しました:\n金額: ¥${data.amount.toLocaleString()}\nカテゴリID: ${data.categoryId}\n取引日: ${data.transactionDate}`,
-		);
-	};
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-8">
@@ -42,7 +35,6 @@ export default function TransactionFormDemo() {
 						<div className="p-6">
 							<TransactionForm
 								type="expense"
-								onSubmit={handleSubmit}
 								defaultValues={{
 									description: "ランチ代",
 								}}
@@ -55,7 +47,6 @@ export default function TransactionFormDemo() {
 						<div className="p-6">
 							<TransactionForm
 								type="income"
-								onSubmit={handleSubmit}
 								defaultValues={{
 									description: "給与",
 								}}
@@ -77,7 +68,11 @@ export default function TransactionFormDemo() {
 							•
 							すべての項目は入力チェックが行われ、エラーがある場合は案内が表示されます
 						</li>
-						<li>• 登録内容は確認画面で最終確認できます</li>
+						<li>
+							•
+							このデモページではaction関数が未実装のため、送信ボタンを押してもエラーになります
+						</li>
+						<li>• 実際の取引登録は /transactions/new で行ってください</li>
 					</ul>
 				</div>
 			</div>
