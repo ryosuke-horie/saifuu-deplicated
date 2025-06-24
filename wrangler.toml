@@ -26,6 +26,10 @@ vars = { NODE_ENV = "development", DEBUG = "true", LOG_LEVEL = "debug" }
 [env.staging]
 vars = { NODE_ENV = "staging", DEBUG = "true", LOG_LEVEL = "debug" }
 
+# テスト環境設定
+[env.test]
+vars = { NODE_ENV = "test", DEBUG = "true", LOG_LEVEL = "debug" }
+
 # プロダクション環境設定
 [env.production]
 vars = { NODE_ENV = "production", DEBUG = "false", LOG_LEVEL = "warn", DISABLE_MSW = "true" }
