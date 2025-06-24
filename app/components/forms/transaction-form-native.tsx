@@ -1,5 +1,5 @@
+import { useCallback, useMemo, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
-import { useState, useMemo } from "react";
 import {
 	FIXED_EXPENSE_CATEGORIES,
 	FIXED_INCOME_CATEGORIES,
@@ -47,9 +47,11 @@ export function TransactionFormNative({
 	const isSubmitting = navigation.state === "submitting";
 
 	// リアルタイム機能のための最小限の状態管理
-	const [amount, setAmount] = useState<string>(defaultValues?.amount?.toString() || "");
+	const [amount, setAmount] = useState<string>(
+		defaultValues?.amount?.toString() || "",
+	);
 	const [selectedCategoryId, setSelectedCategoryId] = useState<string>(
-		defaultValues?.categoryId?.toString() || ""
+		defaultValues?.categoryId?.toString() || "",
 	);
 
 	// 固定カテゴリリストを使用（Issue #120対応）
@@ -57,20 +59,20 @@ export function TransactionFormNative({
 		type === "expense" ? FIXED_EXPENSE_CATEGORIES : FIXED_INCOME_CATEGORIES;
 
 	// 金額の3桁カンマ表示処理（現在の実装を保持）
-	const formatAmount = (value: number) => {
+	const formatAmount = useCallback((value: number) => {
 		if (!value || value <= 0) return "";
 		return value.toLocaleString("ja-JP");
-	};
+	}, []);
 
 	// リアルタイム金額フォーマット表示
 	const formattedAmount = useMemo(() => {
-		const numAmount = parseFloat(amount);
-		if (isNaN(numAmount) || numAmount <= 0) return "";
+		const numAmount = Number.parseFloat(amount);
+		if (Number.isNaN(numAmount) || numAmount <= 0) return "";
 		return formatAmount(numAmount);
-	}, [amount]);
+	}, [amount, formatAmount]);
 
 	// ボタン活性化条件（現在の実装を保持）
-	const isFormReady = amount && parseFloat(amount) > 0;
+	const isFormReady = amount && Number.parseFloat(amount) > 0;
 
 	return (
 		<Form method="post" className="space-y-6 max-w-md mx-auto p-4">
@@ -151,7 +153,9 @@ export function TransactionFormNative({
 					))}
 				</select>
 				{actionData?.errors?.categoryId && (
-					<p className="text-sm text-red-600">{actionData.errors.categoryId[0]}</p>
+					<p className="text-sm text-red-600">
+						{actionData.errors.categoryId[0]}
+					</p>
 				)}
 			</div>
 
@@ -167,7 +171,10 @@ export function TransactionFormNative({
 					type="date"
 					name="transactionDate"
 					id="transactionDate"
-					defaultValue={defaultValues?.transactionDate || new Date().toISOString().split("T")[0]}
+					defaultValue={
+						defaultValues?.transactionDate ||
+						new Date().toISOString().split("T")[0]
+					}
 					required
 					className={`w-full px-3 py-2 border rounded-md ${
 						actionData?.errors?.transactionDate
@@ -203,7 +210,9 @@ export function TransactionFormNative({
 					} focus:outline-none focus:ring-2 focus:ring-opacity-50`}
 				/>
 				{actionData?.errors?.description && (
-					<p className="text-sm text-red-600">{actionData.errors.description[0]}</p>
+					<p className="text-sm text-red-600">
+						{actionData.errors.description[0]}
+					</p>
 				)}
 			</div>
 
@@ -234,7 +243,9 @@ export function TransactionFormNative({
 					<option value="other">その他</option>
 				</select>
 				{actionData?.errors?.paymentMethod && (
-					<p className="text-sm text-red-600">{actionData.errors.paymentMethod[0]}</p>
+					<p className="text-sm text-red-600">
+						{actionData.errors.paymentMethod[0]}
+					</p>
 				)}
 			</div>
 

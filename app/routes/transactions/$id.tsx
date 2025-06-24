@@ -4,7 +4,13 @@ import type {
 	LoaderFunctionArgs,
 	MetaFunction,
 } from "react-router";
-import { data, Link, redirect, useLoaderData, useSearchParams } from "react-router";
+import {
+	Link,
+	data,
+	redirect,
+	useLoaderData,
+	useSearchParams,
+} from "react-router";
 import { TransactionFormNative } from "../../components/forms/transaction-form-native";
 import { PageHeader } from "../../components/layout/page-header";
 import { createTransactionRequestSchema } from "../../lib/schemas/api-responses";
@@ -87,12 +93,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 		// Zodスキーマでバリデーション
 		const result = createTransactionRequestSchema.safeParse(rawData);
-		
+
 		if (!result.success) {
 			// バリデーションエラーの場合、エラー情報を返す
 			return data(
 				{ errors: result.error.flatten().fieldErrors },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -112,7 +118,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 			if (!response.ok) {
 				return data(
 					{ errors: { general: ["取引の更新に失敗しました"] } },
-					{ status: response.status }
+					{ status: response.status },
 				);
 			}
 
@@ -122,7 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 			console.error("取引更新エラー:", error);
 			return data(
 				{ errors: { general: ["ネットワークエラーが発生しました"] } },
-				{ status: 500 }
+				{ status: 500 },
 			);
 		}
 	}
@@ -158,10 +164,10 @@ export default function TransactionDetailPage() {
 							type={transaction.type as TransactionType}
 							defaultValues={{
 								amount: transaction.amount,
-								categoryId: transaction.categoryId,
-								description: transaction.description,
+								categoryId: transaction.categoryId ?? undefined,
+								description: transaction.description || undefined,
 								transactionDate: transaction.transactionDate,
-								paymentMethod: transaction.paymentMethod,
+								paymentMethod: transaction.paymentMethod || undefined,
 							}}
 						/>
 					</div>

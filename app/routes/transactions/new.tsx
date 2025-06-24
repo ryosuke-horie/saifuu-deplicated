@@ -15,7 +15,7 @@ export const meta: MetaFunction = () => {
 export async function action({ request }: ActionFunctionArgs) {
 	// React Router v7 Native Formsからの送信をハンドル
 	const formData = await request.formData();
-	
+
 	// FormDataから値を取得
 	const rawData = {
 		type: formData.get("type") as "income" | "expense",
@@ -28,12 +28,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	// Zodスキーマでバリデーション
 	const result = createTransactionRequestSchema.safeParse(rawData);
-	
+
 	if (!result.success) {
 		// バリデーションエラーの場合、エラー情報を返す
 		return data(
 			{ errors: result.error.flatten().fieldErrors },
-			{ status: 400 }
+			{ status: 400 },
 		);
 	}
 
@@ -51,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 			const errorData = await response.json();
 			return data(
 				{ errors: { general: ["取引の作成に失敗しました"] } },
-				{ status: response.status }
+				{ status: response.status },
 			);
 		}
 
@@ -61,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		console.error("取引作成エラー:", error);
 		return data(
 			{ errors: { general: ["ネットワークエラーが発生しました"] } },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
