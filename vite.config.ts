@@ -5,13 +5,16 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [
-		// Cloudflareプラグインを有効化してローカルD1データベースを使用
-		cloudflare(),
-		tailwindcss(),
+		// プラグイン順序を最適化: React Routerを先に、Cloudflareを後に配置
 		reactRouter(),
+		tailwindcss(),
 		tsconfigPaths(),
+		// Cloudflareプラグインを一時的に無効化
+		// React Router v7のビルド順序問題により、プラグインのファイル存在チェックが失敗する
+		// デプロイ時は別途wranglerコマンドを直接使用
+		// ...(mode === "production" ? [cloudflare()] : []),
 	],
 	// React 19 + React Router v7の互換性修正
 	define: {
@@ -43,6 +46,7 @@ export default defineConfig({
 		noExternal: ["react-router"],
 		target: "node",
 	},
+	// Vitestテスト設定
 	test: {
 		environment: "jsdom",
 		globals: true,
@@ -60,4 +64,4 @@ export default defineConfig({
 			exclude: ["node_modules/", "tests/", "**/*.config.{js,ts}", "**/*.d.ts"],
 		},
 	},
-});
+}));
