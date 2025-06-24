@@ -40,6 +40,7 @@ export function TransactionForm({
 		setValue,
 	} = useForm<CreateTransactionRequest>({
 		resolver: zodResolver(createTransactionRequestSchema),
+		mode: "onChange", // リアルタイムバリデーション
 		defaultValues: {
 			type,
 			amount: undefined,
@@ -50,6 +51,14 @@ export function TransactionForm({
 			...defaultValues,
 		},
 	});
+
+	// フィールド値を監視
+	const watchedAmount = watch("amount");
+	const watchedCategoryId = watch("categoryId");
+
+	// 実用的なボタン活性化条件
+	// 金額が入力されているかどうかで判断（最低限の条件）
+	const isFormReady = watchedAmount && watchedAmount > 0;
 
 	// 固定カテゴリリストを使用（Issue #120対応）
 	// APIへの依存を解消し、即座に表示可能
@@ -243,9 +252,9 @@ export function TransactionForm({
 			<div className="pt-4">
 				<button
 					type="submit"
-					disabled={isSubmitting || !isDirty}
+					disabled={isSubmitting || !isFormReady}
 					className={`w-full py-3 px-4 rounded-md font-medium transition-colors ${
-						isSubmitting || !isDirty
+						isSubmitting || !isFormReady
 							? "bg-gray-300 text-gray-500 cursor-not-allowed"
 							: type === "expense"
 								? "bg-red-600 hover:bg-red-700 text-white"
