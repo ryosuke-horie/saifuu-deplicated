@@ -1,24 +1,37 @@
-# Cloudflare Workers設定ファイル
+# Cloudflare Workers設定ファイル (React Router v7)
 # プロダクション環境でD1データベースを使用するための設定
 
 name = "saifuu"
 compatibility_date = "2025-06-23"
-main = "./build/server/index.js"
+compatibility_flags = ["nodejs_compat"]
+main = "./dist/server/index.js"
+
+# 静的アセット設定
+[assets]
+directory = "./dist/client/"
+binding = "ASSETS"
+
+# 環境変数
+[vars]
+NODE_ENV = "production"
+DEBUG = "false"
+LOG_LEVEL = "warn"
+DISABLE_MSW = "true"
+
+# 開発環境設定
+[env.development]
+vars = { NODE_ENV = "development", DEBUG = "true", LOG_LEVEL = "debug" }
+
+# ステージング環境設定
+[env.staging]
+vars = { NODE_ENV = "staging", DEBUG = "true", LOG_LEVEL = "debug" }
+
+# プロダクション環境設定
+[env.production]
+vars = { NODE_ENV = "production", DEBUG = "false", LOG_LEVEL = "warn", DISABLE_MSW = "true" }
 
 # D1データベース設定（プロダクション環境用）
 [[d1_databases]]
 binding = "DB"
 database_name = "saifuu-db"
-# database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # 実際のデプロイ時に設定
-
-# 環境変数
-[vars]
-NODE_ENV = "production"
-
-# 開発環境設定
-[env.development]
-vars = { NODE_ENV = "development" }
-
-# ステージング環境設定
-[env.staging]
-vars = { NODE_ENV = "staging" }
+database_id = "98f133e5-2824-486e-877f-ea1f3c0210b8"
