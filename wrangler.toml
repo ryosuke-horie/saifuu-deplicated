@@ -4,7 +4,7 @@
 name = "saifuu"
 compatibility_date = "2025-06-23"
 compatibility_flags = ["nodejs_compat"]
-main = "./dist/ssr/index.js"
+main = "./workers/app.ts"
 
 # 静的アセット設定
 [assets]
@@ -33,6 +33,12 @@ vars = { NODE_ENV = "test", DEBUG = "true", LOG_LEVEL = "debug" }
 # プロダクション環境設定
 [env.production]
 vars = { NODE_ENV = "production", DEBUG = "false", LOG_LEVEL = "warn", DISABLE_MSW = "true" }
+
+# プロダクション環境用D1データベース設定
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "saifuu-db"
+database_id = "98f133e5-2824-486e-877f-ea1f3c0210b8"
 
 # D1データベース設定（プロダクション環境用）
 [[d1_databases]]

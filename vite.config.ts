@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => ({
 		tailwindcss(),
 		tsconfigPaths(),
 		// Cloudflareプラグインを一時的に無効化
-		// React Router v7のビルド順序問題により、dist/ssr/index.jsが存在しない状態で
-		// プラグインが初期化されてエラーになるため、CI環境では無効化
+		// React Router v7のビルド順序問題により、プラグインのファイル存在チェックが失敗する
+		// デプロイ時は別途wranglerコマンドを直接使用
 		// ...(mode === "production" ? [cloudflare()] : []),
 	],
 	// React 19 + React Router v7の互換性修正
