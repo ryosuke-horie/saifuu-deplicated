@@ -22,9 +22,9 @@ vi.mock("react-router", async (importOriginal) => {
 // fetchをモック化
 global.fetch = vi.fn();
 
+import { data, redirect } from "react-router";
 // 実際のルートファイルからエクスポートされた関数をテスト対象とする
 import { action, loader, meta } from "./$id";
-import { data, redirect } from "react-router";
 
 describe("取引詳細ページルート", () => {
 	beforeEach(() => {
@@ -280,7 +280,13 @@ describe("取引詳細ページルート", () => {
 
 		it("編集アクション（intent未設定）でバリデーションエラーを返すこと", async () => {
 			// バリデーションエラーをモック（必須フィールドが不足）
-			const mockErrorResponse = { errors: { type: ["Required"], categoryId: ["Required"], transactionDate: ["Required"] } };
+			const mockErrorResponse = {
+				errors: {
+					type: ["Required"],
+					categoryId: ["Required"],
+					transactionDate: ["Required"],
+				},
+			};
 			(data as any).mockReturnValue(mockErrorResponse);
 
 			const formData = new FormData();
@@ -298,14 +304,21 @@ describe("取引詳細ページルート", () => {
 			// dataが正しく呼ばれたことを確認（バリデーションエラー）
 			expect(data).toHaveBeenCalledWith(
 				expect.objectContaining({ errors: expect.any(Object) }),
-				{ status: 400 }
+				{ status: 400 },
 			);
 			expect(result).toBe(mockErrorResponse);
 		});
 
 		it("無効なintentでバリデーションエラーを返すこと", async () => {
 			// バリデーションエラーをモック（編集処理として扱われるため必須フィールドが不足）
-			const mockErrorResponse = { errors: { type: ["Required"], amount: ["Required"], categoryId: ["Required"], transactionDate: ["Required"] } };
+			const mockErrorResponse = {
+				errors: {
+					type: ["Required"],
+					amount: ["Required"],
+					categoryId: ["Required"],
+					transactionDate: ["Required"],
+				},
+			};
 			(data as any).mockReturnValue(mockErrorResponse);
 
 			const formData = new FormData();
@@ -322,7 +335,7 @@ describe("取引詳細ページルート", () => {
 			// dataが正しく呼ばれたことを確認（バリデーションエラー）
 			expect(data).toHaveBeenCalledWith(
 				expect.objectContaining({ errors: expect.any(Object) }),
-				{ status: 400 }
+				{ status: 400 },
 			);
 			expect(result).toBe(mockErrorResponse);
 		});

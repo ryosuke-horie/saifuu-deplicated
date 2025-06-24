@@ -22,9 +22,9 @@ vi.mock("react-router", async (importOriginal) => {
 // fetchをモック化
 global.fetch = vi.fn();
 
+import { data, redirect } from "react-router";
 // 実際のルートファイルからエクスポートされた関数をテスト対象とする
 import { action, meta } from "./new";
-import { data, redirect } from "react-router";
 
 describe("取引登録ページルート", () => {
 	beforeEach(() => {
@@ -127,14 +127,16 @@ describe("取引登録ページルート", () => {
 			// dataが正しく呼ばれたことを確認（バリデーションエラー）
 			expect(data).toHaveBeenCalledWith(
 				expect.objectContaining({ errors: expect.any(Object) }),
-				{ status: 400 }
+				{ status: 400 },
 			);
 			expect(result).toBe(mockErrorResponse);
 		});
 
 		it("空のフォームデータでバリデーションエラーを返すこと", async () => {
 			// バリデーションエラーをモック
-			const mockErrorResponse = { errors: { type: ["Required"], amount: ["Required"] } };
+			const mockErrorResponse = {
+				errors: { type: ["Required"], amount: ["Required"] },
+			};
 			(data as any).mockReturnValue(mockErrorResponse);
 
 			const formData = new FormData();
@@ -149,7 +151,7 @@ describe("取引登録ページルート", () => {
 			// dataが正しく呼ばれたことを確認（バリデーションエラー）
 			expect(data).toHaveBeenCalledWith(
 				expect.objectContaining({ errors: expect.any(Object) }),
-				{ status: 400 }
+				{ status: 400 },
 			);
 			expect(result).toBe(mockErrorResponse);
 		});
