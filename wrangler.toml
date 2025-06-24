@@ -4,7 +4,7 @@
 name = "saifuu"
 compatibility_date = "2025-06-23"
 compatibility_flags = ["nodejs_compat"]
-main = "./dist/server/index.js"
+main = "./dist/ssr/index.js"
 
 # 静的アセット設定
 [assets]
