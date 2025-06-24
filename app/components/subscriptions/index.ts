@@ -11,8 +11,8 @@
 // サブスクリプション一覧・カード表示コンポーネント
 export { SubscriptionCards } from "./subscription-cards";
 
-// サブスクリプション登録・編集フォームコンポーネント
-export { SubscriptionForm } from "./subscription-form";
+// サブスクリプション登録・編集フォームコンポーネント（React Router v7 Native Forms）
+export { SubscriptionFormNative } from "./subscription-form-native";
 
 // サブスクリプション操作アクションコンポーネント
 export {
