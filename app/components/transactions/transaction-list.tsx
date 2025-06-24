@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { useTransactions } from "../../lib/hooks/use-transactions";
 import type { TransactionFilters, TransactionSort } from "../../types";
 import { FilterPanel } from "./filter-panel";
@@ -20,6 +21,7 @@ export interface TransactionListProps {
 	initialSort?: Partial<TransactionSort>;
 	showFilters?: boolean;
 	compact?: boolean;
+	useUrlState?: boolean; // URL状態管理を使用するかどうか
 }
 
 export function TransactionList({
@@ -27,15 +29,52 @@ export function TransactionList({
 	initialSort = { sort_by: "transactionDate", sort_order: "desc" },
 	showFilters = true,
 	compact = false,
+	useUrlState = false,
 }: TransactionListProps) {
 	// 表示モード管理（テーブル/カード）
 	const [viewMode, setViewMode] = useState<"table" | "cards">("table");
 
+	// URL状態管理（useUrlState=trueの場合）
+	const [searchParams, setSearchParams] = useSearchParams();
+
 	// フィルターとソートの状態管理
-	const [filters, setFilters] =
+	// useUrlState=trueの場合はURLから、falseの場合はローカル状態から取得
+	const [localFilters, setLocalFilters] =
 		useState<Partial<TransactionFilters>>(initialFilters);
-	const [sort, setSort] = useState<Partial<TransactionSort>>(initialSort);
+	const [localSort, setLocalSort] =
+		useState<Partial<TransactionSort>>(initialSort);
 	const [page, setPage] = useState(1);
+
+	// URL状態管理時のフィルター・ソート値を計算
+	const urlFilters: Partial<TransactionFilters> = useMemo(() => {
+		if (!useUrlState) return {};
+		const filters: Partial<TransactionFilters> = {};
+		if (searchParams.get("from")) filters.from = searchParams.get("from")!;
+		if (searchParams.get("to")) filters.to = searchParams.get("to")!;
+		if (searchParams.get("type"))
+			filters.type = searchParams.get("type") as "income" | "expense";
+		if (searchParams.get("category_id"))
+			filters.category_id = Number(searchParams.get("category_id"));
+		if (searchParams.get("search"))
+			filters.search = searchParams.get("search")!;
+		return filters;
+	}, [searchParams, useUrlState]);
+
+	const urlSort: Partial<TransactionSort> = useMemo(() => {
+		if (!useUrlState) return initialSort;
+		return {
+			sort_by:
+				(searchParams.get("sort_by") as TransactionSort["sort_by"]) ||
+				"transactionDate",
+			sort_order:
+				(searchParams.get("sort_order") as TransactionSort["sort_order"]) ||
+				"desc",
+		};
+	}, [searchParams, useUrlState, initialSort]);
+
+	// 実際に使用するフィルター・ソート値
+	const filters = useUrlState ? urlFilters : localFilters;
+	const sort = useUrlState ? urlSort : localSort;
 
 	// API呼び出し
 	const {
@@ -58,13 +97,43 @@ export function TransactionList({
 
 	// フィルター変更ハンドラー
 	const handleFiltersChange = (newFilters: Partial<TransactionFilters>) => {
-		setFilters(newFilters);
+		if (useUrlState) {
+			// URLパラメータを更新
+			const newParams = new URLSearchParams(searchParams);
+
+			// 既存のフィルターパラメータをクリア
+			for (const key of ["from", "to", "type", "category_id", "search"]) {
+				newParams.delete(key);
+			}
+
+			// 新しいフィルター値を設定
+			if (newFilters.from) newParams.set("from", newFilters.from);
+			if (newFilters.to) newParams.set("to", newFilters.to);
+			if (newFilters.type) newParams.set("type", newFilters.type);
+			if (newFilters.category_id)
+				newParams.set("category_id", String(newFilters.category_id));
+			if (newFilters.search) newParams.set("search", newFilters.search);
+
+			setSearchParams(newParams, { replace: true });
+		} else {
+			setLocalFilters(newFilters);
+		}
 		setPage(1); // フィルター変更時はページをリセット
 	};
 
 	// ソート変更ハンドラー
 	const handleSortChange = (newSort: Partial<TransactionSort>) => {
-		setSort(newSort);
+		if (useUrlState) {
+			// URLパラメータを更新
+			const newParams = new URLSearchParams(searchParams);
+
+			if (newSort.sort_by) newParams.set("sort_by", newSort.sort_by);
+			if (newSort.sort_order) newParams.set("sort_order", newSort.sort_order);
+
+			setSearchParams(newParams, { replace: true });
+		} else {
+			setLocalSort(newSort);
+		}
 		setPage(1); // ソート変更時はページをリセット
 	};
 
@@ -179,6 +248,7 @@ export function TransactionList({
 					onSortChange={handleSortChange}
 					totalAmount={totalAmount}
 					isLoading={isLoading}
+					useUrlState={useUrlState}
 				/>
 			)}
 
