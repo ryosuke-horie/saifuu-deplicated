@@ -53,6 +53,9 @@ export function TransactionFormNative({
 	const [selectedCategoryId, setSelectedCategoryId] = useState<string>(
 		defaultValues?.categoryId?.toString() || "",
 	);
+	const [transactionDate, setTransactionDate] = useState<string>(
+		defaultValues?.transactionDate || new Date().toISOString().split("T")[0],
+	);
 
 	// 固定カテゴリリストを使用（Issue #120対応）
 	const fixedCategories =
@@ -71,8 +74,12 @@ export function TransactionFormNative({
 		return formatAmount(numAmount);
 	}, [amount, formatAmount]);
 
-	// ボタン活性化条件（現在の実装を保持）
-	const isFormReady = amount && Number.parseFloat(amount) > 0;
+	// ボタン活性化条件（必須フィールドをすべてチェック）
+	const isFormReady =
+		amount &&
+		Number.parseFloat(amount) > 0 &&
+		selectedCategoryId &&
+		transactionDate;
 
 	return (
 		<Form method="post" className="space-y-6 max-w-md mx-auto p-4">
@@ -171,10 +178,8 @@ export function TransactionFormNative({
 					type="date"
 					name="transactionDate"
 					id="transactionDate"
-					defaultValue={
-						defaultValues?.transactionDate ||
-						new Date().toISOString().split("T")[0]
-					}
+					value={transactionDate}
+					onChange={(e) => setTransactionDate(e.target.value)}
 					required
 					className={`w-full px-3 py-2 border rounded-md ${
 						actionData?.errors?.transactionDate
