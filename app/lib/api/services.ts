@@ -4,31 +4,21 @@ import {
 	type CategoryDetailResponse,
 	type CreateCategoryRequest,
 	type CreateSubscriptionRequest,
-	type CreateTransactionRequest,
 	type ReorderCategoriesRequest,
 	type SubscriptionDetailResponse,
 	type SubscriptionsListResponse,
-	type TransactionDetailResponse,
-	type TransactionFilters,
-	type TransactionSort,
-	type TransactionsListResponse,
 	type UpdateCategoryRequest,
 	type UpdateSubscriptionRequest,
-	type UpdateTransactionRequest,
 	baseApiResponseSchema,
 	categoriesListResponseSchema,
 	categoryDetailResponseSchema,
 	createCategoryRequestSchema,
 	createSubscriptionRequestSchema,
-	createTransactionRequestSchema,
 	reorderCategoriesRequestSchema,
 	subscriptionDetailResponseSchema,
 	subscriptionsListResponseSchema,
-	transactionDetailResponseSchema,
-	transactionsListResponseSchema,
 	updateCategoryRequestSchema,
 	updateSubscriptionRequestSchema,
-	updateTransactionRequestSchema,
 } from "../schemas/api-responses";
 import { apiClient, buildQueryParams } from "./client";
 
@@ -36,7 +26,7 @@ import { apiClient, buildQueryParams } from "./client";
  * APIサービス層の実装
  *
  * 設計方針:
- * - 各リソース（カテゴリ、取引、サブスクリプション）に特化したサービス
+ * - 各リソース（カテゴリ、サブスクリプション）に特化したサービス
  * - APIクライアントをラップして型安全な操作を提供
  * - TanStack Queryとの連携を考慮したメソッド設計
  * - 一貫性のあるエラーハンドリング
@@ -110,105 +100,6 @@ export const categoryService = {
 		return apiClient.post(
 			"/categories/reorder",
 			validatedData,
-			baseApiResponseSchema,
-		);
-	},
-};
-
-// ========================================
-// 取引API サービス
-// ========================================
-
-export const transactionService = {
-	/**
-	 * 取引一覧を取得（フィルタリング・ページネーション対応）
-	 */
-	async getTransactions(
-		params: {
-			filters?: Partial<TransactionFilters>;
-			sort?: Partial<TransactionSort>;
-			page?: number;
-			limit?: number;
-		} = {},
-	): Promise<TransactionsListResponse> {
-		const queryParams = buildQueryParams({
-			...params.filters,
-			...params.sort,
-			page: params.page,
-			limit: params.limit,
-		});
-
-		return apiClient.get(
-			`/transactions${queryParams}`,
-			transactionsListResponseSchema,
-		);
-	},
-
-	/**
-	 * 取引詳細を取得
-	 */
-	async getTransaction(id: number): Promise<TransactionDetailResponse> {
-		return apiClient.get(
-			`/transactions/${id}`,
-			transactionDetailResponseSchema,
-		);
-	},
-
-	/**
-	 * 新しい取引を作成
-	 */
-	async createTransaction(
-		data: CreateTransactionRequest,
-	): Promise<TransactionDetailResponse> {
-		// リクエストデータをバリデーション
-		const validatedData = createTransactionRequestSchema.parse(data);
-		return apiClient.post(
-			"/transactions/create",
-			validatedData,
-			transactionDetailResponseSchema,
-		);
-	},
-
-	/**
-	 * 取引を更新
-	 */
-	async updateTransaction(
-		id: number,
-		data: UpdateTransactionRequest,
-	): Promise<TransactionDetailResponse> {
-		// リクエストデータをバリデーション
-		const validatedData = updateTransactionRequestSchema.parse(data);
-		return apiClient.put(
-			`/transactions/${id}/update`,
-			validatedData,
-			transactionDetailResponseSchema,
-		);
-	},
-
-	/**
-	 * 取引を削除
-	 */
-	async deleteTransaction(id: number): Promise<BaseApiResponse> {
-		return apiClient.delete(
-			`/transactions/${id}/delete`,
-			baseApiResponseSchema,
-		);
-	},
-
-	/**
-	 * 取引の統計情報を取得（月次サマリーなど）
-	 * 注：この機能はバックエンドAPIの実装が必要
-	 */
-	async getTransactionStats(
-		params: {
-			startDate?: string;
-			endDate?: string;
-			groupBy?: "month" | "category" | "type";
-		} = {},
-	): Promise<BaseApiResponse> {
-		const queryParams = buildQueryParams(params);
-		return apiClient.get(
-			`/transactions/stats${queryParams}`,
 			baseApiResponseSchema,
 		);
 	},
@@ -310,7 +201,6 @@ export const subscriptionService = {
  */
 export const apiServices = {
 	categories: categoryService,
-	transactions: transactionService,
 	subscriptions: subscriptionService,
 } as const;
 
@@ -320,5 +210,4 @@ export const apiServices = {
 
 export type ApiServices = typeof apiServices;
 export type CategoryService = typeof categoryService;
-export type TransactionService = typeof transactionService;
 export type SubscriptionService = typeof subscriptionService;

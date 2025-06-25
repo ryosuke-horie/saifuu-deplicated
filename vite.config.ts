@@ -35,16 +35,19 @@ export default defineConfig(({ mode }) => ({
 	},
 	esbuild: {
 		jsx: "automatic",
-		// jsxDev完全無効化: React 19とReact Router v7の互換性問題を回避
-		jsxDev: false,
 		jsxImportSource: "react",
 	},
-	// SSR環境での設定調整 - React 19のmodule問題を回避
+	// SSR環境での設定調整
 	ssr: {
-		// React関連を外部化してCommonJS/ESM問題を回避
-		external: ["react", "react-dom"],
-		noExternal: ["react-router"],
 		target: "node",
+	},
+	// クライアントサイドビルド設定
+	optimizeDeps: {
+		include: ["react", "react-dom", "react-router"],
+	},
+	// HMR設定
+	server: {
+		hmr: true,
 	},
 	// Vitestテスト設定
 	test: {

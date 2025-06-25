@@ -52,22 +52,10 @@ export function Header({ showNavigation = true }: HeaderProps) {
 									ホーム
 								</Link>
 								<Link
-									to="/transactions"
-									className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
-								>
-									取引一覧
-								</Link>
-								<Link
 									to="/subscriptions"
 									className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
 								>
 									サブスク管理
-								</Link>
-								<Link
-									to="/transactions/new"
-									className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
-								>
-									取引登録
 								</Link>
 							</nav>
 
