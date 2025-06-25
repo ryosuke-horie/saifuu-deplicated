@@ -50,45 +50,7 @@ body {
   color: #333333 !important;
 }
 
-/* Header styles */
-.header_contents {
-  display: flex;
-  justify-content: space-around;
-  margin: 0 auto;
-  background-color: var(--header-bg);
-}
-
-.header_menu {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 50%;
-}
-
-.header_menu a {
-  color: var(--header-text);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.header_menu a:hover {
-  background-color: var(--header-hover);
-  padding: 4px;
-}
-
-/* モバイルでメニューを非表示 */
-@media screen and (max-width: 730px) {
-  .header_menu {
-    display: none;
-  }
-}
-
-/* モバイル縦画面でもメニュー非表示 */
-@media screen and (max-width: 480px) {
-  .header_menu {
-    display: none;
-  }
-}
+/* Legacy header styles removed - using Tailwind CSS components instead */
 
 /* Footer styles */
 footer {
