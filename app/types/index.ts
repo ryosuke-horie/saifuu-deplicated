@@ -14,9 +14,6 @@
 export type {
 	SelectCategory,
 	InsertCategory,
-	CreateTransaction,
-	SelectTransaction,
-	InsertTransaction,
 	SelectSubscription,
 	InsertSubscription,
 	SelectBudget,
@@ -41,13 +38,6 @@ export type {
 	ReorderCategoriesRequest,
 	CategoriesListResponse,
 	CategoryDetailResponse,
-	// 取引関連型
-	CreateTransactionRequest,
-	UpdateTransactionRequest,
-	TransactionFilters,
-	TransactionSort,
-	TransactionsListResponse,
-	TransactionDetailResponse,
 	// サブスクリプション関連型
 	CreateSubscriptionRequest,
 	UpdateSubscriptionRequest,
@@ -73,24 +63,12 @@ export { ApiError } from "../lib/api/client";
 export type {
 	ApiServices,
 	CategoryService,
-	TransactionService,
 	SubscriptionService,
 } from "../lib/api/services";
 
 // ========================================
-// カスタムフック関連型の再エクスポート
-// ========================================
-
-export type { UseTransactionsParams } from "../lib/hooks/use-transactions";
-
-// ========================================
 // 追加のユーティリティ型定義
 // ========================================
-
-/**
- * 取引タイプの型定義
- */
-export type TransactionType = "income" | "expense";
 
 /**
  * サブスクリプション頻度の型定義
@@ -106,11 +84,6 @@ export type BudgetPeriod = "monthly" | "yearly";
  * ソート順序の型定義
  */
 export type SortOrder = "asc" | "desc";
-
-/**
- * ソート対象の型定義（取引用）
- */
-export type TransactionSortBy = "transactionDate" | "amount" | "createdAt";
 
 /**
  * テーマの型定義
@@ -168,7 +141,6 @@ export interface StatsData {
 	totalIncome: number;
 	totalExpense: number;
 	balance: number;
-	transactionCount: number;
 	categoryBreakdown: Array<{
 		categoryId: number;
 		categoryName: string;

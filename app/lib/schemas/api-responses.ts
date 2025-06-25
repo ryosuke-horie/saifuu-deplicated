@@ -1,13 +1,11 @@
 import { z } from "zod";
 import {
-	createTransactionSchema,
 	insertBudgetSchema,
 	insertCategorySchema,
 	insertSubscriptionSchema,
 	selectBudgetSchema,
 	selectCategorySchema,
 	selectSubscriptionSchema,
-	selectTransactionSchema,
 } from "../../../db/schema";
 
 /**
@@ -94,58 +92,6 @@ export const categoryDetailResponseSchema = baseApiResponseSchema.extend({
 });
 
 // ========================================
-// 取引API用スキーマ
-// ========================================
-
-// 取引作成リクエスト（フロントエンド用）
-export const createTransactionRequestSchema = createTransactionSchema;
-
-// 取引更新リクエスト
-export const updateTransactionRequestSchema = createTransactionSchema
-	.omit({ type: true })
-	.partial();
-
-// 取引フィルタリングパラメータ
-export const transactionFiltersSchema = z.object({
-	from: z
-		.string()
-		.regex(/^\d{4}-\d{2}-\d{2}$/)
-		.optional(),
-	to: z
-		.string()
-		.regex(/^\d{4}-\d{2}-\d{2}$/)
-		.optional(),
-	type: z.enum(["income", "expense"]).optional(),
-	category_id: z.number().int().positive().optional(),
-	search: z.string().min(1).optional(),
-});
-
-// 取引ソートパラメータ
-export const transactionSortSchema = z.object({
-	sort_by: z.enum(["transactionDate", "amount", "createdAt"]),
-	sort_order: z.enum(["asc", "desc"]),
-});
-
-// APIレスポンス用の取引スキーマ（タグがパースされた状態）
-// CI環境での型推論問題を防ぐため、明示的にtagsフィールドを定義
-export const apiTransactionSchema = selectTransactionSchema.extend({
-	tags: z.array(z.string()).nullable(),
-});
-
-// 取引一覧レスポンス（ページネーション対応）
-export const transactionsListResponseSchema = baseApiResponseSchema.extend({
-	data: z.array(apiTransactionSchema),
-	pagination: paginationSchema,
-	filters: transactionFiltersSchema,
-	sort: transactionSortSchema,
-});
-
-// 取引詳細レスポンス
-export const transactionDetailResponseSchema = baseApiResponseSchema.extend({
-	data: apiTransactionSchema,
-});
-
-// ========================================
 // サブスクリプションAPI用スキーマ
 // ========================================
 
@@ -182,13 +128,6 @@ export const subscriptionsListResponseSchema = baseApiResponseSchema.extend({
 export const subscriptionDetailResponseSchema = baseApiResponseSchema.extend({
 	data: selectSubscriptionSchema,
 });
-
-// ========================================
-// 型定義エクスポート
-// ========================================
-
-// APIレスポンス用の取引型（タグがパースされた状態）
-export type ApiTransaction = z.infer<typeof apiTransactionSchema>;
 
 // ========================================
 // 共通エラーハンドリング
@@ -230,22 +169,6 @@ export type CategoriesListResponse = z.infer<
 >;
 export type CategoryDetailResponse = z.infer<
 	typeof categoryDetailResponseSchema
->;
-
-// 取引関連型
-export type CreateTransactionRequest = z.infer<
-	typeof createTransactionRequestSchema
->;
-export type UpdateTransactionRequest = z.infer<
-	typeof updateTransactionRequestSchema
->;
-export type TransactionFilters = z.infer<typeof transactionFiltersSchema>;
-export type TransactionSort = z.infer<typeof transactionSortSchema>;
-export type TransactionsListResponse = z.infer<
-	typeof transactionsListResponseSchema
->;
-export type TransactionDetailResponse = z.infer<
-	typeof transactionDetailResponseSchema
 >;
 
 // サブスクリプション関連型
