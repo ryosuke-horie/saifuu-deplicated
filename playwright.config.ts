@@ -35,21 +35,9 @@ export default defineConfig({
 
 	projects: [
 		{
-			name: "chromium",
+			name: "chrome-desktop",
 			use: { ...devices["Desktop Chrome"] },
 		},
-		...(process.env.CI
-			? []
-			: [
-					{
-						name: "firefox",
-						use: { ...devices["Desktop Firefox"] },
-					},
-					{
-						name: "webkit",
-						use: { ...devices["Desktop Safari"] },
-					},
-				]),
 	],
 
 	webServer: {
