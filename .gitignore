@@ -16,6 +16,7 @@ worker-configuration.d.ts
 # Playwright
 /playwright-report/
 /test-results/
+/tests/e2e/screenshots/
 
 # Database
 /data/dev.db
