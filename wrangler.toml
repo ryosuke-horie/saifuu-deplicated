@@ -22,13 +22,31 @@ DISABLE_MSW = "true"
 [env.development]
 vars = { NODE_ENV = "development", DEBUG = "true", LOG_LEVEL = "debug" }
 
+# 開発環境用D1データベース設定
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "saifuu-dev-db"
+database_id = "local"
+
 # ステージング環境設定
 [env.staging]
 vars = { NODE_ENV = "staging", DEBUG = "true", LOG_LEVEL = "debug" }
 
+# ステージング環境用D1データベース設定
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "saifuu-staging-db"
+database_id = "local"
+
 # テスト環境設定
 [env.test]
 vars = { NODE_ENV = "test", DEBUG = "true", LOG_LEVEL = "debug" }
+
+# テスト環境用D1データベース設定
+[[env.test.d1_databases]]
+binding = "DB"
+database_name = "saifuu-test-db"
+database_id = "local"
 
 # プロダクション環境設定
 [env.production]

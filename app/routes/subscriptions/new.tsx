@@ -1,6 +1,7 @@
 import { data, redirect } from "react-router";
 import { z } from "zod";
 import { createDb } from "../../../db/connection";
+import { getCategoriesByType } from "../../../db/queries/categories";
 import { createSubscription } from "../../../db/queries/subscriptions";
 import { insertSubscriptionSchema } from "../../../db/schema";
 import { SubscriptionFormNative } from "../../components/subscriptions/subscription-form-native";
@@ -37,6 +38,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 	const rawData = {
 		name: formData.get("name"),
 		amount: Number(formData.get("amount")),
+		categoryId: Number(formData.get("categoryId")),
 		frequency: formData.get("frequency"),
 		nextPaymentDate: formData.get("nextPaymentDate"),
 		description: formData.get("description") || null,
@@ -116,13 +118,26 @@ export async function action({ request, context }: Route.ActionArgs) {
 	}
 }
 
-export default function NewSubscriptionPage({
-	actionData,
-}: Route.ComponentProps) {
+// ローダー関数を追加してカテゴリデータを取得
+export async function loader({ context }: Route.LoaderArgs) {
+	try {
+		const db = createDb(context.cloudflare.env.DB);
+		const categories = await getCategoriesByType(db, "expense");
+		return { categories };
+	} catch (error) {
+		console.error("Failed to load categories:", error);
+		throw new Response("Failed to load categories", { status: 500 });
+	}
+}
+
+export default function NewSubscriptionPage({ loaderData, actionData }: any) {
 	return (
 		<div className="max-w-2xl mx-auto px-4 py-8">
 			<div className="bg-white shadow-sm rounded-lg p-6">
-				<SubscriptionFormNative actionData={actionData} />
+				<SubscriptionFormNative
+					categories={loaderData?.categories || []}
+					actionData={actionData}
+				/>
 			</div>
 		</div>
 	);

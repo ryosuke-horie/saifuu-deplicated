@@ -155,20 +155,42 @@ async function initializeDevDatabase(
 /**
  * データベース接続を作成する
  * 環境に応じてローカルSQLiteまたはCloudflare D1を使用
+ *
+ * 設計方針:
+ * - Cloudflare Workers環境: D1バインディングを使用
+ * - ローカル開発環境: SQLiteファイルを使用
+ * - テスト環境: メモリまたは専用SQLiteファイルを使用
+ * - フォールバック: D1が利用できない場合はローカルSQLiteを使用
+ *
  * @param d1 - Cloudflare WorkersのD1バインディング（オプション）
  * @returns Drizzle ORMのデータベースインスタンス
  */
 export function createDb(d1?: D1Database) {
-	const isProduction = process.env.NODE_ENV === "production";
+	const nodeEnv = process.env.NODE_ENV;
+	const isCloudflareWorkers = typeof globalThis.caches !== "undefined";
 
-	// プロダクション環境かつD1バインディングが利用可能な場合
-	if (isProduction && d1) {
-		console.log("🚀 プロダクションデータベース: Cloudflare D1を使用中");
+	// 環境情報のログ出力（デバッグ用）
+	console.log("🔍 データベース接続環境判定:", {
+		NODE_ENV: nodeEnv,
+		isCloudflareWorkers,
+		hasD1Binding: !!d1,
+	});
+
+	// Cloudflare Workers環境でD1バインディングが利用可能な場合
+	if (isCloudflareWorkers && d1) {
+		console.log("🚀 Cloudflare D1データベース: D1バインディングを使用中");
 		return drizzle(d1, { schema });
 	}
 
-	// 開発・テスト環境、またはD1バインディングが利用できない場合
-	console.log("🔧 ローカルデータベース: SQLiteを使用中");
+	// プロダクション環境でもD1バインディングが無い場合の警告
+	if (nodeEnv === "production" && !d1) {
+		console.warn(
+			"⚠️  プロダクション環境でD1バインディングが見つかりません。ローカルSQLiteにフォールバック中",
+		);
+	}
+
+	// ローカル環境（開発・テスト・フォールバック）でSQLiteを使用
+	console.log("🔧 ローカルSQLiteデータベース: ファイルベースのSQLiteを使用中");
 	return createDevDb();
 }
 

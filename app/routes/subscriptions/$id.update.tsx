@@ -1,6 +1,7 @@
 import { data, redirect } from "react-router";
 import { z } from "zod";
 import { createDb } from "../../../db/connection";
+import { getCategoriesByType } from "../../../db/queries/categories";
 import {
 	getSubscriptionById,
 	updateSubscription,
@@ -42,15 +43,18 @@ export async function loader({ params, context }: Route.LoaderArgs) {
 	}
 
 	try {
-		// 直接DB操作でサブスクリプション詳細を取得
+		// 直接DB操作でサブスクリプション詳細とカテゴリ一覧を取得
 		const db = createDb(context.cloudflare.env.DB);
-		const subscription = await getSubscriptionById(db, subscriptionId);
+		const [subscription, categories] = await Promise.all([
+			getSubscriptionById(db, subscriptionId),
+			getCategoriesByType(db, "expense"),
+		]);
 
 		if (!subscription) {
 			throw new Response("Subscription not found", { status: 404 });
 		}
 
-		return { subscription };
+		return { subscription, categories };
 	} catch (error) {
 		console.error("Failed to load subscription:", error);
 		if (error instanceof Response) {
@@ -76,6 +80,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 	const rawData = {
 		name: formData.get("name"),
 		amount: Number(formData.get("amount")),
+		categoryId: Number(formData.get("categoryId")),
 		frequency: formData.get("frequency"),
 		nextPaymentDate: formData.get("nextPaymentDate"),
 		description: formData.get("description") || null,
@@ -170,12 +175,13 @@ export async function action({ request, params, context }: Route.ActionArgs) {
 export default function UpdateSubscriptionPage({
 	loaderData,
 	actionData,
-}: Route.ComponentProps) {
+}: any) {
 	return (
 		<div className="max-w-2xl mx-auto px-4 py-8">
 			<div className="bg-white shadow-sm rounded-lg p-6">
 				<SubscriptionFormNative
 					subscription={loaderData?.subscription}
+					categories={loaderData?.categories || []}
 					actionData={actionData}
 				/>
 			</div>

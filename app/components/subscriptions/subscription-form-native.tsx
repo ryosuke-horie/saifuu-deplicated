@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
-import type { SelectSubscription } from "../../types";
+import type { SelectCategory, SelectSubscription } from "../../types";
 
 /**
  * サブスクリプション登録・編集フォームコンポーネント (React Router v7 Native Forms)
@@ -19,12 +19,17 @@ export interface SubscriptionFormNativeProps {
 	 */
 	subscription?: SelectSubscription;
 	/**
+	 * カテゴリ一覧データ（支出用のカテゴリのみ）
+	 */
+	categories: SelectCategory[];
+	/**
 	 * サーバーアクションからのエラーデータ
 	 */
 	actionData?: {
 		errors?: {
 			name?: string[];
 			amount?: string[];
+			categoryId?: string[];
 			frequency?: string[];
 			nextPaymentDate?: string[];
 			description?: string[];
@@ -43,6 +48,7 @@ const frequencyOptions = [
 
 export function SubscriptionFormNative({
 	subscription,
+	categories,
 	actionData,
 }: SubscriptionFormNativeProps) {
 	const navigation = useNavigation();
@@ -152,6 +158,45 @@ export function SubscriptionFormNative({
 				{actionData?.errors?.name && (
 					<p className="mt-1 text-sm text-red-600">
 						{actionData.errors.name[0]}
+					</p>
+				)}
+			</div>
+
+			{/* カテゴリ */}
+			<div>
+				<label
+					htmlFor="categoryId"
+					className="block text-sm font-medium text-gray-700"
+				>
+					カテゴリ <span className="text-red-500">*</span>
+				</label>
+				<select
+					name="categoryId"
+					id="categoryId"
+					defaultValue={subscription?.categoryId?.toString() || ""}
+					required
+					className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 sm:text-sm ${
+						actionData?.errors?.categoryId
+							? "border-red-300 focus:ring-red-500 focus:border-red-500"
+							: "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+					}`}
+				>
+					<option value="" disabled>
+						カテゴリを選択してください
+					</option>
+					{categories
+						.filter(
+							(category) => category.type === "expense" && category.isActive,
+						)
+						.map((category) => (
+							<option key={category.id} value={category.id}>
+								{category.name}
+							</option>
+						))}
+				</select>
+				{actionData?.errors?.categoryId && (
+					<p className="mt-1 text-sm text-red-600">
+						{actionData.errors.categoryId[0]}
 					</p>
 				)}
 			</div>
