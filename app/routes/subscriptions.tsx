@@ -1,5 +1,5 @@
 import type { MetaFunction } from "react-router";
-import { Link } from "react-router";
+import { Link, Outlet } from "react-router";
 import { PageHeader } from "../components/layout/page-header";
 import { SubscriptionCards } from "../components/subscriptions";
 import type { SelectSubscription } from "../types";
@@ -97,6 +97,9 @@ export default function SubscriptionsPage() {
 					<SubscriptionCards onEdit={handleEdit} />
 				</div>
 			</div>
+
+			{/* 子ルート（new, $id.update）のレンダリング */}
+			<Outlet />
 		</>
 	);
 }

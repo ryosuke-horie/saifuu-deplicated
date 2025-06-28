@@ -4,7 +4,6 @@ import { createDb } from "../../../db/connection";
 import { getCategoriesByType } from "../../../db/queries/categories";
 import { createSubscription } from "../../../db/queries/subscriptions";
 import { insertSubscriptionSchema } from "../../../db/schema";
-import { PageHeader } from "../../components/layout/page-header";
 import { SubscriptionFormNative } from "../../components/subscriptions/subscription-form-native";
 import type { Route } from "./+types/new";
 
@@ -133,22 +132,16 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function NewSubscriptionPage({ loaderData, actionData }: any) {
 	return (
-		<>
-			{/* ページヘッダー */}
-			<PageHeader
-				title="新規サブスクリプション登録"
-				description="定期支払いサービスを登録して支出を管理しましょう"
-			/>
-
-			{/* フォームコンテンツ */}
-			<div className="max-w-2xl mx-auto px-4 py-8">
-				<div className="bg-white shadow-sm rounded-lg p-6">
-					<SubscriptionFormNative
-						categories={loaderData?.categories || []}
-						actionData={actionData}
-					/>
-				</div>
+		<div className="max-w-2xl mx-auto px-4 py-8">
+			<div className="bg-white shadow-sm rounded-lg p-6">
+				<h2 className="text-2xl font-bold text-gray-900 mb-6">
+					新規サブスクリプション登録
+				</h2>
+				<SubscriptionFormNative
+					categories={loaderData?.categories || []}
+					actionData={actionData}
+				/>
 			</div>
-		</>
+		</div>
 	);
 }
