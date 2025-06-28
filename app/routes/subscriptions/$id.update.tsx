@@ -7,6 +7,7 @@ import {
 	updateSubscription,
 } from "../../../db/queries/subscriptions";
 import { insertSubscriptionSchema } from "../../../db/schema";
+import { PageHeader } from "../../components/layout/page-header";
 import { SubscriptionFormNative } from "../../components/subscriptions/subscription-form-native";
 import type { SelectSubscription } from "../../types";
 import type { Route } from "./+types/$id.update";
@@ -176,15 +177,30 @@ export default function UpdateSubscriptionPage({
 	loaderData,
 	actionData,
 }: any) {
+	const subscription = loaderData?.subscription;
+
 	return (
-		<div className="max-w-2xl mx-auto px-4 py-8">
-			<div className="bg-white shadow-sm rounded-lg p-6">
-				<SubscriptionFormNative
-					subscription={loaderData?.subscription}
-					categories={loaderData?.categories || []}
-					actionData={actionData}
-				/>
+		<>
+			{/* ページヘッダー */}
+			<PageHeader
+				title="サブスクリプション編集"
+				description={
+					subscription
+						? `${subscription.name}の設定を編集します`
+						: "サブスクリプションの設定を編集"
+				}
+			/>
+
+			{/* フォームコンテンツ */}
+			<div className="max-w-2xl mx-auto px-4 py-8">
+				<div className="bg-white shadow-sm rounded-lg p-6">
+					<SubscriptionFormNative
+						subscription={subscription}
+						categories={loaderData?.categories || []}
+						actionData={actionData}
+					/>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
