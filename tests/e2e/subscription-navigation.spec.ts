@@ -24,22 +24,22 @@ test.describe("サブスクリプション管理画面ナビゲーション", ()
 	}) => {
 		// ダッシュボードページにアクセス
 		await page.goto("/");
-		await page.waitForLoadState("networkidle", { timeout: 15000 });
+		await page.waitForLoadState("networkidle", { timeout: 5000 });
 
 		// ダッシュボードページが読み込まれることを確認
 		await expect(page).toHaveTitle(/ダッシュボード.*Saifuu/, {
-			timeout: 10000,
+			timeout: 3000,
 		});
 
 		// ヘッダーナビゲーション内の「サブスク管理」ボタンをクリック
 		const headerSubsButton = page.getByRole("navigation").getByRole("link", {
 			name: "サブスク管理",
 		});
-		await expect(headerSubsButton).toBeVisible({ timeout: 15000 });
+		await expect(headerSubsButton).toBeVisible({ timeout: 5000 });
 		await headerSubsButton.click();
 
 		// URLがサブスクリプション管理画面に遷移することを確認
-		await expect(page).toHaveURL("/subscriptions", { timeout: 10000 });
+		await expect(page).toHaveURL("/subscriptions", { timeout: 3000 });
 
 		// サブスクリプション管理画面が正しく表示されることを確認
 		await subscriptionsPage.expectPageVisible();
@@ -51,22 +51,22 @@ test.describe("サブスクリプション管理画面ナビゲーション", ()
 	}) => {
 		// ダッシュボードページにアクセス
 		await page.goto("/");
-		await page.waitForLoadState("networkidle", { timeout: 15000 });
+		await page.waitForLoadState("networkidle", { timeout: 5000 });
 
 		// ダッシュボードページが読み込まれることを確認
 		await expect(page).toHaveTitle(/ダッシュボード.*Saifuu/, {
-			timeout: 10000,
+			timeout: 3000,
 		});
 
 		// メインコンテンツの「サブスクリプション管理を開始」ボタンをクリック
 		const mainSubsButton = page.getByRole("main").getByRole("link", {
 			name: "サブスクリプション管理を開始",
 		});
-		await expect(mainSubsButton).toBeVisible({ timeout: 15000 });
+		await expect(mainSubsButton).toBeVisible({ timeout: 5000 });
 		await mainSubsButton.click();
 
 		// URLがサブスクリプション管理画面に遷移することを確認
-		await expect(page).toHaveURL("/subscriptions", { timeout: 10000 });
+		await expect(page).toHaveURL("/subscriptions", { timeout: 3000 });
 
 		// サブスクリプション管理画面が正しく表示されることを確認
 		await subscriptionsPage.expectPageVisible();
@@ -78,7 +78,7 @@ test.describe("サブスクリプション管理画面ナビゲーション", ()
 		await subscriptionsPage.goto();
 
 		// URLが正しいことを確認
-		await expect(page).toHaveURL("/subscriptions", { timeout: 10000 });
+		await expect(page).toHaveURL("/subscriptions", { timeout: 3000 });
 
 		// サブスクリプション管理画面が正しく表示されることを確認
 		await subscriptionsPage.expectPageVisible();

@@ -11,6 +11,7 @@
 .mf
 .wrangler
 .dev.vars*
+worker-configuration.d.ts
 
 # Playwright
 /playwright-report/

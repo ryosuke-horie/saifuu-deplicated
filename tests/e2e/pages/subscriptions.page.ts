@@ -35,15 +35,15 @@ export class SubscriptionsPage {
 
 	async waitForLoad() {
 		// ページが読み込まれるまで待機
-		await this.page.waitForLoadState("networkidle", { timeout: 15000 });
+		await this.page.waitForLoadState("networkidle", { timeout: 5000 });
 
 		// ページタイトルが正しく設定されるまで待機
 		await expect(this.page).toHaveTitle(/サブスクリプション管理/, {
-			timeout: 10000,
+			timeout: 3000,
 		});
 
 		// サブスクリプション管理のタイトルが表示されるまで待機
-		await expect(this.subscriptionTitle).toBeVisible({ timeout: 10000 });
+		await expect(this.subscriptionTitle).toBeVisible({ timeout: 3000 });
 	}
 
 	// 要素取得
@@ -62,18 +62,18 @@ export class SubscriptionsPage {
 	// アサーション
 	async expectPageVisible() {
 		// サブスクリプション管理ページが表示されることを確認
-		await expect(this.subscriptionTitle).toBeVisible({ timeout: 10000 });
+		await expect(this.subscriptionTitle).toBeVisible({ timeout: 3000 });
 	}
 
 	async expectPageTitle() {
 		// ページタイトルが正しく設定されることを確認
 		await expect(this.page).toHaveTitle(/サブスクリプション管理/, {
-			timeout: 10000,
+			timeout: 3000,
 		});
 	}
 
 	async expectNewSubscriptionButtonVisible() {
 		// 新規サブスクリプションボタンが表示されることを確認
-		await expect(this.newSubscriptionButton).toBeVisible({ timeout: 10000 });
+		await expect(this.newSubscriptionButton).toBeVisible({ timeout: 3000 });
 	}
 }
