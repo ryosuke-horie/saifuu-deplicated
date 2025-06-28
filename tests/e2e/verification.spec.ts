@@ -78,8 +78,8 @@ test.describe("Final Verification - React 19 + React Router v7 Compatibility", (
 		const dashboardHeading = page.locator("text=ダッシュボード");
 		await expect(dashboardHeading).toBeVisible();
 
-		// Saifuuブランドが表示されていることを確認
-		const brandText = page.locator("text=Saifuu");
+		// Saifuuブランドが表示されていることを確認（ヘッダーの1つ目のみを対象）
+		const brandText = page.locator("header h1:has-text('Saifuu')");
 		await expect(brandText).toBeVisible();
 
 		// 3. コンソールエラーがないことを確認
