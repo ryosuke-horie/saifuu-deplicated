@@ -7,6 +7,9 @@
  * - 型定義も含めて再エクスポート
  */
 
+// 共通コンポーネント
+export * from "./common";
+
 // ダッシュボード関連コンポーネント
 export * from "./dashboard";
 

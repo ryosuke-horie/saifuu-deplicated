@@ -20,10 +20,10 @@ interface ModalProps {
 	isOpen: boolean;
 	/** モーダルを閉じる関数 */
 	onClose: () => void;
+	/** モーダルのタイトル */
+	title: string;
 	/** モーダルの内容 */
 	children: ReactNode;
-	/** モーダルのタイトル（アクセシビリティ用） */
-	title?: string;
 	/** モーダルのサイズ */
 	size?: "sm" | "md" | "lg";
 }
@@ -112,7 +112,7 @@ export function Modal({
 			}}
 			role="dialog"
 			aria-modal="true"
-			aria-labelledby={title ? "modal-title" : undefined}
+			aria-labelledby="modal-title"
 		>
 			{/* オーバーレイ */}
 			<div className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300" />
@@ -124,36 +124,34 @@ export function Modal({
 				}`}
 			>
 				{/* ヘッダー */}
-				{title && (
-					<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-						<h2
-							id="modal-title"
-							className="text-lg sm:text-xl font-semibold text-gray-900 truncate pr-4"
+				<div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+					<h2
+						id="modal-title"
+						className="text-lg sm:text-xl font-semibold text-gray-900 truncate pr-4"
+					>
+						{title}
+					</h2>
+					<button
+						type="button"
+						onClick={onClose}
+						className="flex-shrink-0 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md p-1 transition-colors duration-200"
+						aria-label="モーダルを閉じる"
+					>
+						<svg
+							className="w-6 h-6"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
 						>
-							{title}
-						</h2>
-						<button
-							type="button"
-							onClick={onClose}
-							className="flex-shrink-0 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md p-1 transition-colors duration-200"
-							aria-label="モーダルを閉じる"
-						>
-							<svg
-								className="w-6 h-6"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M6 18L18 6M6 6l12 12"
-								/>
-							</svg>
-						</button>
-					</div>
-				)}
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</button>
+				</div>
 
 				{/* モーダル内容 */}
 				<div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">

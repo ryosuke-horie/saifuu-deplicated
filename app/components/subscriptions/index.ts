@@ -14,6 +14,10 @@ export { SubscriptionCards } from "./subscription-cards";
 // サブスクリプション登録・編集フォームコンポーネント（React Router v7 Native Forms）
 export { SubscriptionFormNative } from "./subscription-form-native";
 
+// サブスクリプション登録・編集フォームモーダルコンポーネント
+export { SubscriptionFormModal } from "./subscription-form-modal";
+export type { SubscriptionFormData } from "./subscription-form-modal";
+
 // サブスクリプション操作アクションコンポーネント
 export {
 	SubscriptionActions,
