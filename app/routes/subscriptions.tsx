@@ -193,7 +193,10 @@ export default function SubscriptionsPage() {
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 				{/* サブスクリプション一覧 */}
 				<div className="space-y-6">
-					<SubscriptionCards onEdit={handleEdit} />
+					<SubscriptionCards
+						onEdit={handleEdit}
+						onCreateNew={handleOpenCreateModal}
+					/>
 				</div>
 			</div>
 

@@ -226,10 +226,18 @@ export function SubscriptionFormModal({
 
 			{/* モーダルコンテンツ */}
 			<div className="flex min-h-full items-center justify-center p-4">
-				<div className="relative w-full max-w-lg transform rounded-lg bg-white p-6 shadow-xl transition-all">
+				<div
+					className="relative w-full max-w-lg transform rounded-lg bg-white p-6 shadow-xl transition-all"
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="modal-title"
+				>
 					{/* ヘッダー */}
 					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-xl font-semibold text-gray-900">
+						<h2
+							id="modal-title"
+							className="text-xl font-semibold text-gray-900"
+						>
 							{mode === "create"
 								? "新規サブスクリプション登録"
 								: "サブスクリプション編集"}

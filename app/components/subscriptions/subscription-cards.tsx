@@ -32,7 +32,11 @@ export interface SubscriptionCardsProps {
 	/**
 	 * 編集ボタンクリック時のコールバック
 	 */
-	onEdit?: (subscription?: SelectSubscription) => void;
+	onEdit?: (subscription: SelectSubscription) => void;
+	/**
+	 * 新規作成ボタンクリック時のコールバック
+	 */
+	onCreateNew?: () => void;
 }
 
 // 表示期間の型定義
@@ -84,6 +88,7 @@ export function SubscriptionCards({
 	compact = false,
 	limit = 50,
 	onEdit,
+	onCreateNew,
 }: SubscriptionCardsProps) {
 	// 表示期間の状態管理
 	const [displayPeriod, setDisplayPeriod] = useState<DisplayPeriod>("monthly");
@@ -252,7 +257,7 @@ export function SubscriptionCards({
 				</p>
 				<button
 					type="button"
-					onClick={() => onEdit?.()} // onEditにundefinedを渡して新規作成を示す
+					onClick={() => onCreateNew?.()}
 					className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
 				>
 					新規サブスクリプション
