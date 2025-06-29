@@ -26,7 +26,7 @@ export interface SubscriptionActionsProps {
 	/**
 	 * 編集ボタンクリック時のコールバック
 	 */
-	onEdit?: (subscription?: SelectSubscription) => void;
+	onEdit?: (subscription: SelectSubscription) => void;
 	/**
 	 * 操作完了時のコールバック
 	 */
