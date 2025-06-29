@@ -7,6 +7,7 @@ export default [
 	route(".well-known/*", "routes/.well-known.tsx"),
 
 	route("subscriptions", "routes/subscriptions.tsx"),
+	route("transactions", "routes/transactions.tsx"),
 
 	// カテゴリAPIエンドポイント
 	route("api/categories", "routes/api/categories/index.ts"),
