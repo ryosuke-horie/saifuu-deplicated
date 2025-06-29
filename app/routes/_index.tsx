@@ -39,6 +39,12 @@ export default function Dashboard() {
 			>
 				サブスク管理
 			</Link>
+			<Link
+				to="/transactions"
+				className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+			>
+				収支管理
+			</Link>
 		</div>
 	);
 
