@@ -6,6 +6,7 @@ import {
 	type SubscriptionFormData,
 	SubscriptionFormModal,
 } from "../components/subscriptions";
+import { ClientOnly } from "../components/utils/client-only";
 import {
 	useCreateSubscription,
 	useSubscriptions,
@@ -42,11 +43,6 @@ export const meta: MetaFunction = () => {
 export default function SubscriptionsPage() {
 	console.log("🏠 [DEBUG] SubscriptionsPage レンダリング開始");
 
-	// ハイドレーション対応: 動的コンテンツ用のクライアント専用状態
-	const [isClient, setIsClient] = useState(false);
-	const [currentTime, setCurrentTime] = useState<string>("");
-	const [randomNumber, setRandomNumber] = useState<string>("");
-
 	// サブスクリプション一覧の再読み込み用
 	const { refetch: refetchSubscriptions } = useSubscriptions();
 
@@ -64,21 +60,6 @@ export default function SubscriptionsPage() {
 		mode: "create",
 		initialData: undefined,
 	});
-
-	// ハイドレーション完了後にクライアント専用コンテンツを初期化
-	useEffect(() => {
-		console.log("🔄 [DEBUG] クライアント側useEffect実行");
-		setIsClient(true);
-		setCurrentTime(new Date().toLocaleTimeString());
-		setRandomNumber(Math.random().toFixed(3));
-		
-		// 時刻を定期更新
-		const interval = setInterval(() => {
-			setCurrentTime(new Date().toLocaleTimeString());
-		}, 1000);
-		
-		return () => clearInterval(interval);
-	}, []);
 
 	// モーダル状態の変更を監視
 	useEffect(() => {
@@ -224,52 +205,13 @@ export default function SubscriptionsPage() {
 
 	return (
 		<>
-			{/* 🔧 DEBUG: ハイドレーション対応JavaScriptテスト */}
+			{/* 🔧 DEBUG: ClientOnlyパターンでJavaScriptテスト */}
 			<div className="bg-red-100 p-4 text-center border-4 border-red-500">
-				<h2 className="text-lg font-bold mb-4">🔧 JavaScript実行テスト (ハイドレーション対応)</h2>
+				<h2 className="text-lg font-bold mb-4">🔧 JavaScript実行テスト (ClientOnlyパターン)</h2>
 
-				{isClient ? (
-					<>
-						{/* 最も基本的なHTML onclick */}
-						<button
-							type="button"
-							className="bg-red-600 text-white px-4 py-2 rounded mr-2 mb-2"
-							onClick={() => alert("HTMLクリック動作")}
-						>
-							1️⃣ HTML onclick
-						</button>
-
-						{/* React onClickハンドラー */}
-						<button
-							type="button"
-							className="bg-orange-600 text-white px-4 py-2 rounded mr-2 mb-2"
-							onClick={() => alert("React onClick動作")}
-						>
-							2️⃣ React onClick
-						</button>
-
-						{/* 複雑なReactハンドラー */}
-						<button
-							type="button"
-							className="bg-purple-600 text-white px-4 py-2 rounded mr-2 mb-2"
-							onClick={() => {
-								console.log("🔥 [DEBUG] 複雑ボタンクリック");
-								alert("🔥 複雑ハンドラー動作");
-								handleOpenCreateModal();
-							}}
-						>
-							3️⃣ 複雑ハンドラー
-						</button>
-
-						{/* JavaScript実行確認 */}
-						<div className="mt-4 p-2 bg-yellow-100 rounded">
-							<p>現在時刻: <span id="current-time">{currentTime}</span></p>
-							<p>React動作中: {randomNumber}</p>
-						</div>
-					</>
-				) : (
-					<p className="text-gray-600">クライアント側読み込み中...</p>
-				)}
+				<ClientOnly fallback={<p className="text-gray-600">クライアント側読み込み中...</p>}>
+					<JavaScriptTestButtons onOpenModal={handleOpenCreateModal} />
+				</ClientOnly>
 			</div>
 
 			{/* ページヘッダー */}
@@ -298,6 +240,66 @@ export default function SubscriptionsPage() {
 				initialData={modalState.initialData}
 				onSubmit={handleFormSubmit}
 			/>
+		</>
+	);
+}
+
+/**
+ * クライアントサイド専用のJavaScriptテストコンポーネント
+ * ClientOnlyパターンで安全にブラウザAPIを使用
+ */
+function JavaScriptTestButtons({ onOpenModal }: { onOpenModal: () => void }) {
+	const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+	const [randomNumber] = useState(Math.random().toFixed(3));
+
+	// クライアントサイドでのみ時刻更新
+	useEffect(() => {
+		console.log("🔄 [DEBUG] JavaScriptTestButtons useEffect実行");
+		const interval = setInterval(() => {
+			setCurrentTime(new Date().toLocaleTimeString());
+		}, 1000);
+		
+		return () => clearInterval(interval);
+	}, []);
+
+	return (
+		<>
+			{/* 最も基本的なHTML onclick */}
+			<button
+				type="button"
+				className="bg-red-600 text-white px-4 py-2 rounded mr-2 mb-2"
+				onClick={() => alert("HTMLクリック動作")}
+			>
+				1️⃣ HTML onclick
+			</button>
+
+			{/* React onClickハンドラー */}
+			<button
+				type="button"
+				className="bg-orange-600 text-white px-4 py-2 rounded mr-2 mb-2"
+				onClick={() => alert("React onClick動作")}
+			>
+				2️⃣ React onClick
+			</button>
+
+			{/* 複雑なReactハンドラー */}
+			<button
+				type="button"
+				className="bg-purple-600 text-white px-4 py-2 rounded mr-2 mb-2"
+				onClick={() => {
+					console.log("🔥 [DEBUG] 複雑ボタンクリック");
+					alert("🔥 複雑ハンドラー動作");
+					onOpenModal();
+				}}
+			>
+				3️⃣ 複雑ハンドラー
+			</button>
+
+			{/* JavaScript実行確認 */}
+			<div className="mt-4 p-2 bg-yellow-100 rounded">
+				<p>現在時刻: <span id="current-time">{currentTime}</span></p>
+				<p>React動作中: {randomNumber}</p>
+			</div>
 		</>
 	);
 }
