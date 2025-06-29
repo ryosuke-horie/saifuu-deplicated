@@ -204,6 +204,23 @@ export default function SubscriptionsPage() {
 
 	return (
 		<>
+			{/* 🔧 DEBUG: 直接ボタンテスト */}
+			<div className="bg-red-100 p-4 text-center">
+				<h2 className="text-lg font-bold mb-2">🔧 直接ボタンテスト</h2>
+				<button
+					type="button"
+					className="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 text-lg font-bold"
+					onClick={() => {
+						alert("🔥 直接ボタンが動作しました！");
+						console.log("🔥 [DEBUG] 直接ボタンクリック成功");
+						handleOpenCreateModal();
+					}}
+					onMouseEnter={() => console.log("🔥 [DEBUG] 直接ボタンマウスオーバー")}
+				>
+					🔥 テスト用ボタン（直接配置）
+				</button>
+			</div>
+
 			{/* ページヘッダー */}
 			<PageHeader
 				title="サブスクリプション管理"
