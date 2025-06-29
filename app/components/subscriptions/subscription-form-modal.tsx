@@ -91,6 +91,11 @@ export function SubscriptionFormModal({
 		rawData: categories.data,
 	});
 
+	// カテゴリAPI直接テスト
+	if (categories.error) {
+		console.error("🏷️ [ERROR] カテゴリ取得エラー:", categories.error);
+	}
+
 	// 支出用カテゴリのみをフィルタリング
 	const expenseCategories = useMemo(() => {
 		return categories.data?.data?.filter(
@@ -232,6 +237,11 @@ export function SubscriptionFormModal({
 	}
 
 	console.log("✅ [DEBUG] モーダルを表示します");
+	console.log("✅ [DEBUG] カテゴリロード状況:", {
+		isLoading: categories.isLoading,
+		hasData: !!categories.data,
+		error: categories.error,
+	});
 
 	return (
 		<div className="fixed inset-0 z-50 overflow-y-auto">
