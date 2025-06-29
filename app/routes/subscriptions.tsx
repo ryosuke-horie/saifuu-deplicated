@@ -204,21 +204,49 @@ export default function SubscriptionsPage() {
 
 	return (
 		<>
-			{/* 🔧 DEBUG: 直接ボタンテスト */}
-			<div className="bg-red-100 p-4 text-center">
-				<h2 className="text-lg font-bold mb-2">🔧 直接ボタンテスト</h2>
+			{/* 🔧 DEBUG: 段階的JavaScriptテスト */}
+			<div className="bg-red-100 p-4 text-center border-4 border-red-500">
+				<h2 className="text-lg font-bold mb-4">🔧 JavaScript実行テスト</h2>
+
+				{/* 最も基本的なHTML onclick */}
 				<button
 					type="button"
-					className="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 text-lg font-bold"
+					className="bg-red-600 text-white px-4 py-2 rounded mr-2 mb-2"
+					onClick={() => alert("HTMLクリック動作")}
+				>
+					1️⃣ HTML onclick
+				</button>
+
+				{/* React onClickハンドラー */}
+				<button
+					type="button"
+					className="bg-orange-600 text-white px-4 py-2 rounded mr-2 mb-2"
+					onClick={() => alert("React onClick動作")}
+				>
+					2️⃣ React onClick
+				</button>
+
+				{/* 複雑なReactハンドラー */}
+				<button
+					type="button"
+					className="bg-purple-600 text-white px-4 py-2 rounded mr-2 mb-2"
 					onClick={() => {
-						alert("🔥 直接ボタンが動作しました！");
-						console.log("🔥 [DEBUG] 直接ボタンクリック成功");
+						console.log("🔥 [DEBUG] 複雑ボタンクリック");
+						alert("🔥 複雑ハンドラー動作");
 						handleOpenCreateModal();
 					}}
-					onMouseEnter={() => console.log("🔥 [DEBUG] 直接ボタンマウスオーバー")}
 				>
-					🔥 テスト用ボタン（直接配置）
+					3️⃣ 複雑ハンドラー
 				</button>
+
+				{/* JavaScript実行確認 */}
+				<div className="mt-4 p-2 bg-yellow-100 rounded">
+					<p>
+						現在時刻:{" "}
+						<span id="current-time">{new Date().toLocaleTimeString()}</span>
+					</p>
+					<p>React動作中: {Math.random().toFixed(3)}</p>
+				</div>
 			</div>
 
 			{/* ページヘッダー */}
