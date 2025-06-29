@@ -257,7 +257,11 @@ export function SubscriptionCards({
 				</p>
 				<button
 					type="button"
-					onClick={() => onCreateNew?.()}
+					onClick={() => {
+						console.log("🟡 [DEBUG] 空状態ボタンクリック開始");
+						onCreateNew?.();
+						console.log("🟡 [DEBUG] 空状態ボタンクリック完了");
+					}}
 					className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
 				>
 					新規サブスクリプション

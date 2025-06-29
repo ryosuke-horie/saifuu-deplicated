@@ -81,6 +81,16 @@ export function SubscriptionFormModal({
 	// カテゴリ一覧を取得（支出用のみ）
 	const categories = useActiveCategories();
 
+	// カテゴリデータのデバッグログ
+	console.log("🏷️ [DEBUG] カテゴリデータ状況:", {
+		isLoading: categories.isLoading,
+		error: categories.error,
+		dataExists: !!categories.data,
+		dataStructure: categories.data ? Object.keys(categories.data) : null,
+		dataCount: categories.data?.data?.length || 0,
+		rawData: categories.data,
+	});
+
 	// 支出用カテゴリのみをフィルタリング
 	const expenseCategories = useMemo(() => {
 		return categories.data?.data?.filter(
@@ -205,8 +215,23 @@ export function SubscriptionFormModal({
 		onClose();
 	}, [resetForm, onClose]);
 
+	// デバッグ用ログ
+	console.log("📋 [DEBUG] SubscriptionFormModal render:", {
+		isOpen,
+		mode,
+		hasInitialData: !!initialData,
+		categoriesLoading: categories.isLoading,
+		categoriesError: categories.error,
+		categoriesCount: categories.data?.data?.length || 0,
+	});
+
 	// モーダルが表示されていない場合は何も表示しない
-	if (!isOpen) return null;
+	if (!isOpen) {
+		console.log("🚫 [DEBUG] モーダルが閉じている状態のため、nullを返します");
+		return null;
+	}
+
+	console.log("✅ [DEBUG] モーダルを表示します");
 
 	return (
 		<div className="fixed inset-0 z-50 overflow-y-auto">

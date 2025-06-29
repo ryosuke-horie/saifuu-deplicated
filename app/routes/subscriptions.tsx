@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { MetaFunction } from "react-router";
 import { PageHeader } from "../components/layout/page-header";
 import {
@@ -40,6 +40,8 @@ export const meta: MetaFunction = () => {
 };
 
 export default function SubscriptionsPage() {
+	console.log("🏠 [DEBUG] SubscriptionsPage レンダリング開始");
+
 	// サブスクリプション一覧の再読み込み用
 	const { refetch: refetchSubscriptions } = useSubscriptions();
 
@@ -58,9 +60,22 @@ export default function SubscriptionsPage() {
 		initialData: undefined,
 	});
 
+	// モーダル状態の変更を監視
+	useEffect(() => {
+		console.log("🔄 [DEBUG] modalState変更:", modalState);
+	}, [modalState]);
+
 	// 新規作成モーダルを開く
 	const handleOpenCreateModal = useCallback(() => {
+		console.log("🚀 [DEBUG] 新規作成ボタンがクリックされました");
+
 		setModalState({
+			isOpen: true,
+			mode: "create",
+			initialData: undefined,
+		});
+
+		console.log("✅ [DEBUG] モーダル状態を更新しました:", {
 			isOpen: true,
 			mode: "create",
 			initialData: undefined,
@@ -140,7 +155,11 @@ export default function SubscriptionsPage() {
 			<button
 				type="button"
 				className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-				onClick={handleOpenCreateModal}
+				onClick={() => {
+					console.log("🔴 [DEBUG] ヘッダーボタンクリック開始");
+					handleOpenCreateModal();
+					console.log("🔴 [DEBUG] ヘッダーボタンクリック完了");
+				}}
 				disabled={createMutation.isPending || updateMutation.isPending}
 			>
 				<svg
