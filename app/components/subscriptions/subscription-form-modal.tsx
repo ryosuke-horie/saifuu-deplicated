@@ -79,18 +79,14 @@ export function SubscriptionFormModal({
 	onSubmit,
 }: SubscriptionFormModalProps) {
 	// カテゴリ一覧を取得（支出用のみ）
-	const {
-		data: categoriesResponse,
-		isLoading: isCategoriesLoading,
-		error: categoriesError,
-	} = useActiveCategories();
+	const categories = useActiveCategories();
 
 	// 支出用カテゴリのみをフィルタリング
 	const expenseCategories = useMemo(() => {
-		return categoriesResponse?.data.filter(
+		return categories.data?.data?.filter(
 			(category) => category.type === "expense",
 		);
-	}, [categoriesResponse]);
+	}, [categories.data]);
 
 	// フォーム状態の管理
 	const [formData, setFormData] = useState<SubscriptionFormData>(() => ({
@@ -272,7 +268,7 @@ export function SubscriptionFormModal({
 								onChange={(e) =>
 									updateField("categoryId", Number(e.target.value))
 								}
-								disabled={isCategoriesLoading}
+								disabled={categories.isLoading}
 								className={`w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 sm:text-sm ${
 									errors.categoryId
 										? "border-red-300 focus:ring-red-500 focus:border-red-500"
@@ -289,7 +285,7 @@ export function SubscriptionFormModal({
 							{errors.categoryId && (
 								<p className="mt-1 text-sm text-red-600">{errors.categoryId}</p>
 							)}
-							{categoriesError && (
+							{categories.error && (
 								<p className="mt-1 text-sm text-red-600">
 									カテゴリの読み込みに失敗しました
 								</p>
